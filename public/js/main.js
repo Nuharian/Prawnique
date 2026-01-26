@@ -462,8 +462,8 @@ class WaveController {
                 // Sine wave formula: y = A * sin(kx + wt + phi)
                 const y = Math.sin(x * layer.frequency + this.time * layer.speed + layer.phase) * layer.amplitude;
                 // Offset y to fill the bottom part properly
-                // Raise the wave level (smaller Y is higher up). Center around 150.
-                const yPos = 150 + y;
+                // Raise the wave level further (smaller Y is higher up). Center around 100.
+                const yPos = 100 + y;
                 pathData += ` L ${x} ${yPos}`;
             }
 
