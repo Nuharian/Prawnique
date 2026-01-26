@@ -423,7 +423,7 @@ class WaveController {
             document.getElementById('wavePath3')
         ];
         this.running = false;
-        this.width = window.innerWidth;
+        this.width = 1440; // Match SVG viewBox width
         this.height = 320; // Match SVG viewBox height
         this.time = 0;
 
@@ -434,9 +434,7 @@ class WaveController {
             { amplitude: 15, frequency: 0.012, speed: 0.02, phase: 4 }
         ];
 
-        window.addEventListener('resize', () => {
-            this.width = window.innerWidth;
-        });
+        // No resize listener needed
     }
 
     start() {
