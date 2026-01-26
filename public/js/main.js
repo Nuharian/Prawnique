@@ -424,7 +424,7 @@ class WaveController {
         ];
         this.running = false;
         this.width = window.innerWidth;
-        this.height = 150; // Match CSS height
+        this.height = 320; // Match SVG viewBox height
         this.time = 0;
 
         // Configuration for each wave layer
@@ -463,7 +463,7 @@ class WaveController {
             for (let x = 0; x <= this.width; x += 10) {
                 // Sine wave formula: y = A * sin(kx + wt + phi)
                 const y = Math.sin(x * layer.frequency + this.time * layer.speed + layer.phase) * layer.amplitude;
-                const yPos = (this.height * 0.6) + y;
+                const yPos = 250 + y;
                 pathData += ` L ${x} ${yPos}`;
             }
 
