@@ -14,13 +14,14 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
 </head>
 
 <body>
     <!-- Navigation -->
     <nav class="navbar scrolled" id="navbar">
         <div class="container">
-            <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+            <a href="/" class="logo"><img src="/img/logo.png" alt="Prawnique" class="logo-image"></a>
             <div class="nav-links" id="navLinks">
                 <a href="/">Home</a>
                 <a href="/products.html">Products</a>
@@ -85,38 +86,40 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-about">
-                    <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
-                    <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                    <div class="footer-about">
+                        <a href="/" class="logo"><img src="/img/logo.png" alt="Prawnique" class="logo-image"></a>
+                        <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                        <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                    </div>
+                    <div class="footer-links-section">
+                        <h4 class="footer-title">Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="/about.html">About Us</a></li>
+                            <li><a href="/products.html">Products</a></li>
+                            <li><a href="/team.html">Our Team</a></li>
+                            <li><a href="/contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links-section">
+                        <h4 class="footer-title">Products</h4>
+                        <ul class="footer-links">
+                            <li><a href="/products.html?category=black-tiger-shrimp">Black Tiger Shrimp</a></li>
+                            <li><a href="/products.html?category=freshwater-prawns">Freshwater Prawns</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-newsletter">
+                        <h4 class="footer-title">Newsletter</h4>
+                        <p>Subscribe for updates.</p>
+                        <form class="newsletter-form" id="newsletterForm">
+                            <input type="email" placeholder="Your email" required>
+                            <button type="submit">Subscribe</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="footer-links-section">
-                    <h4 class="footer-title">Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="/about.html">About Us</a></li>
-                        <li><a href="/products.html">Products</a></li>
-                        <li><a href="/team.html">Our Team</a></li>
-                        <li><a href="/contact.html">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links-section">
-                    <h4 class="footer-title">Products</h4>
-                    <ul class="footer-links">
-                        <li><a href="/products.html?category=black-tiger-shrimp">Black Tiger Shrimp</a></li>
-                        <li><a href="/products.html?category=freshwater-prawns">Freshwater Prawns</a></li>
-                    </ul>
-                </div>
-                <div class="footer-newsletter">
-                    <h4 class="footer-title">Newsletter</h4>
-                    <p>Subscribe for updates.</p>
-                    <form class="newsletter-form" id="newsletterForm">
-                        <input type="email" placeholder="Your email" required>
-                        <button type="submit">Subscribe</button>
-                    </form>
+                <div class="footer-bottom">
+                    <p>© 2026 Prawnique. All rights reserved.</p>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>© 2026 Prawnique. All rights reserved.</p>
-            </div>
-        </div>
     </footer>
 
     <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
