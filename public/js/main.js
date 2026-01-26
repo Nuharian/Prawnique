@@ -429,9 +429,9 @@ class WaveController {
 
         // Configuration for each wave layer
         this.layers = [
-            { amplitude: 20, frequency: 0.005, speed: 0.03, phase: 0 },
-            { amplitude: 15, frequency: 0.008, speed: 0.02, phase: 2 },
-            { amplitude: 10, frequency: 0.012, speed: 0.015, phase: 4 }
+            { amplitude: 30, frequency: 0.005, speed: 0.04, phase: 0 },
+            { amplitude: 25, frequency: 0.008, speed: 0.03, phase: 2 },
+            { amplitude: 15, frequency: 0.012, speed: 0.02, phase: 4 }
         ];
 
         window.addEventListener('resize', () => {
@@ -463,7 +463,9 @@ class WaveController {
             for (let x = 0; x <= this.width; x += 10) {
                 // Sine wave formula: y = A * sin(kx + wt + phi)
                 const y = Math.sin(x * layer.frequency + this.time * layer.speed + layer.phase) * layer.amplitude;
-                const yPos = 250 + y;
+                // Offset y to fill the bottom part properly
+                // viewBox is 320. Center wave around 180 to make it taller/more visible
+                const yPos = 180 + y;
                 pathData += ` L ${x} ${yPos}`;
             }
 
