@@ -1165,7 +1165,9 @@ function initSettingsForm() {
             twitter_url: document.getElementById('twitterUrl').value,
             instagram_url: document.getElementById('instagramUrl').value,
             linkedin_url: document.getElementById('linkedinUrl').value,
-            footer_text: document.getElementById('footerText').value
+            linkedin_url: document.getElementById('linkedinUrl').value,
+            footer_text: document.getElementById('footerText').value,
+            wave_animation_type: document.getElementById('waveAnimationType').value
         };
 
         try {
@@ -1198,7 +1200,9 @@ async function loadSettings() {
         document.getElementById('twitterUrl').value = settings.twitter_url || '';
         document.getElementById('instagramUrl').value = settings.instagram_url || '';
         document.getElementById('linkedinUrl').value = settings.linkedin_url || '';
+        document.getElementById('linkedinUrl').value = settings.linkedin_url || '';
         document.getElementById('footerText').value = settings.footer_text || '';
+        document.getElementById('waveAnimationType').value = settings.wave_animation_type || 'realistic';
     } catch (error) {
         console.error('Failed to load settings:', error);
     }

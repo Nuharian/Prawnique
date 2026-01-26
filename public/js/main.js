@@ -368,6 +368,21 @@ async function loadSiteSettings() {
         const response = await fetch('/api/settings');
         const settings = await response.json();
 
+        // Update wave animation
+        const waveContainer = document.querySelector('.wave-container');
+        if (waveContainer) {
+            const waves = waveContainer.querySelectorAll('.wave');
+            const animationType = settings.wave_animation_type || 'realistic'; // Default to realistic
+
+            waves.forEach(wave => {
+                if (animationType === 'realistic') {
+                    wave.classList.add('realistic');
+                } else {
+                    wave.classList.remove('realistic');
+                }
+            });
+        }
+
         // Update footer text
         const footerText = document.getElementById('footerText');
         if (footerText && settings.footer_text) {
@@ -378,6 +393,11 @@ async function loadSiteSettings() {
         updateSocialLinks(settings);
     } catch (error) {
         console.log('Using default settings');
+        // Default to realistic on error
+        const waveContainer = document.querySelector('.wave-container');
+        if (waveContainer) {
+            waveContainer.querySelectorAll('.wave').forEach(w => w.classList.add('realistic'));
+        }
     }
 }
 

@@ -223,14 +223,21 @@ async function initLocalDb() {
   const initSqlJs = require('sql.js');
   const fs = require('fs');
   const path = require('path');
-  const dbPath = path.join(__dirname, 'prawnique.db');
+
+  // Use /tmp directory on Vercel, otherwise use current directory
+  const dbDir = process.env.VERCEL ? '/tmp' : __dirname;
+  const dbPath = path.join(dbDir, 'prawnique.db');
+
+  console.log(`Initializing SQLite database at ${dbPath}`);
 
   const SQL = await initSqlJs();
 
   if (fs.existsSync(dbPath)) {
+    console.log('Loading existing database file');
     const buffer = fs.readFileSync(dbPath);
     localDb = new SQL.Database(buffer);
   } else {
+    console.log('Creating new database instance');
     localDb = new SQL.Database();
   }
 
@@ -257,8 +264,13 @@ async function initLocalDb() {
   }
 
   // Save to file
-  const data = localDb.export();
-  fs.writeFileSync(dbPath, Buffer.from(data));
+  try {
+    const data = localDb.export();
+    fs.writeFileSync(dbPath, Buffer.from(data));
+    console.log('Database saved to disk');
+  } catch (err) {
+    console.error('Failed to save database to disk:', err);
+  }
 
   console.log('Local SQLite initialized');
 }
@@ -309,8 +321,15 @@ async function run(sqlQuery, params = []) {
       // Save to file
       const fs = require('fs');
       const path = require('path');
-      const data = localDb.export();
-      fs.writeFileSync(path.join(__dirname, 'prawnique.db'), Buffer.from(data));
+      const dbDir = process.env.VERCEL ? '/tmp' : __dirname;
+      const dbPath = path.join(dbDir, 'prawnique.db');
+
+      try {
+        const data = localDb.export();
+        fs.writeFileSync(dbPath, Buffer.from(data));
+      } catch (err) {
+        console.error('Warning: Could not save DB to disk', err);
+      }
       return { lastInsertRowid: localDb.exec("SELECT last_insert_rowid()")[0]?.values[0]?.[0] || 0 };
     } catch (e) {
       throw e;

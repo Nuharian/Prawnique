@@ -3,29 +3,22 @@
     "builds": [
         {
             "src": "server.js",
-            "use": "@vercel/node"
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "public/**",
+                    "admin/**",
+                    "utils/**",
+                    "database/**",
+                    "views/**"
+                ]
+            }
         }
     ],
     "routes": [
         {
-            "src": "/uploads/(.*)",
-            "dest": "/server.js"
-        },
-        {
-            "src": "/api/(.*)",
-            "dest": "/server.js"
-        },
-        {
-            "src": "/admin/(.*)",
-            "dest": "/admin/$1"
-        },
-        {
-            "src": "/admin",
-            "dest": "/admin/index.html"
-        },
-        {
             "src": "/(.*)",
-            "dest": "/public/$1"
+            "dest": "/server.js"
         }
     ]
 }
