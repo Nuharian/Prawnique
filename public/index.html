@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Prawnique - Premium prawns naturally sourced from Bangladesh. Quality seafood you can trust.">
+  <meta name="description"
+    content="Prawnique - Premium prawns naturally sourced from Bangladesh. Quality seafood you can trust.">
   <title>Prawnique - Premium Prawns, Naturally Sourced</title>
-  
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <!-- Styles -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
   <!-- Navigation -->
   <nav class="navbar" id="navbar">
@@ -25,7 +30,7 @@
         <span class="logo-icon">🦐</span>
         <span>Prawnique</span>
       </a>
-      
+
       <div class="nav-links" id="navLinks">
         <a href="/" class="active">Home</a>
         <a href="/products.html">Products</a>
@@ -36,7 +41,7 @@
         <a href="/contact.html">Contact</a>
         <a href="/contact.html" class="btn btn-primary nav-cta">Get Quote</a>
       </div>
-      
+
       <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
         <span></span>
         <span></span>
@@ -53,10 +58,10 @@
       <div class="hero-slide active" style="background: linear-gradient(135deg, #0a2342 0%, #1a4a6e 100%);">
       </div>
     </div>
-    
+
     <!-- Overlay -->
     <div class="hero-overlay"></div>
-    
+
     <!-- Floating Bubbles -->
     <div class="bubbles">
       <div class="bubble"></div>
@@ -70,22 +75,23 @@
       <div class="bubble"></div>
       <div class="bubble"></div>
     </div>
-    
+
     <!-- Hero Content -->
     <div class="hero-content">
       <h1 id="heroTitle">Premium Prawns, Naturally Sourced</h1>
-      <p id="heroSubtitle">From the pristine waters of Bangladesh to your table — experience the finest quality prawns cultivated with care and delivered with excellence.</p>
+      <p id="heroSubtitle">From the pristine waters of Bangladesh to your table — experience the finest quality prawns
+        cultivated with care and delivered with excellence.</p>
       <div class="hero-buttons">
         <a href="/products.html" class="btn btn-primary">Explore Products</a>
         <a href="/contact.html" class="btn btn-secondary">Contact Us</a>
       </div>
     </div>
-    
+
     <!-- Slider Navigation -->
     <div class="slider-nav" id="sliderNav">
       <!-- Dots generated dynamically -->
     </div>
-    
+
     <!-- Slider Arrows -->
     <button class="slider-arrow prev" id="sliderPrev" aria-label="Previous slide">
       <i class="fas fa-chevron-left"></i>
@@ -93,12 +99,29 @@
     <button class="slider-arrow next" id="sliderNext" aria-label="Next slide">
       <i class="fas fa-chevron-right"></i>
     </button>
-    
+
     <!-- Water Waves -->
     <div class="wave-container">
-      <div class="wave"></div>
-      <div class="wave"></div>
-      <div class="wave"></div>
+      <!-- Classic Mode: CSS Backgrounds -->
+      <div id="waveClassic" class="wave-classic-layer">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+      </div>
+
+      <!-- Realistic Mode: Inline SVG -->
+      <svg id="waveRealistic" class="wave-realistic-svg" preserveAspectRatio="none" viewBox="0 0 1440 320"
+        style="display: none;">
+        <defs>
+          <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <path id="wavePath1" fill="#f8f9fa" fill-opacity="1"></path>
+        <path id="wavePath2" fill="#f8f9fa" fill-opacity="0.5"></path>
+        <path id="wavePath3" fill="#f8f9fa" fill-opacity="0.3"></path>
+      </svg>
     </div>
   </section>
 
@@ -107,16 +130,20 @@
     <div class="container">
       <div class="about-grid">
         <div class="about-image fade-in-left">
-          <img src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop" alt="Fresh prawns from Prawnique" id="aboutImage">
+          <img src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop"
+            alt="Fresh prawns from Prawnique" id="aboutImage">
         </div>
         <div class="about-content fade-in-right">
           <span class="section-subtitle">About Us</span>
           <h2 id="aboutTitle">Your Trusted Seafood Partner</h2>
           <p id="aboutContent">
-            We are dedicated to providing the highest quality prawns and seafood products. With years of experience in aquaculture and a commitment to sustainability, we ensure every product meets international standards of quality and freshness.
+            We are dedicated to providing the highest quality prawns and seafood products. With years of experience in
+            aquaculture and a commitment to sustainability, we ensure every product meets international standards of
+            quality and freshness.
           </p>
           <p>
-            From our carefully managed farms in the coastal regions of Bangladesh to processing facilities that meet global safety standards, every step of our process is designed to deliver excellence.
+            From our carefully managed farms in the coastal regions of Bangladesh to processing facilities that meet
+            global safety standards, every step of our process is designed to deliver excellence.
           </p>
           <div class="about-stats stagger-in">
             <div class="stat-item">
@@ -150,7 +177,7 @@
         <h2>Premium Seafood Selection</h2>
         <p>Discover our range of premium prawns and seafood, sourced responsibly and processed with care.</p>
       </div>
-      
+
       <div class="grid grid-4 stagger-in" id="featuredProducts">
         <!-- Products loaded dynamically -->
         <div class="card product-card skeleton" style="height: 380px;"></div>
@@ -158,7 +185,7 @@
         <div class="card product-card skeleton" style="height: 380px;"></div>
         <div class="card product-card skeleton" style="height: 380px;"></div>
       </div>
-      
+
       <div class="text-center" style="margin-top: 3rem;">
         <a href="/products.html" class="btn btn-outline">View All Products</a>
       </div>
@@ -173,7 +200,7 @@
         <h2 style="color: white;">The Prawnique Difference</h2>
         <p style="color: rgba(255,255,255,0.8);">Quality you can trust, freshness you can taste.</p>
       </div>
-      
+
       <div class="grid grid-4 stagger-in">
         <div class="feature-item">
           <div class="feature-icon">
@@ -215,7 +242,7 @@
         <h2>What Our Clients Say</h2>
         <p>Trusted by seafood importers and distributors worldwide.</p>
       </div>
-      
+
       <div class="grid grid-3 stagger-in" id="testimonialsList">
         <!-- Testimonials loaded dynamically or show defaults -->
         <div class="testimonial-card">
@@ -227,10 +254,12 @@
             <i class="fas fa-star"></i>
           </div>
           <p class="testimonial-content">
-            "Prawnique has been our trusted supplier for over 5 years. Their consistency in quality and timely deliveries have made them an invaluable partner."
+            "Prawnique has been our trusted supplier for over 5 years. Their consistency in quality and timely
+            deliveries have made them an invaluable partner."
           </p>
           <div class="testimonial-author">
-            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="Client">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+              alt="Client">
             <div class="testimonial-author-info">
               <h4>James Wilson</h4>
               <span>Seafood Imports Ltd, UK</span>
@@ -246,10 +275,12 @@
             <i class="fas fa-star"></i>
           </div>
           <p class="testimonial-content">
-            "The quality of their Black Tiger Shrimp is exceptional. Our customers in Japan appreciate the freshness and taste. Highly recommended!"
+            "The quality of their Black Tiger Shrimp is exceptional. Our customers in Japan appreciate the freshness and
+            taste. Highly recommended!"
           </p>
           <div class="testimonial-author">
-            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" alt="Client">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
+              alt="Client">
             <div class="testimonial-author-info">
               <h4>Yuki Tanaka</h4>
               <span>Tokyo Seafood Co., Japan</span>
@@ -265,10 +296,12 @@
             <i class="fas fa-star"></i>
           </div>
           <p class="testimonial-content">
-            "Professional team, excellent communication, and top-notch products. Prawnique understands what international buyers need."
+            "Professional team, excellent communication, and top-notch products. Prawnique understands what
+            international buyers need."
           </p>
           <div class="testimonial-author">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Client">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
+              alt="Client">
             <div class="testimonial-author-info">
               <h4>Michael Schmidt</h4>
               <span>Euro Foods GmbH, Germany</span>
@@ -287,7 +320,7 @@
         <h2>From Our Blog</h2>
         <p>Stay updated with industry news and company updates.</p>
       </div>
-      
+
       <div class="grid grid-3 stagger-in" id="latestNews">
         <!-- News loaded dynamically or show placeholders -->
         <div class="card news-card">
@@ -299,7 +332,8 @@
               <span class="card-date"><i class="far fa-calendar"></i> Jan 15, 2026</span>
             </div>
             <h4 class="card-title">Sustainable Aquaculture Practices for 2026</h4>
-            <p class="card-excerpt">Discover how we're implementing new eco-friendly farming methods to reduce environmental impact...</p>
+            <p class="card-excerpt">Discover how we're implementing new eco-friendly farming methods to reduce
+              environmental impact...</p>
             <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
@@ -312,7 +346,8 @@
               <span class="card-date"><i class="far fa-calendar"></i> Jan 10, 2026</span>
             </div>
             <h4 class="card-title">Prawnique Expands to European Markets</h4>
-            <p class="card-excerpt">We're excited to announce our new partnership with leading distributors across Europe...</p>
+            <p class="card-excerpt">We're excited to announce our new partnership with leading distributors across
+              Europe...</p>
             <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
@@ -325,12 +360,13 @@
               <span class="card-date"><i class="far fa-calendar"></i> Jan 5, 2026</span>
             </div>
             <h4 class="card-title">Quality Certifications Renewed</h4>
-            <p class="card-excerpt">Our facilities have successfully renewed HACCP, BAP, and EU certifications for 2026...</p>
+            <p class="card-excerpt">Our facilities have successfully renewed HACCP, BAP, and EU certifications for
+              2026...</p>
             <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>
       </div>
-      
+
       <div class="text-center" style="margin-top: 3rem;">
         <a href="/news.html" class="btn btn-outline">View All News</a>
       </div>
@@ -343,7 +379,8 @@
       <div class="fade-in">
         <h2 style="color: white; margin-bottom: 1rem;">Ready to Partner With Us?</h2>
         <p style="max-width: 600px; margin: 0 auto 2rem; opacity: 0.9;">
-          Get in touch today to discuss your seafood requirements. We offer competitive pricing, reliable supply, and exceptional quality.
+          Get in touch today to discuss your seafood requirements. We offer competitive pricing, reliable supply, and
+          exceptional quality.
         </p>
         <div class="hero-buttons" style="justify-content: center;">
           <a href="/contact.html" class="btn btn-primary">Request a Quote</a>
@@ -363,7 +400,8 @@
             <span>Prawnique</span>
           </a>
           <p>
-            Your trusted partner for premium quality prawns and seafood products. Sustainably sourced from the coastal waters of Bangladesh.
+            Your trusted partner for premium quality prawns and seafood products. Sustainably sourced from the coastal
+            waters of Bangladesh.
           </p>
           <div class="contact-social">
             <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -372,7 +410,7 @@
             <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
           </div>
         </div>
-        
+
         <div class="footer-links-section">
           <h4 class="footer-title">Quick Links</h4>
           <ul class="footer-links">
@@ -384,7 +422,7 @@
             <li><a href="/contact.html">Contact</a></li>
           </ul>
         </div>
-        
+
         <div class="footer-links-section">
           <h4 class="footer-title">Products</h4>
           <ul class="footer-links" id="footerProducts">
@@ -394,7 +432,7 @@
             <li><a href="/products.html?category=specialty-prawns">Specialty Prawns</a></li>
           </ul>
         </div>
-        
+
         <div class="footer-newsletter">
           <h4 class="footer-title">Newsletter</h4>
           <p>Subscribe to get the latest news and offers.</p>
@@ -404,7 +442,7 @@
           </form>
         </div>
       </div>
-      
+
       <div class="footer-bottom">
         <p id="footerText">© 2026 Prawnique. All rights reserved.</p>
         <p>Designed with 💙 for seafood lovers</p>
@@ -420,4 +458,5 @@
   <!-- Main JavaScript -->
   <script src="/js/main.js"></script>
 </body>
+
 </html>

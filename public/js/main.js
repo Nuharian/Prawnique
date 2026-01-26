@@ -368,20 +368,9 @@ async function loadSiteSettings() {
         const response = await fetch('/api/settings');
         const settings = await response.json();
 
-        // Update wave animation
-        const waveContainer = document.querySelector('.wave-container');
-        if (waveContainer) {
-            const waves = waveContainer.querySelectorAll('.wave');
-            const animationType = settings.wave_animation_type || 'realistic'; // Default to realistic
-
-            waves.forEach(wave => {
-                if (animationType === 'realistic') {
-                    wave.classList.add('realistic');
-                } else {
-                    wave.classList.remove('realistic');
-                }
-            });
-        }
+        // Wave Animation Toggle
+        const animationType = settings.wave_animation_type || 'realistic';
+        initWaveAnimation(animationType);
 
         // Update footer text
         const footerText = document.getElementById('footerText');
@@ -393,11 +382,96 @@ async function loadSiteSettings() {
         updateSocialLinks(settings);
     } catch (error) {
         console.log('Using default settings');
-        // Default to realistic on error
-        const waveContainer = document.querySelector('.wave-container');
-        if (waveContainer) {
-            waveContainer.querySelectorAll('.wave').forEach(w => w.classList.add('realistic'));
+        initWaveAnimation('realistic');
+    }
+}
+
+// ============================================
+// WAVE ANIMATION CONTROLLER
+// ============================================
+
+let waveController = null;
+
+function initWaveAnimation(type) {
+    const classicLayer = document.getElementById('waveClassic');
+    const realisticLayer = document.getElementById('waveRealistic');
+
+    if (type === 'realistic') {
+        if (classicLayer) classicLayer.style.display = 'none';
+        if (realisticLayer) realisticLayer.style.display = 'block';
+
+        if (!waveController) {
+            waveController = new WaveController();
         }
+        waveController.start();
+    } else {
+        if (classicLayer) classicLayer.style.display = 'block';
+        if (realisticLayer) realisticLayer.style.display = 'none';
+
+        if (waveController) {
+            waveController.stop();
+        }
+    }
+}
+
+class WaveController {
+    constructor() {
+        this.svg = document.getElementById('waveRealistic');
+        this.paths = [
+            document.getElementById('wavePath1'),
+            document.getElementById('wavePath2'),
+            document.getElementById('wavePath3')
+        ];
+        this.running = false;
+        this.width = window.innerWidth;
+        this.height = 150; // Match CSS height
+        this.time = 0;
+
+        // Configuration for each wave layer
+        this.layers = [
+            { amplitude: 20, frequency: 0.005, speed: 0.03, phase: 0 },
+            { amplitude: 15, frequency: 0.008, speed: 0.02, phase: 2 },
+            { amplitude: 10, frequency: 0.012, speed: 0.015, phase: 4 }
+        ];
+
+        window.addEventListener('resize', () => {
+            this.width = window.innerWidth;
+        });
+    }
+
+    start() {
+        if (this.running) return;
+        this.running = true;
+        this.animate();
+    }
+
+    stop() {
+        this.running = false;
+    }
+
+    animate() {
+        if (!this.running) return;
+
+        this.time += 1;
+
+        this.layers.forEach((layer, index) => {
+            if (!this.paths[index]) return;
+
+            let pathData = `M 0 ${this.height}`; // Start bottom left
+
+            // Calculate points along the width
+            for (let x = 0; x <= this.width; x += 10) {
+                // Sine wave formula: y = A * sin(kx + wt + phi)
+                const y = Math.sin(x * layer.frequency + this.time * layer.speed + layer.phase) * layer.amplitude;
+                const yPos = (this.height * 0.6) + y;
+                pathData += ` L ${x} ${yPos}`;
+            }
+
+            pathData += ` L ${this.width} ${this.height} Z`; // Close path
+            this.paths[index].setAttribute('d', pathData);
+        });
+
+        requestAnimationFrame(() => this.animate());
     }
 }
 
