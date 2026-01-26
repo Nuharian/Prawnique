@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Meet the dedicated team behind Prawnique. Our experts in aquaculture, quality control, and international trade.">
+    <title>Our Team - Prawnique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container">
+            <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/products.html">Products</a>
+                <a href="/about.html">About Us</a>
+                <a href="/team.html" class="active">Team</a>
+                <a href="/news.html">News</a>
+                <a href="/gallery.html">Gallery</a>
+                <a href="/contact.html">Contact</a>
+                <a href="/contact.html" class="btn btn-primary nav-cta">Get Quote</a>
+            </div>
+            <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Our Team</h1>
+            <p>Meet the passionate professionals dedicated to bringing you the finest seafood products.</p>
+            <nav class="breadcrumb"><a href="/">Home</a> <span>/</span> <span>Team</span></nav>
+        </div>
+    </header>
+
+    <!-- Team Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-subtitle">The People Behind Prawnique</span>
+                <h2>Excellence Through Expertise</h2>
+                <p>Our team combines decades of experience in aquaculture, international trade, and quality management.
+                </p>
+            </div>
+
+            <div class="grid grid-4 stagger-in" id="teamGrid">
+                <!-- Team members loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Join Team CTA -->
+    <section class="section" style="background: var(--pearl-cream);">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center;">
+                <div class="fade-in-left">
+                    <span class="section-subtitle">Careers</span>
+                    <h2>Join Our Team</h2>
+                    <p>We're always looking for talented individuals who share our passion for quality and
+                        sustainability. If you're interested in being part of the Prawnique family, we'd love to hear
+                        from you.</p>
+                    <a href="/contact.html" class="btn btn-ocean" style="margin-top: 1.5rem;">Contact Us</a>
+                </div>
+                <div class="fade-in-right">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=400&fit=crop"
+                        alt="Join our team" style="border-radius: 16px; box-shadow: var(--shadow-xl);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+                    <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about.html">About Us</a></li>
+                        <li><a href="/products.html">Products</a></li>
+                        <li><a href="/team.html">Our Team</a></li>
+                        <li><a href="/contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Products</h4>
+                    <ul class="footer-links">
+                        <li><a href="/products.html?category=black-tiger-shrimp">Black Tiger Shrimp</a></li>
+                        <li><a href="/products.html?category=freshwater-prawns">Freshwater Prawns</a></li>
+                    </ul>
+                </div>
+                <div class="footer-newsletter">
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p>Subscribe for updates.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Prawnique. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
+
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadTeam);
+
+        async function loadTeam() {
+            const grid = document.getElementById('teamGrid');
+            try {
+                const response = await fetch('/api/team');
+                const members = await response.json();
+
+                if (members.length > 0) {
+                    grid.innerHTML = members.map(m => createTeamCard(m)).join('');
+                } else {
+                    grid.innerHTML = getDefaultTeam();
+                }
+            } catch (error) {
+                grid.innerHTML = getDefaultTeam();
+            }
+        }
+
+        function createTeamCard(m) {
+            return `
+        <div class="card team-card">
+          <div class="card-image">
+            <img src="${m.image_path || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face'}" alt="${m.name}">
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">${m.name}</h4>
+            <p class="member-position">${m.position || 'Team Member'}</p>
+            <p class="card-text" style="font-size: 0.9rem; margin-top: 0.5rem;">${m.bio || ''}</p>
+            <div class="social-links">
+              ${m.email ? `<a href="mailto:${m.email}" title="Email"><i class="fas fa-envelope"></i></a>` : ''}
+              ${m.linkedin ? `<a href="${m.linkedin}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+        }
+
+        function getDefaultTeam() {
+            const defaults = [
+                { name: 'Mohammad Rahman', position: 'CEO & Founder', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face', bio: 'Over 20 years of experience in the seafood industry.' },
+                { name: 'Sarah Chen', position: 'Quality Director', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face', bio: 'Expert in international food safety standards.' },
+                { name: 'Ahmed Khan', position: 'Operations Manager', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face', bio: 'Managing our farm-to-export operations.' },
+                { name: 'Lisa Johnson', position: 'Export Manager', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face', bio: 'Coordinating global shipments and client relations.' }
+            ];
+            return defaults.map(m => `
+        <div class="card team-card">
+          <div class="card-image"><img src="${m.image}" alt="${m.name}"></div>
+          <div class="card-content">
+            <h4 class="card-title">${m.name}</h4>
+            <p class="member-position">${m.position}</p>
+            <p class="card-text" style="font-size: 0.9rem; margin-top: 0.5rem;">${m.bio}</p>
+          </div>
+        </div>
+      `).join('');
+        }
+    </script>
+</body>
+
+</html>

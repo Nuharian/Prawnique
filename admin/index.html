@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Prawnique CMS</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Admin Styles -->
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <div class="login-header">
+                <span class="logo-icon">🦐</span>
+                <h1>Prawnique</h1>
+                <p>Admin Panel</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <p class="login-error" id="loginError"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-wrapper" id="adminWrapper" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="logo-icon">🦐</span>
+                <span class="sidebar-title">Prawnique</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#slider" class="nav-item" data-section="slider">
+                    <i class="fas fa-images"></i>
+                    <span>Homepage Slider</span>
+                </a>
+                <a href="#sections" class="nav-item" data-section="sections">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Page Sections</span>
+                </a>
+                <a href="#products" class="nav-item" data-section="products">
+                    <i class="fas fa-shrimp"></i>
+                    <span>Products</span>
+                </a>
+                <a href="#team" class="nav-item" data-section="team">
+                    <i class="fas fa-users"></i>
+                    <span>Team Members</span>
+                </a>
+                <a href="#news" class="nav-item" data-section="news">
+                    <i class="fas fa-newspaper"></i>
+                    <span>News / Blog</span>
+                </a>
+                <a href="#gallery" class="nav-item" data-section="gallery">
+                    <i class="fas fa-photo-video"></i>
+                    <span>Gallery</span>
+                </a>
+                <a href="#contacts" class="nav-item" data-section="contacts">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Messages</span>
+                </a>
+                <a href="#settings" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/" target="_blank" class="nav-item">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Website</span>
+                </a>
+                <button class="nav-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 id="pageTitle">Dashboard</h2>
+                <div class="topbar-right">
+                    <span id="adminName">Admin</span>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <section class="content-section active" id="section-dashboard">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b6b, #e85555);">
+                                <i class="fas fa-shrimp"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statProducts">0</span>
+                                <span class="stat-label">Products</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #88d8b0, #6bc29a);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statTeam">0</span>
+                                <span class="stat-label">Team Members</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #5a6fd6);">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statNews">0</span>
+                                <span class="stat-label">News Posts</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ffd93d, #e6c235);">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="statContacts">0</span>
+                                <span class="stat-label">Unread Messages</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Quick Actions</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="quick-actions">
+                                    <button class="quick-action-btn" onclick="showSection('slider')">
+                                        <i class="fas fa-plus"></i> Add Slider Image
+                                    </button>
+                                    <button class="quick-action-btn" onclick="showSection('products')">
+                                        <i class="fas fa-plus"></i> Add Product
+                                    </button>
+                                    <button class="quick-action-btn" onclick="showSection('news')">
+                                        <i class="fas fa-plus"></i> Add News Post
+                                    </button>
+                                    <button class="quick-action-btn" onclick="showSection('team')">
+                                        <i class="fas fa-plus"></i> Add Team Member
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Recent Activity</h3>
+                            </div>
+                            <div class="card-body">
+                                <p style="color: #6c757d; text-align: center; padding: 2rem;">
+                                    <i class="fas fa-info-circle"></i> Activity feed coming soon
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slider Management Section -->
+                <section class="content-section" id="section-slider">
+                    <div class="section-header">
+                        <h3>Homepage Slider</h3>
+                        <p>Manage up to 10 images for the homepage slideshow. Drag to reorder.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Add New Slide</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="sliderForm" class="form-grid">
+                                <div class="form-group full-width">
+                                    <label>Image</label>
+                                    <div class="upload-area" id="sliderUploadArea">
+                                        <input type="file" id="sliderImage" accept="image/*" hidden>
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click or drag to upload image</p>
+                                        <img id="sliderPreview" class="upload-preview" style="display: none;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Title (optional)</label>
+                                    <input type="text" id="sliderTitle" placeholder="Slide title">
+                                </div>
+                                <div class="form-group">
+                                    <label>Subtitle (optional)</label>
+                                    <input type="text" id="sliderSubtitle" placeholder="Slide subtitle">
+                                </div>
+                                <div class="form-group">
+                                    <label>Button Text (optional)</label>
+                                    <input type="text" id="sliderBtnText" placeholder="e.g., Learn More">
+                                </div>
+                                <div class="form-group">
+                                    <label>Button Link (optional)</label>
+                                    <input type="text" id="sliderBtnLink" placeholder="e.g., /products.html">
+                                </div>
+                                <div class="form-actions full-width">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add Slide
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Current Slides</h4>
+                            <span class="slide-count" id="slideCount">0/10</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="slider-list" id="sliderList">
+                                <p class="empty-message">No slides yet. Add your first slide above.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sections Management -->
+                <section class="content-section" id="section-sections">
+                    <div class="section-header">
+                        <h3>Page Sections</h3>
+                        <p>Edit content for various sections across the website.</p>
+                    </div>
+
+                    <div class="sections-accordion" id="sectionsAccordion">
+                        <!-- Sections loaded dynamically -->
+                    </div>
+                </section>
+
+                <!-- Products Management -->
+                <section class="content-section" id="section-products">
+                    <div class="section-header">
+                        <h3>Products</h3>
+                        <button class="btn btn-primary" onclick="showProductModal()">
+                            <i class="fas fa-plus"></i> Add Product
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Name</th>
+                                            <th>Category</th>
+                                            <th>Featured</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productsTable">
+                                        <tr>
+                                            <td colspan="6" class="empty-message">Loading products...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Team Management -->
+                <section class="content-section" id="section-team">
+                    <div class="section-header">
+                        <h3>Team Members</h3>
+                        <button class="btn btn-primary" onclick="showTeamModal()">
+                            <i class="fas fa-plus"></i> Add Member
+                        </button>
+                    </div>
+
+                    <div class="team-grid" id="teamGrid">
+                        <!-- Team members loaded dynamically -->
+                    </div>
+                </section>
+
+                <!-- News Management -->
+                <section class="content-section" id="section-news">
+                    <div class="section-header">
+                        <h3>News / Blog Posts</h3>
+                        <button class="btn btn-primary" onclick="showNewsModal()">
+                            <i class="fas fa-plus"></i> Add Post
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Title</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="newsTable">
+                                        <tr>
+                                            <td colspan="5" class="empty-message">Loading posts...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gallery Management -->
+                <section class="content-section" id="section-gallery">
+                    <div class="section-header">
+                        <h3>Gallery</h3>
+                        <button class="btn btn-primary" onclick="showGalleryModal()">
+                            <i class="fas fa-plus"></i> Add Images
+                        </button>
+                    </div>
+
+                    <div class="gallery-admin-grid" id="galleryGrid">
+                        <!-- Gallery images loaded dynamically -->
+                    </div>
+                </section>
+
+                <!-- Contact Messages -->
+                <section class="content-section" id="section-contacts">
+                    <div class="section-header">
+                        <h3>Contact Messages</h3>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Subject</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="contactsTable">
+                                        <tr>
+                                            <td colspan="6" class="empty-message">Loading messages...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings -->
+                <section class="content-section" id="section-settings">
+                    <div class="section-header">
+                        <h3>Site Settings</h3>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="settingsForm" class="form-grid">
+                                <div class="form-group">
+                                    <label>Site Name</label>
+                                    <input type="text" id="siteName" placeholder="Prawnique">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tagline</label>
+                                    <input type="text" id="siteTagline" placeholder="Premium Prawns, Naturally Sourced">
+                                </div>
+                                <div class="form-group">
+                                    <label>Contact Email</label>
+                                    <input type="email" id="contactEmail" placeholder="info@prawnique.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Contact Phone</label>
+                                    <input type="text" id="contactPhone" placeholder="+880 1XXX-XXXXXX">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Contact Address</label>
+                                    <textarea id="contactAddress" rows="2" placeholder="Full address"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Facebook URL</label>
+                                    <input type="url" id="facebookUrl" placeholder="https://facebook.com/...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Twitter URL</label>
+                                    <input type="url" id="twitterUrl" placeholder="https://twitter.com/...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Instagram URL</label>
+                                    <input type="url" id="instagramUrl" placeholder="https://instagram.com/...">
+                                </div>
+                                <div class="form-group">
+                                    <label>LinkedIn URL</label>
+                                    <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/...">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Footer Text</label>
+                                    <input type="text" id="footerText"
+                                        placeholder="© 2026 Prawnique. All rights reserved.">
+                                </div>
+                                <div class="form-actions full-width">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Save Settings
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Template -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Modal Title</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Admin JavaScript -->
+    <script src="/admin/js/admin.js"></script>
+</body>
+
+</html>

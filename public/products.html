@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Explore our premium range of prawns and seafood products. Black Tiger Shrimp, Freshwater Prawns, Vannamei and more.">
+    <title>Products - Prawnique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🦐</span>
+                <span>Prawnique</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/products.html" class="active">Products</a>
+                <a href="/about.html">About Us</a>
+                <a href="/team.html">Team</a>
+                <a href="/news.html">News</a>
+                <a href="/gallery.html">Gallery</a>
+                <a href="/contact.html">Contact</a>
+                <a href="/contact.html" class="btn btn-primary nav-cta">Get Quote</a>
+            </div>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Our Products</h1>
+            <p>Premium quality prawns and seafood, sourced responsibly from Bangladesh's finest farms and waters.</p>
+            <nav class="breadcrumb">
+                <a href="/">Home</a> <span>/</span> <span>Products</span>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Products Section -->
+    <section class="section">
+        <div class="container">
+            <!-- Category Filter -->
+            <div class="category-filter fade-in"
+                style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center;">
+                <button class="btn btn-outline category-btn active" data-category="all">All Products</button>
+                <div id="categoryFilters"></div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="grid grid-4 stagger-in" id="productsGrid">
+                <!-- Products loaded dynamically -->
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none; text-align: center; padding: 4rem;">
+                <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-light); margin-bottom: 1rem;"></i>
+                <h3>No products found</h3>
+                <p style="color: var(--gray);">Try selecting a different category.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section" style="background: var(--gradient-ocean); color: white; text-align: center;">
+        <div class="container fade-in">
+            <h2 style="color: white;">Interested in Our Products?</h2>
+            <p style="max-width: 600px; margin: 1rem auto 2rem; opacity: 0.9;">Contact us for pricing, availability, and
+                custom orders. We ship worldwide.</p>
+            <a href="/contact.html" class="btn btn-primary">Request a Quote</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+                    <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                    <div class="contact-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about.html">About Us</a></li>
+                        <li><a href="/products.html">Products</a></li>
+                        <li><a href="/team.html">Our Team</a></li>
+                        <li><a href="/contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Products</h4>
+                    <ul class="footer-links">
+                        <li><a href="/products.html?category=black-tiger-shrimp">Black Tiger Shrimp</a></li>
+                        <li><a href="/products.html?category=freshwater-prawns">Freshwater Prawns</a></li>
+                        <li><a href="/products.html?category=vannamei-shrimp">Vannamei Shrimp</a></li>
+                    </ul>
+                </div>
+                <div class="footer-newsletter">
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p>Subscribe to get the latest news and offers.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Prawnique. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Products page specific JS
+        let allProducts = [];
+        let currentCategory = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadProducts();
+
+            // Check URL for category
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('category');
+            if (categoryParam) {
+                currentCategory = categoryParam;
+            }
+        });
+
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                const categories = await response.json();
+
+                const container = document.getElementById('categoryFilters');
+                container.innerHTML = categories.map(c =>
+                    `<button class="btn btn-outline category-btn" data-category="${c.slug}">${c.name}</button>`
+                ).join('');
+
+                // Add click handlers
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentCategory = btn.dataset.category;
+                        filterProducts();
+                    });
+                });
+            } catch (error) {
+                console.error('Failed to load categories');
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                filterProducts();
+            } catch (error) {
+                document.getElementById('productsGrid').innerHTML = getDefaultProducts();
+            }
+        }
+
+        function filterProducts() {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            let filtered = allProducts;
+            if (currentCategory !== 'all') {
+                filtered = allProducts.filter(p => p.category_slug === currentCategory);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                grid.innerHTML = filtered.map(p => `
+          <div class="card product-card fade-in visible">
+            <div class="card-image">
+              <span class="card-category">${p.category_name || 'Premium'}</span>
+              <img src="${p.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop'}" alt="${p.name}">
+              <div class="card-overlay"></div>
+              <a href="/product.html?slug=${p.slug}" class="card-cta"><i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="card-content">
+              <h4 class="card-title">${p.name}</h4>
+              <p class="card-text">${p.short_description || ''}</p>
+            </div>
+          </div>
+        `).join('');
+            }
+        }
+
+        function getDefaultProducts() {
+            const defaults = [
+                { name: 'Black Tiger Shrimp', category: 'Premium', image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop', desc: 'Premium quality Black Tiger from Bangladesh waters' },
+                { name: 'Freshwater King Prawn', category: 'Premium', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop', desc: 'Giant river prawns, naturally grown in freshwater' },
+                { name: 'Vannamei Shrimp', category: 'Popular', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Pacific white shrimp, versatile and delicious' },
+                { name: 'Cat Tiger Shrimp', category: 'Specialty', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique color and flavor' }
+            ];
+            return defaults.map(p => `
+        <div class="card product-card fade-in visible">
+          <div class="card-image">
+            <span class="card-category">${p.category}</span>
+            <img src="${p.image}" alt="${p.name}">
+            <div class="card-overlay"></div>
+          </div>
+          <div class="card-content">
+            <h4 class="card-title">${p.name}</h4>
+            <p class="card-text">${p.desc}</p>
+          </div>
+        </div>
+      `).join('');
+        }
+    </script>
+</body>
+
+</html>

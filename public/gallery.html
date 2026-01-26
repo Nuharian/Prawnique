@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="View our gallery of premium prawns and seafood products. See our facilities, team, and products in action.">
+    <title>Gallery - Prawnique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container">
+            <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/products.html">Products</a>
+                <a href="/about.html">About Us</a>
+                <a href="/team.html">Team</a>
+                <a href="/news.html">News</a>
+                <a href="/gallery.html" class="active">Gallery</a>
+                <a href="/contact.html">Contact</a>
+                <a href="/contact.html" class="btn btn-primary nav-cta">Get Quote</a>
+            </div>
+            <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Gallery</h1>
+            <p>A visual journey through our products, facilities, and the people behind Prawnique.</p>
+            <nav class="breadcrumb"><a href="/">Home</a> <span>/</span> <span>Gallery</span></nav>
+        </div>
+    </header>
+
+    <!-- Gallery Section -->
+    <section class="section">
+        <div class="container">
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Gallery images loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+        <img src="" alt="Gallery image" id="lightboxImage">
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+                    <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about.html">About Us</a></li>
+                        <li><a href="/products.html">Products</a></li>
+                        <li><a href="/team.html">Our Team</a></li>
+                        <li><a href="/contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Products</h4>
+                    <ul class="footer-links">
+                        <li><a href="/products.html?category=black-tiger-shrimp">Black Tiger Shrimp</a></li>
+                        <li><a href="/products.html?category=freshwater-prawns">Freshwater Prawns</a></li>
+                    </ul>
+                </div>
+                <div class="footer-newsletter">
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p>Subscribe for updates.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Prawnique. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
+
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadGallery);
+
+        async function loadGallery() {
+            const grid = document.getElementById('galleryGrid');
+            try {
+                const response = await fetch('/api/gallery');
+                const images = await response.json();
+
+                if (images.length > 0) {
+                    grid.innerHTML = images.map(img => createGalleryItem(img)).join('');
+                } else {
+                    grid.innerHTML = getDefaultGallery();
+                }
+            } catch (error) {
+                grid.innerHTML = getDefaultGallery();
+            }
+        }
+
+        function createGalleryItem(img) {
+            return `
+        <div class="gallery-item" onclick="openLightbox('${img.image_path}')">
+          <img src="${img.image_path}" alt="${img.title || 'Gallery image'}" loading="lazy">
+          <div class="gallery-item-overlay">
+            <h4>${img.title || ''}</h4>
+          </div>
+        </div>
+      `;
+        }
+
+        function getDefaultGallery() {
+            const images = [
+                'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1579631542720-3a87824fff86?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=400&h=400&fit=crop'
+            ];
+            return images.map(src => `
+        <div class="gallery-item" onclick="openLightbox('${src.replace('400', '1200')}')">
+          <img src="${src}" alt="Gallery image" loading="lazy">
+          <div class="gallery-item-overlay"></div>
+        </div>
+      `).join('');
+        }
+
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightboxImage');
+            img.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    </script>
+</body>
+
+</html>

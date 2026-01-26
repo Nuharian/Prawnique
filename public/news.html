@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Latest news and updates from Prawnique. Industry insights, company announcements, and more.">
+    <title>News - Prawnique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container">
+            <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/products.html">Products</a>
+                <a href="/about.html">About Us</a>
+                <a href="/team.html">Team</a>
+                <a href="/news.html" class="active">News</a>
+                <a href="/gallery.html">Gallery</a>
+                <a href="/contact.html">Contact</a>
+                <a href="/contact.html" class="btn btn-primary nav-cta">Get Quote</a>
+            </div>
+            <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>News & Updates</h1>
+            <p>Stay informed with the latest news from Prawnique and the seafood industry.</p>
+            <nav class="breadcrumb"><a href="/">Home</a> <span>/</span> <span>News</span></nav>
+        </div>
+    </header>
+
+    <!-- News Section -->
+    <section class="section">
+        <div class="container">
+            <div class="grid grid-3 stagger-in" id="newsGrid">
+                <!-- News posts loaded dynamically -->
+            </div>
+
+            <div id="pagination" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 3rem;"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="/" class="logo"><span class="logo-icon">🦐</span><span>Prawnique</span></a>
+                    <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about.html">About Us</a></li>
+                        <li><a href="/products.html">Products</a></li>
+                        <li><a href="/team.html">Our Team</a></li>
+                        <li><a href="/contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Products</h4>
+                    <ul class="footer-links">
+                        <li><a href="/products.html?category=black-tiger-shrimp">Black Tiger Shrimp</a></li>
+                        <li><a href="/products.html?category=freshwater-prawns">Freshwater Prawns</a></li>
+                    </ul>
+                </div>
+                <div class="footer-newsletter">
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p>Subscribe for updates.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Prawnique. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let currentPage = 0;
+        const limit = 9;
+
+        document.addEventListener('DOMContentLoaded', () => loadNews(0));
+
+        async function loadNews(offset) {
+            const grid = document.getElementById('newsGrid');
+            try {
+                const response = await fetch(`/api/news?limit=${limit}&offset=${offset}`);
+                const data = await response.json();
+
+                if (data.posts && data.posts.length > 0) {
+                    grid.innerHTML = data.posts.map(p => createNewsCard(p)).join('');
+                    renderPagination(data.total, offset);
+                } else {
+                    grid.innerHTML = getDefaultNews();
+                }
+            } catch (error) {
+                grid.innerHTML = getDefaultNews();
+            }
+        }
+
+        function createNewsCard(p) {
+            const date = p.published_at ? new Date(p.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+            return `
+        <div class="card news-card">
+          <div class="card-image">
+            <img src="${p.featured_image || 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=250&fit=crop'}" alt="${p.title}">
+          </div>
+          <div class="card-content">
+            <div class="card-meta">
+              <span class="card-date"><i class="far fa-calendar"></i> ${date}</span>
+            </div>
+            <h4 class="card-title">${p.title}</h4>
+            <p class="card-excerpt">${p.excerpt || ''}</p>
+            <a href="/news-detail.html?slug=${p.slug}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      `;
+        }
+
+        function renderPagination(total, currentOffset) {
+            const pages = Math.ceil(total / limit);
+            const currentPageNum = Math.floor(currentOffset / limit);
+            const container = document.getElementById('pagination');
+
+            if (pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < pages; i++) {
+                html += `<button class="btn ${i === currentPageNum ? 'btn-primary' : 'btn-outline'}" onclick="loadNews(${i * limit})">${i + 1}</button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function getDefaultNews() {
+            const defaults = [
+                { title: 'Sustainable Aquaculture Practices for 2026', date: 'Jan 15, 2026', excerpt: 'Discover how we\'re implementing new eco-friendly farming methods...', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=250&fit=crop' },
+                { title: 'Prawnique Expands to European Markets', date: 'Jan 10, 2026', excerpt: 'We\'re excited to announce our new partnership with leading distributors...', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=250&fit=crop' },
+                { title: 'Quality Certifications Renewed', date: 'Jan 5, 2026', excerpt: 'Our facilities have successfully renewed HACCP, BAP, and EU certifications...', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=250&fit=crop' }
+            ];
+            return defaults.map(p => `
+        <div class="card news-card">
+          <div class="card-image"><img src="${p.image}" alt="${p.title}"></div>
+          <div class="card-content">
+            <div class="card-meta"><span class="card-date"><i class="far fa-calendar"></i> ${p.date}</span></div>
+            <h4 class="card-title">${p.title}</h4>
+            <p class="card-excerpt">${p.excerpt}</p>
+            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      `).join('');
+        }
+    </script>
+</body>
+
+</html>
