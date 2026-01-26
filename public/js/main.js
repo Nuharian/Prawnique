@@ -464,8 +464,8 @@ class WaveController {
                 // Sine wave formula: y = A * sin(kx + wt + phi)
                 const y = Math.sin(x * layer.frequency + this.time * layer.speed + layer.phase) * layer.amplitude;
                 // Offset y to fill the bottom part properly
-                // viewBox is 320. Center wave around 180 to make it taller/more visible
-                const yPos = 180 + y;
+                // Raise the wave level (smaller Y is higher up). Center around 150.
+                const yPos = 150 + y;
                 pathData += ` L ${x} ${yPos}`;
             }
 
