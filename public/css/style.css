@@ -266,6 +266,12 @@ p {
   justify-content: space-between;
 }
 
+.logo-image {
+  height: 95px;
+  width: auto;
+  display: block;
+}
+
 .gap-sm {
   gap: var(--space-sm);
 }
