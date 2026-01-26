@@ -455,10 +455,10 @@ class WaveController {
         this.layers.forEach((layer, index) => {
             if (!this.paths[index]) return;
 
-            let pathData = `M 0 ${this.height}`; // Start bottom left
+            let pathData = `M -50 ${this.height}`; // Start bottom left, off-screen
 
-            // Calculate points along the width
-            for (let x = 0; x <= this.width; x += 10) {
+            // Calculate points along the width extended beyond screen
+            for (let x = -50; x <= this.width + 50; x += 10) {
                 // Sine wave formula: y = A * sin(kx + wt + phi)
                 const y = Math.sin(x * layer.frequency + this.time * layer.speed + layer.phase) * layer.amplitude;
                 // Offset y to fill the bottom part properly
@@ -467,7 +467,7 @@ class WaveController {
                 pathData += ` L ${x} ${yPos}`;
             }
 
-            pathData += ` L ${this.width} ${this.height} Z`; // Close path
+            pathData += ` L ${this.width + 50} ${this.height} Z`; // Close path at bottom right, off-screen
             this.paths[index].setAttribute('d', pathData);
         });
 
