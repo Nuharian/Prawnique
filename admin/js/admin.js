@@ -298,6 +298,11 @@ function initSliderForm() {
                 body: JSON.stringify(data)
             });
 
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to add slide');
+            }
+
             const result = await response.json();
 
             if (result.success) {
@@ -307,10 +312,11 @@ function initSliderForm() {
                 uploadedImagePath = '';
                 loadSliderImages();
             } else {
-                throw new Error(result.error);
+                throw new Error(result.error || 'Failed to add slide');
             }
         } catch (error) {
-            showToast('Failed to add slide', 'error');
+            console.error('Add slide error:', error);
+            showToast('Failed to add slide: ' + error.message, 'error');
         }
     });
 }
@@ -503,7 +509,8 @@ async function saveSection(e, key) {
     const data = {
         title: document.getElementById(`section-${key}-title`).value,
         subtitle: document.getElementById(`section-${key}-subtitle`).value,
-        content: document.getElementById(`section-${key}-content`).value
+        content: document.getElementById(`section-${key}-content`).value,
+        image_path: ''
     };
 
     try {
@@ -513,11 +520,19 @@ async function saveSection(e, key) {
             body: JSON.stringify(data)
         });
 
-        if (response.ok) {
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to update section');
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
             showToast('Section updated successfully', 'success');
         }
     } catch (error) {
-        showToast('Failed to update section', 'error');
+        console.error('Save section error:', error);
+        showToast('Failed to update section: ' + error.message, 'error');
     }
 }
 
@@ -662,6 +677,11 @@ async function saveProduct(e) {
             body: JSON.stringify(data)
         });
 
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save product');
+        }
+
         const result = await response.json();
 
         if (result.success) {
@@ -669,9 +689,10 @@ async function saveProduct(e) {
             closeModal();
             loadProducts();
         } else {
-            throw new Error(result.error);
+            throw new Error(result.error || 'Failed to save product');
         }
     } catch (error) {
+        console.error('Save product error:', error);
         showToast('Failed to save product: ' + error.message, 'error');
     }
 }
@@ -806,13 +827,21 @@ async function saveTeamMember(e) {
             body: JSON.stringify(data)
         });
 
-        if (response.ok) {
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save team member');
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
             showToast(`Team member ${currentEditId ? 'updated' : 'added'} successfully`, 'success');
             closeModal();
             loadTeamMembers();
         }
     } catch (error) {
-        showToast('Failed to save team member', 'error');
+        console.error('Save team member error:', error);
+        showToast('Failed to save team member: ' + error.message, 'error');
     }
 }
 
@@ -952,13 +981,21 @@ async function saveNews(e) {
             body: JSON.stringify(data)
         });
 
-        if (response.ok) {
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save post');
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
             showToast(`Post ${currentEditId ? 'updated' : 'created'} successfully`, 'success');
             closeModal();
             loadNewsPosts();
         }
     } catch (error) {
-        showToast('Failed to save post', 'error');
+        console.error('Save news error:', error);
+        showToast('Failed to save post: ' + error.message, 'error');
     }
 }
 
@@ -1063,13 +1100,21 @@ async function saveGalleryImage(e) {
             body: JSON.stringify(data)
         });
 
-        if (response.ok) {
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to add image');
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
             showToast('Image added to gallery', 'success');
             closeModal();
             loadGalleryImages();
         }
     } catch (error) {
-        showToast('Failed to add image', 'error');
+        console.error('Save gallery error:', error);
+        showToast('Failed to add image: ' + error.message, 'error');
     }
 }
 
@@ -1165,7 +1210,6 @@ function initSettingsForm() {
             twitter_url: document.getElementById('twitterUrl').value,
             instagram_url: document.getElementById('instagramUrl').value,
             linkedin_url: document.getElementById('linkedinUrl').value,
-            linkedin_url: document.getElementById('linkedinUrl').value,
             footer_text: document.getElementById('footerText').value,
             wave_animation_type: document.getElementById('waveAnimationType').value
         };
@@ -1177,11 +1221,19 @@ function initSettingsForm() {
                 body: JSON.stringify(settings)
             });
 
-            if (response.ok) {
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to save settings');
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
                 showToast('Settings saved successfully', 'success');
             }
         } catch (error) {
-            showToast('Failed to save settings', 'error');
+            console.error('Save settings error:', error);
+            showToast('Failed to save settings: ' + error.message, 'error');
         }
     });
 }
@@ -1199,7 +1251,6 @@ async function loadSettings() {
         document.getElementById('facebookUrl').value = settings.facebook_url || '';
         document.getElementById('twitterUrl').value = settings.twitter_url || '';
         document.getElementById('instagramUrl').value = settings.instagram_url || '';
-        document.getElementById('linkedinUrl').value = settings.linkedin_url || '';
         document.getElementById('linkedinUrl').value = settings.linkedin_url || '';
         document.getElementById('footerText').value = settings.footer_text || '';
         document.getElementById('waveAnimationType').value = settings.wave_animation_type || 'realistic';
