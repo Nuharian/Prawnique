@@ -58,6 +58,8 @@ function initLoginForm() {
         const password = document.getElementById('password').value;
         const errorEl = document.getElementById('loginError');
 
+        errorEl.textContent = 'Logging in...';
+
         try {
             const response = await fetchWithCredentials('/api/admin/login', {
                 method: 'POST',
@@ -66,13 +68,16 @@ function initLoginForm() {
             });
 
             const data = await response.json();
+            console.log('Login response:', data);
 
             if (data.success) {
+                errorEl.textContent = 'Login successful! Loading...';
                 showAdmin(data.username);
             } else {
                 errorEl.textContent = data.error || 'Invalid credentials';
             }
         } catch (error) {
+            console.error('Login error:', error);
             errorEl.textContent = 'Connection error. Please try again.';
         }
     });

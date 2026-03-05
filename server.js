@@ -26,10 +26,10 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: true, // Required for sameSite: 'none'
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'lax'
+        sameSite: 'none' // Required for cross-origin cookies
     }
 }));
 
@@ -308,8 +308,17 @@ app.post('/api/admin/login', async (req, res) => {
 
         req.session.adminId = admin.id;
         req.session.adminUsername = admin.username;
-        res.json({ success: true, username: admin.username });
+        
+        // Save session before responding
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.status(500).json({ error: 'Session error' });
+            }
+            res.json({ success: true, username: admin.username });
+        });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ error: error.message });
     }
 });
