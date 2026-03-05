@@ -11,6 +11,17 @@ let currentSection = 'dashboard';
 let currentEditId = null;
 let uploadedImagePath = '';
 
+// Fetch wrapper with credentials
+const fetchWithCredentials = (url, options = {}) => {
+    return fetch(url, {
+        ...options,
+        credentials: 'include',
+        headers: {
+            ...options.headers,
+        }
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     initLoginForm();
@@ -19,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSliderForm();
     initSettingsForm();
 });
+});
 
 // ============================================
 // AUTHENTICATION
@@ -26,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function checkAuth() {
     try {
-        const response = await fetch('/api/admin/check');
+        const response = await fetchWithCredentials('/api/admin/check');
         if (response.ok) {
             const data = await response.json();
             showAdmin(data.username);
@@ -47,7 +59,7 @@ function initLoginForm() {
         const errorEl = document.getElementById('loginError');
 
         try {
-            const response = await fetch('/api/admin/login', {
+            const response = await fetchWithCredentials('/api/admin/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -79,7 +91,7 @@ function initLogout() {
     if (!logoutBtn) return;
 
     logoutBtn.addEventListener('click', async () => {
-        await fetch('/api/admin/logout', { method: 'POST' });
+        await fetchWithCredentials('/api/admin/logout', { method: 'POST' });
         window.location.reload();
     });
 }
@@ -187,7 +199,7 @@ function loadSectionData(section) {
 
 async function loadDashboardStats() {
     try {
-        const response = await fetch('/api/admin/stats');
+        const response = await fetchWithCredentials('/api/admin/stats');
         const stats = await response.json();
 
         document.getElementById('statProducts').textContent = stats.products || 0;
@@ -292,7 +304,7 @@ function initSliderForm() {
         };
 
         try {
-            const response = await fetch('/api/admin/slider', {
+            const response = await fetchWithCredentials('/api/admin/slider', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -323,7 +335,7 @@ function initSliderForm() {
 
 async function loadSliderImages() {
     try {
-        const response = await fetch('/api/admin/slider');
+        const response = await fetchWithCredentials('/api/admin/slider');
         const images = await response.json();
 
         const container = document.getElementById('sliderList');
@@ -514,7 +526,7 @@ async function saveSection(e, key) {
     };
 
     try {
-        const response = await fetch(`/api/admin/sections/${key}`, {
+        const response = await fetchWithCredentials(`/api/admin/sections/${key}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -552,7 +564,7 @@ async function loadProducts() {
         const catResponse = await fetch('/api/categories');
         categories = await catResponse.json();
 
-        const response = await fetch('/api/admin/products');
+        const response = await fetchWithCredentials('/api/admin/products');
         const products = await response.json();
 
         const tbody = document.getElementById('productsTable');
@@ -671,7 +683,7 @@ async function saveProduct(e) {
         const url = currentEditId ? `/api/admin/products/${currentEditId}` : '/api/admin/products';
         const method = currentEditId ? 'PUT' : 'POST';
 
-        const response = await fetch(url, {
+        const response = await fetchWithCredentials(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -699,7 +711,7 @@ async function saveProduct(e) {
 
 async function editProduct(id) {
     try {
-        const response = await fetch('/api/admin/products');
+        const response = await fetchWithCredentials('/api/admin/products');
         const products = await response.json();
         const product = products.find(p => p.id === id);
         if (product) {
@@ -730,7 +742,7 @@ async function deleteProduct(id) {
 
 async function loadTeamMembers() {
     try {
-        const response = await fetch('/api/admin/team');
+        const response = await fetchWithCredentials('/api/admin/team');
         const members = await response.json();
 
         const container = document.getElementById('teamGrid');
@@ -821,7 +833,7 @@ async function saveTeamMember(e) {
         const url = currentEditId ? `/api/admin/team/${currentEditId}` : '/api/admin/team';
         const method = currentEditId ? 'PUT' : 'POST';
 
-        const response = await fetch(url, {
+        const response = await fetchWithCredentials(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -847,7 +859,7 @@ async function saveTeamMember(e) {
 
 async function editTeamMember(id) {
     try {
-        const response = await fetch('/api/admin/team');
+        const response = await fetchWithCredentials('/api/admin/team');
         const members = await response.json();
         const member = members.find(m => m.id === id);
         if (member) {
@@ -876,7 +888,7 @@ async function deleteTeamMember(id) {
 
 async function loadNewsPosts() {
     try {
-        const response = await fetch('/api/admin/news');
+        const response = await fetchWithCredentials('/api/admin/news');
         const posts = await response.json();
 
         const tbody = document.getElementById('newsTable');
@@ -975,7 +987,7 @@ async function saveNews(e) {
         const url = currentEditId ? `/api/admin/news/${currentEditId}` : '/api/admin/news';
         const method = currentEditId ? 'PUT' : 'POST';
 
-        const response = await fetch(url, {
+        const response = await fetchWithCredentials(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -1001,7 +1013,7 @@ async function saveNews(e) {
 
 async function editNews(id) {
     try {
-        const response = await fetch('/api/admin/news');
+        const response = await fetchWithCredentials('/api/admin/news');
         const posts = await response.json();
         const post = posts.find(p => p.id === id);
         if (post) {
@@ -1030,7 +1042,7 @@ async function deleteNews(id) {
 
 async function loadGalleryImages() {
     try {
-        const response = await fetch('/api/admin/gallery');
+        const response = await fetchWithCredentials('/api/admin/gallery');
         const images = await response.json();
 
         const container = document.getElementById('galleryGrid');
@@ -1094,7 +1106,7 @@ async function saveGalleryImage(e) {
     };
 
     try {
-        const response = await fetch('/api/admin/gallery', {
+        const response = await fetchWithCredentials('/api/admin/gallery', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -1136,7 +1148,7 @@ async function deleteGalleryImage(id) {
 
 async function loadContacts() {
     try {
-        const response = await fetch('/api/admin/contacts');
+        const response = await fetchWithCredentials('/api/admin/contacts');
         const contacts = await response.json();
 
         const tbody = document.getElementById('contactsTable');
@@ -1215,7 +1227,7 @@ function initSettingsForm() {
         };
 
         try {
-            const response = await fetch('/api/admin/settings', {
+            const response = await fetchWithCredentials('/api/admin/settings', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(settings)
