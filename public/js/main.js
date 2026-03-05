@@ -3,6 +3,13 @@
  * Handles slider, animations, and dynamic content loading
  */
 
+// Helper function to preserve line breaks in content
+function formatContent(text) {
+    if (!text) return '';
+    // Convert line breaks to <br> tags and preserve paragraphs
+    return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+}
+
 // ============================================
 // INITIALIZATION
 // ============================================
@@ -503,7 +510,10 @@ async function loadSections() {
             const aboutTitle = document.getElementById('aboutTitle');
             const aboutContent = document.getElementById('aboutContent');
             if (aboutTitle) aboutTitle.textContent = sections.about_preview.title;
-            if (aboutContent) aboutContent.textContent = sections.about_preview.content;
+            if (aboutContent) {
+                // Use innerHTML with formatted content to preserve line breaks
+                aboutContent.innerHTML = formatContent(sections.about_preview.content);
+            }
         }
     } catch (error) {
         console.log('Using default sections');
@@ -538,6 +548,7 @@ async function loadFeaturedProducts() {
 
 function createProductCard(product) {
     const image = product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop';
+    const description = formatContent(product.short_description || '');
     return `
     <div class="card product-card">
       <div class="card-image">
@@ -550,7 +561,7 @@ function createProductCard(product) {
       </div>
       <div class="card-content">
         <h4 class="card-title">${product.name}</h4>
-        <p class="card-text">${product.short_description || ''}</p>
+        <p class="card-text">${description}</p>
       </div>
     </div>
   `;
@@ -602,6 +613,7 @@ async function loadLatestNews() {
 function createNewsCard(post) {
     const image = post.featured_image || 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=250&fit=crop';
     const date = post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    const excerpt = formatContent(post.excerpt || '');
 
     return `
     <div class="card news-card">
@@ -613,7 +625,7 @@ function createNewsCard(post) {
           <span class="card-date"><i class="far fa-calendar"></i> ${date}</span>
         </div>
         <h4 class="card-title">${post.title}</h4>
-        <p class="card-excerpt">${post.excerpt || ''}</p>
+        <p class="card-excerpt">${excerpt}</p>
         <a href="/news-detail.html?slug=${post.slug}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
       </div>
     </div>
