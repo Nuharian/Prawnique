@@ -4,6 +4,8 @@ const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 // Import modules
 const { initDatabase, all, get, run, sql, isVercelPostgres } = require('./database/init');
@@ -11,37 +13,38 @@ const { upload, getImageUrl, isCloudinaryConfigured } = require('./utils/upload'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'prawnique-jwt-secret-change-in-production';
 
 // Middleware
 app.use(cors({
     origin: true,
     credentials: true
 }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'prawnique-secret-key-change-in-production',
-    resave: true,
-    saveUninitialized: true,
-    cookie: {
-        secure: true, // Required for sameSite: 'none'
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'none' // Required for cross-origin cookies
-    }
-}));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Auth middleware
+// Auth middleware using JWT
 const requireAuth = (req, res, next) => {
-    if (req.session && req.session.adminId) return next();
-    res.status(401).json({ error: 'Unauthorized' });
+    const token = req.cookies.adminToken;
+    
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.adminId = decoded.adminId;
+        req.adminUsername = decoded.username;
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
 };
 
 // ============================================
@@ -306,17 +309,22 @@ app.post('/api/admin/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        req.session.adminId = admin.id;
-        req.session.adminUsername = admin.username;
-        
-        // Save session before responding
-        req.session.save((err) => {
-            if (err) {
-                console.error('Session save error:', err);
-                return res.status(500).json({ error: 'Session error' });
-            }
-            res.json({ success: true, username: admin.username });
+        // Create JWT token
+        const token = jwt.sign(
+            { adminId: admin.id, username: admin.username },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        // Set cookie
+        res.cookie('adminToken', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
         });
+
+        res.json({ success: true, username: admin.username });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: error.message });
@@ -324,12 +332,12 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 app.post('/api/admin/logout', (req, res) => {
-    req.session.destroy();
+    res.clearCookie('adminToken');
     res.json({ success: true });
 });
 
 app.get('/api/admin/check', requireAuth, (req, res) => {
-    res.json({ authenticated: true, username: req.session.adminUsername });
+    res.json({ authenticated: true, username: req.adminUsername });
 });
 
 // ============================================
