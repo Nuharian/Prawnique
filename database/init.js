@@ -204,7 +204,25 @@ async function initPostgres() {
     const defaultSections = [
       ['hero', 'Premium Prawns, Naturally Sourced', 'From the pristine waters of Bangladesh', ''],
       ['about_preview', 'About Prawnique', 'Your Trusted Seafood Partner', 'We are dedicated to providing the highest quality prawns.'],
-      ['mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns.']
+      ['mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns.'],
+      // Products Section
+      ['products_header', 'Our Products', 'Premium Seafood Selection', 'Discover our range of premium prawns and seafood, sourced responsibly and processed with care.'],
+      // Features Section
+      ['features_header', 'Why Choose Us', 'The Prawnique Difference', 'Quality you can trust, freshness you can taste.'],
+      ['feature_quality', 'Premium Quality', '', 'Only the finest prawns make it through our rigorous quality control process.'],
+      ['feature_sustainable', 'Sustainably Sourced', '', 'Our farms follow eco-friendly practices to protect marine ecosystems.'],
+      ['feature_fresh', 'Fresh Frozen', '', 'Flash-frozen at peak freshness to lock in flavor and nutrients.'],
+      ['feature_delivery', 'Global Delivery', '', 'We export to over 50 countries with reliable cold-chain logistics.'],
+      // Testimonials Section
+      ['testimonials_header', 'Testimonials', 'What Our Clients Say', 'Trusted by seafood importers and distributors worldwide.'],
+      // News Section
+      ['news_header', 'Latest News', 'From Our Blog', 'Stay updated with industry news and company updates.'],
+      // CTA Section
+      ['cta_section', 'Ready to Partner With Us?', '', 'Get in touch today to discuss your seafood requirements. We offer competitive pricing, reliable supply, and exceptional quality.'],
+      // Footer
+      ['footer_about', 'About Footer', '', 'Your trusted partner for premium quality prawns and seafood products. Sustainably sourced from the coastal waters of Bangladesh.'],
+      ['footer_newsletter', 'Newsletter', '', 'Subscribe to get the latest news and offers.'],
+      ['footer_tagline', 'Footer Tagline', '', 'Designed with 💙 for seafood lovers']
     ];
 
     for (const [key, title, subtitle, content] of defaultSections) {

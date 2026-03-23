@@ -515,9 +515,87 @@ async function loadSections() {
                 aboutContent.innerHTML = formatContent(sections.about_preview.content);
             }
         }
+
+        // Update Products Header
+        if (sections.products_header) {
+            updateSectionHeader('productsSection', sections.products_header);
+        }
+
+        // Update Features Header
+        if (sections.features_header) {
+            updateSectionHeader('featuresSection', sections.features_header);
+        }
+
+        // Update Feature Items
+        updateFeatureItem('feature1', sections.feature_quality);
+        updateFeatureItem('feature2', sections.feature_sustainable);
+        updateFeatureItem('feature3', sections.feature_fresh);
+        updateFeatureItem('feature4', sections.feature_delivery);
+
+        // Update Testimonials Header
+        if (sections.testimonials_header) {
+            updateSectionHeader('testimonialsSection', sections.testimonials_header);
+        }
+
+        // Update News Header
+        if (sections.news_header) {
+            updateSectionHeader('newsSection', sections.news_header);
+        }
+
+        // Update CTA Section
+        if (sections.cta_section) {
+            const ctaTitle = document.querySelector('.cta-section h2');
+            const ctaText = document.querySelector('.cta-section p');
+            if (ctaTitle) ctaTitle.textContent = sections.cta_section.title;
+            if (ctaText) ctaText.innerHTML = formatContent(sections.cta_section.content);
+        }
+
+        // Update Footer
+        if (sections.footer_about) {
+            const footerAbout = document.querySelector('.footer-about p');
+            if (footerAbout) footerAbout.innerHTML = formatContent(sections.footer_about.content);
+        }
+
+        if (sections.footer_newsletter) {
+            const newsletterTitle = document.querySelector('.footer-newsletter h4');
+            const newsletterText = document.querySelector('.footer-newsletter p');
+            if (newsletterTitle) newsletterTitle.textContent = sections.footer_newsletter.title;
+            if (newsletterText) newsletterText.innerHTML = formatContent(sections.footer_newsletter.content);
+        }
+
+        if (sections.footer_tagline) {
+            const tagline = document.querySelector('.footer-bottom p:last-child');
+            if (tagline) tagline.innerHTML = formatContent(sections.footer_tagline.content);
+        }
     } catch (error) {
         console.log('Using default sections');
     }
+}
+
+// Helper function to update section headers
+function updateSectionHeader(sectionId, sectionData) {
+    const section = document.getElementById(sectionId);
+    if (!section || !sectionData) return;
+
+    const subtitle = section.querySelector('.section-subtitle');
+    const title = section.querySelector('.section-header h2');
+    const description = section.querySelector('.section-header p');
+
+    if (subtitle) subtitle.textContent = sectionData.subtitle || sectionData.title;
+    if (title) title.textContent = sectionData.title;
+    if (description) description.innerHTML = formatContent(sectionData.content);
+}
+
+// Helper function to update feature items
+function updateFeatureItem(featureId, featureData) {
+    const feature = document.getElementById(featureId);
+    if (!feature || !featureData) return;
+
+    const title = feature.querySelector('h3');
+    const description = feature.querySelector('p');
+
+    if (title) title.textContent = featureData.title;
+    if (description) description.innerHTML = formatContent(featureData.content);
 }
 
 async function loadFeaturedProducts() {
