@@ -554,10 +554,7 @@ async function saveSection(e, key) {
 
         if (result.success) {
             showToast('Section updated successfully', 'success');
-            // Reload the page sections to show updated content
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            // Don't reload - just show success message
         }
     } catch (error) {
         console.error('Save section error:', error);

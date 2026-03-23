@@ -476,18 +476,26 @@ app.put('/api/admin/sections/:key', requireAuth, async (req, res) => {
         if (isVercelPostgres) {
             // First check if section exists
             const existing = await sql`SELECT id FROM sections WHERE section_key = ${req.params.key}`;
+            console.log('Section exists:', existing.rows.length > 0);
             
             if (existing.rows.length === 0) {
                 // Insert if doesn't exist
+                console.log('Inserting new section');
                 await sql`INSERT INTO sections (section_key, title, subtitle, content, image_path) VALUES (${req.params.key}, ${title}, ${subtitle}, ${content}, ${image_path || ''})`;
             } else {
                 // Update if exists
+                console.log('Updating existing section');
                 await sql`UPDATE sections SET title = ${title}, subtitle = ${subtitle}, content = ${content}, image_path = ${image_path || ''}, updated_at = CURRENT_TIMESTAMP WHERE section_key = ${req.params.key}`;
             }
+            
+            // Verify the update
+            const updated = await sql`SELECT * FROM sections WHERE section_key = ${req.params.key}`;
+            console.log('Section after update:', updated.rows[0]);
         } else {
             await run('INSERT OR REPLACE INTO sections (section_key, title, subtitle, content, image_path, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
                 [req.params.key, title, subtitle, content, image_path || '']);
         }
+        console.log('Section update successful');
         res.json({ success: true });
     } catch (error) {
         console.error('Section update error:', error);
