@@ -512,8 +512,14 @@ async function loadSections() {
         if (sections.hero) {
             const heroTitle = document.getElementById('heroTitle');
             const heroSubtitle = document.getElementById('heroSubtitle');
-            if (heroTitle && sections.hero.title) heroTitle.textContent = sections.hero.title;
-            if (heroSubtitle && sections.hero.content) heroSubtitle.textContent = sections.hero.content;
+            if (heroTitle && sections.hero.title) {
+                heroTitle.textContent = sections.hero.title;
+                console.log('Updated hero title to:', sections.hero.title);
+            }
+            if (heroSubtitle && sections.hero.subtitle) {
+                heroSubtitle.textContent = sections.hero.subtitle;
+                console.log('Updated hero subtitle to:', sections.hero.subtitle);
+            }
         }
 
         // Update About section
