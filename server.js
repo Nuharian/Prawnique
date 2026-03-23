@@ -441,14 +441,26 @@ app.put('/api/admin/slider/reorder', requireAuth, async (req, res) => {
 app.put('/api/admin/sections/:key', requireAuth, async (req, res) => {
     try {
         const { title, subtitle, content, image_path } = req.body;
+        console.log('Updating section:', req.params.key, 'with data:', { title, subtitle, content });
+        
         if (isVercelPostgres) {
-            await sql`UPDATE sections SET title = ${title}, subtitle = ${subtitle}, content = ${content}, image_path = ${image_path}, updated_at = CURRENT_TIMESTAMP WHERE section_key = ${req.params.key}`;
+            // First check if section exists
+            const existing = await sql`SELECT id FROM sections WHERE section_key = ${req.params.key}`;
+            
+            if (existing.rows.length === 0) {
+                // Insert if doesn't exist
+                await sql`INSERT INTO sections (section_key, title, subtitle, content, image_path) VALUES (${req.params.key}, ${title}, ${subtitle}, ${content}, ${image_path || ''})`;
+            } else {
+                // Update if exists
+                await sql`UPDATE sections SET title = ${title}, subtitle = ${subtitle}, content = ${content}, image_path = ${image_path || ''}, updated_at = CURRENT_TIMESTAMP WHERE section_key = ${req.params.key}`;
+            }
         } else {
-            await run('UPDATE sections SET title = ?, subtitle = ?, content = ?, image_path = ?, updated_at = CURRENT_TIMESTAMP WHERE section_key = ?',
-                [title, subtitle, content, image_path, req.params.key]);
+            await run('INSERT OR REPLACE INTO sections (section_key, title, subtitle, content, image_path, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
+                [req.params.key, title, subtitle, content, image_path || '']);
         }
         res.json({ success: true });
     } catch (error) {
+        console.error('Section update error:', error);
         res.status(500).json({ error: error.message });
     }
 });

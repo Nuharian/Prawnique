@@ -532,6 +532,8 @@ async function saveSection(e, key) {
         image_path: ''
     };
 
+    console.log('Saving section:', key, 'with data:', data);
+
     try {
         const response = await fetchWithCredentials(`/api/admin/sections/${key}`, {
             method: 'PUT',
@@ -539,15 +541,29 @@ async function saveSection(e, key) {
             body: JSON.stringify(data)
         });
 
+        console.log('Response status:', response.status);
+
         if (!response.ok) {
             const error = await response.json();
+            console.error('Save error:', error);
             throw new Error(error.error || 'Failed to update section');
         }
 
         const result = await response.json();
+        console.log('Save result:', result);
 
         if (result.success) {
             showToast('Section updated successfully', 'success');
+            // Reload the page sections to show updated content
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    } catch (error) {
+        console.error('Save section error:', error);
+        showToast('Failed to update section: ' + error.message, 'error');
+    }
+}
         }
     } catch (error) {
         console.error('Save section error:', error);
