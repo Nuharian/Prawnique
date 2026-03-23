@@ -504,6 +504,9 @@ async function loadSections() {
     try {
         const response = await fetch('/api/sections');
         const sections = await response.json();
+        
+        console.log('Loaded sections from API:', sections);
+        console.log('Section keys:', Object.keys(sections));
 
         // Update About section
         if (sections.about_preview) {
@@ -518,12 +521,18 @@ async function loadSections() {
 
         // Update Products Header
         if (sections.products_header) {
+            console.log('Updating products header:', sections.products_header);
             updateSectionHeader('productsSection', sections.products_header);
+        } else {
+            console.warn('products_header section not found in API response');
         }
 
         // Update Features Header
         if (sections.features_header) {
+            console.log('Updating features header:', sections.features_header);
             updateSectionHeader('featuresSection', sections.features_header);
+        } else {
+            console.warn('features_header section not found in API response');
         }
 
         // Update Feature Items
@@ -568,6 +577,7 @@ async function loadSections() {
             if (tagline) tagline.innerHTML = formatContent(sections.footer_tagline.content);
         }
     } catch (error) {
+        console.error('Error loading sections:', error);
         console.log('Using default sections');
     }
 }
