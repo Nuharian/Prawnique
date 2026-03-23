@@ -564,12 +564,6 @@ async function saveSection(e, key) {
         showToast('Failed to update section: ' + error.message, 'error');
     }
 }
-        }
-    } catch (error) {
-        console.error('Save section error:', error);
-        showToast('Failed to update section: ' + error.message, 'error');
-    }
-}
 
 function formatSectionName(key) {
     return key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
