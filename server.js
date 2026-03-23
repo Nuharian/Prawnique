@@ -732,6 +732,35 @@ app.put('/api/admin/contacts/:id/read', requireAuth, async (req, res) => {
     }
 });
 
+// Newsletter Subscribers
+app.get('/api/admin/newsletter', requireAuth, async (req, res) => {
+    try {
+        let subscribers;
+        if (isVercelPostgres) {
+            const result = await sql`SELECT * FROM newsletter_subscribers ORDER BY subscribed_at DESC`;
+            subscribers = result.rows;
+        } else {
+            subscribers = await all('SELECT * FROM newsletter_subscribers ORDER BY subscribed_at DESC');
+        }
+        res.json(subscribers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/admin/newsletter/:id', requireAuth, async (req, res) => {
+    try {
+        if (isVercelPostgres) {
+            await sql`DELETE FROM newsletter_subscribers WHERE id = ${parseInt(req.params.id)}`;
+        } else {
+            await run('DELETE FROM newsletter_subscribers WHERE id = ?', [req.params.id]);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Stats
 app.get('/api/admin/stats', requireAuth, async (req, res) => {
     try {

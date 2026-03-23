@@ -191,6 +191,9 @@ function loadSectionData(section) {
         case 'contacts':
             loadContacts();
             break;
+        case 'newsletter':
+            loadNewsletterSubscribers();
+            break;
         case 'settings':
             loadSettings();
             break;
@@ -1206,6 +1209,89 @@ function escapeHtml(text) {
 }
 
 // ============================================
+// NEWSLETTER SUBSCRIBERS
+// ============================================
+
+async function loadNewsletterSubscribers() {
+    try {
+        const response = await fetchWithCredentials('/api/admin/newsletter');
+        const subscribers = await response.json();
+
+        const tbody = document.getElementById('newsletterTable');
+        if (!tbody) return;
+
+        if (subscribers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-message">No subscribers yet.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = subscribers.map(s => `
+      <tr>
+        <td><strong>${s.email}</strong></td>
+        <td>${new Date(s.subscribed_at).toLocaleDateString()}</td>
+        <td><span class="status-badge ${s.is_active ? 'status-active' : 'status-draft'}">${s.is_active ? 'Active' : 'Unsubscribed'}</span></td>
+        <td>
+          <button class="btn btn-sm btn-danger" onclick="deleteSubscriber(${s.id}, '${s.email}')">
+            <i class="fas fa-trash"></i> Remove
+          </button>
+        </td>
+      </tr>
+    `).join('');
+    } catch (error) {
+        console.error('Failed to load newsletter subscribers:', error);
+    }
+}
+
+async function deleteSubscriber(id, email) {
+    if (!confirm(`Remove ${email} from newsletter?`)) return;
+
+    try {
+        const response = await fetchWithCredentials(`/api/admin/newsletter/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            showToast('Subscriber removed', 'success');
+            loadNewsletterSubscribers();
+        }
+    } catch (error) {
+        showToast('Failed to remove subscriber', 'error');
+    }
+}
+
+async function exportNewsletterCSV() {
+    try {
+        const response = await fetchWithCredentials('/api/admin/newsletter');
+        const subscribers = await response.json();
+
+        if (subscribers.length === 0) {
+            showToast('No subscribers to export', 'info');
+            return;
+        }
+
+        // Create CSV content
+        let csv = 'Email,Subscribed Date,Status\n';
+        subscribers.forEach(s => {
+            const date = new Date(s.subscribed_at).toLocaleDateString();
+            const status = s.is_active ? 'Active' : 'Unsubscribed';
+            csv += `${s.email},${date},${status}\n`;
+        });
+
+        // Download CSV
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `newsletter-subscribers-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        showToast('CSV exported successfully', 'success');
+    } catch (error) {
+        showToast('Failed to export CSV', 'error');
+    }
+}
+
+// ============================================
 // SETTINGS
 // ============================================
 
@@ -1328,5 +1414,6 @@ function loadAllData() {
     loadNewsPosts();
     loadGalleryImages();
     loadContacts();
+    loadNewsletterSubscribers();
     loadSettings();
 }
