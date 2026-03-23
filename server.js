@@ -294,28 +294,41 @@ app.post('/api/newsletter', async (req, res) => {
 
 app.post('/api/admin/login', async (req, res) => {
     try {
+        console.log('Login attempt for username:', req.body.username);
         const { username, password } = req.body;
         let admin;
 
         if (isVercelPostgres) {
             const result = await sql`SELECT * FROM admins WHERE username = ${username}`;
             admin = result.rows[0];
+            console.log('Admin found in Postgres:', !!admin);
         } else {
             admin = await get('SELECT * FROM admins WHERE username = ?', [username]);
+            console.log('Admin found in SQLite:', !!admin);
         }
 
-        if (!admin || !bcrypt.compareSync(password, admin.password)) {
+        if (!admin) {
+            console.log('Admin not found');
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        const passwordMatch = bcrypt.compareSync(password, admin.password);
+        console.log('Password match:', passwordMatch);
+
+        if (!passwordMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         req.session.adminId = admin.id;
         req.session.adminUsername = admin.username;
+        console.log('Session set:', { adminId: admin.id, adminUsername: admin.username });
         
         req.session.save((err) => {
             if (err) {
                 console.error('Session save error:', err);
                 return res.status(500).json({ error: 'Session error' });
             }
+            console.log('Session saved successfully');
             res.json({ success: true, username: admin.username });
         });
     } catch (error) {
