@@ -822,12 +822,14 @@ app.get('/api/create-admin', async (req, res) => {
             // Check if admin exists
             const existing = await sql`SELECT id FROM admins WHERE username = 'admin'`;
             if (existing.rows.length > 0) {
-                return res.json({ message: 'Admin already exists' });
+                // Update password instead
+                await sql`UPDATE admins SET password = ${hashedPassword} WHERE username = 'admin'`;
+                return res.json({ success: true, message: 'Admin password reset. Username: admin, Password: admin123' });
             }
             // Create admin
             await sql`INSERT INTO admins (username, password) VALUES ('admin', ${hashedPassword})`;
         } else {
-            await run('INSERT OR IGNORE INTO admins (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
+            await run('INSERT OR REPLACE INTO admins (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
         }
         
         res.json({ success: true, message: 'Admin user created. Username: admin, Password: admin123' });
