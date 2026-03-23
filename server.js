@@ -813,6 +813,29 @@ app.get('/admin/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
 
+// Emergency admin creation endpoint (remove after first use)
+app.get('/api/create-admin', async (req, res) => {
+    try {
+        const hashedPassword = bcrypt.hashSync('admin123', 10);
+        
+        if (isVercelPostgres) {
+            // Check if admin exists
+            const existing = await sql`SELECT id FROM admins WHERE username = 'admin'`;
+            if (existing.rows.length > 0) {
+                return res.json({ message: 'Admin already exists' });
+            }
+            // Create admin
+            await sql`INSERT INTO admins (username, password) VALUES ('admin', ${hashedPassword})`;
+        } else {
+            await run('INSERT OR IGNORE INTO admins (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
+        }
+        
+        res.json({ success: true, message: 'Admin user created. Username: admin, Password: admin123' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
