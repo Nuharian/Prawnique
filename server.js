@@ -22,18 +22,32 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'prawnique-secret-key-change-in-production',
-    resave: true,
-    saveUninitialized: true,
-    cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'lax'
+// Simple token-based auth (stateless)
+const crypto = require('crypto');
+const SESSION_SECRET = process.env.SESSION_SECRET || 'prawnique-secret-key-change-in-production';
+
+function createAuthToken(adminId, username) {
+    const payload = JSON.stringify({ adminId, username, exp: Date.now() + 24 * 60 * 60 * 1000 });
+    const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+    return Buffer.from(payload + '.' + signature).toString('base64');
+}
+
+function verifyAuthToken(token) {
+    try {
+        const decoded = Buffer.from(token, 'base64').toString();
+        const [payload, signature] = decoded.split('.');
+        const expectedSignature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+        
+        if (signature !== expectedSignature) return null;
+        
+        const data = JSON.parse(payload);
+        if (data.exp < Date.now()) return null;
+        
+        return data;
+    } catch {
+        return null;
     }
-}));
+}
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -42,8 +56,19 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Auth middleware
 const requireAuth = (req, res, next) => {
-    if (req.session && req.session.adminId) return next();
-    res.status(401).json({ error: 'Unauthorized' });
+    const token = req.cookies.authToken;
+    if (!token) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const user = verifyAuthToken(token);
+    if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    req.adminId = user.adminId;
+    req.adminUsername = user.username;
+    next();
 };
 
 // ============================================
@@ -319,18 +344,17 @@ app.post('/api/admin/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        req.session.adminId = admin.id;
-        req.session.adminUsername = admin.username;
-        console.log('Session set:', { adminId: admin.id, adminUsername: admin.username });
+        const token = createAuthToken(admin.id, admin.username);
         
-        req.session.save((err) => {
-            if (err) {
-                console.error('Session save error:', err);
-                return res.status(500).json({ error: 'Session error' });
-            }
-            console.log('Session saved successfully');
-            res.json({ success: true, username: admin.username });
+        res.cookie('authToken', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
         });
+
+        console.log('Auth token created and set');
+        res.json({ success: true, username: admin.username });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: error.message });
@@ -338,12 +362,12 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 app.post('/api/admin/logout', (req, res) => {
-    req.session.destroy();
+    res.clearCookie('authToken');
     res.json({ success: true });
 });
 
 app.get('/api/admin/check', requireAuth, (req, res) => {
-    res.json({ authenticated: true, username: req.session.adminUsername });
+    res.json({ authenticated: true, username: req.adminUsername });
 });
 
 // ============================================
