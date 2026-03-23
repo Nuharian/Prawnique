@@ -508,6 +508,14 @@ async function loadSections() {
         console.log('Loaded sections from API:', sections);
         console.log('Section keys:', Object.keys(sections));
 
+        // Update Hero section
+        if (sections.hero) {
+            const heroTitle = document.getElementById('heroTitle');
+            const heroSubtitle = document.getElementById('heroSubtitle');
+            if (heroTitle && sections.hero.title) heroTitle.textContent = sections.hero.title;
+            if (heroSubtitle && sections.hero.content) heroSubtitle.textContent = sections.hero.content;
+        }
+
         // Update About section
         if (sections.about_preview) {
             const aboutTitle = document.getElementById('aboutTitle');
