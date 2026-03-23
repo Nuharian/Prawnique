@@ -319,8 +319,8 @@ app.post('/api/admin/login', async (req, res) => {
         // Set cookie
         res.cookie('adminToken', token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000 // 24 hours
         });
 
