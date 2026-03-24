@@ -684,7 +684,6 @@ function createProductCard(product) {
     return `
     <div class="card product-card">
       <div class="card-image">
-        <span class="card-category">${product.category_name || 'Premium'}</span>
         <img src="${image}" alt="${product.name}" loading="lazy">
         <div class="card-overlay"></div>
         <a href="/product.html?slug=${product.slug}" class="card-cta">
@@ -710,7 +709,6 @@ function getDefaultProductCards() {
     return defaults.map(p => `
     <div class="card product-card">
       <div class="card-image">
-        <span class="card-category">${p.category}</span>
         <img src="${p.image}" alt="${p.name}" loading="lazy">
         <div class="card-overlay"></div>
         <a href="/products.html" class="card-cta">

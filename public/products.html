@@ -62,7 +62,7 @@
             <div class="empty-state" id="emptyState" style="display: none; text-align: center; padding: 4rem;">
                 <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-light); margin-bottom: 1rem;"></i>
                 <h3>No products found</h3>
-                <p style="color: var(--gray);">Try selecting a different category.</p>
+                <p style="color: var(--gray);">No products available at the moment.</p>
             </div>
         </div>
     </section>
@@ -162,7 +162,6 @@
                 grid.innerHTML = allProducts.map(p => `
           <div class="card product-card fade-in visible">
             <div class="card-image">
-              <span class="card-category">${p.category_name || 'Premium'}</span>
               <img src="${p.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop'}" alt="${p.name}">
               <div class="card-overlay"></div>
               <a href="/product.html?slug=${p.slug}" class="card-cta"><i class="fas fa-arrow-right"></i></a>
@@ -178,15 +177,14 @@
 
         function getDefaultProducts() {
             const defaults = [
-                { name: 'Black Tiger Shrimp', category: 'Premium', image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop', desc: 'Premium quality Black Tiger from Bangladesh waters' },
-                { name: 'Freshwater King Prawn', category: 'Premium', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop', desc: 'Giant river prawns, naturally grown in freshwater' },
-                { name: 'Vannamei Shrimp', category: 'Popular', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Pacific white shrimp, versatile and delicious' },
-                { name: 'Cat Tiger Shrimp', category: 'Specialty', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique color and flavor' }
+                { name: 'Black Tiger Shrimp', image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop', desc: 'Premium quality Black Tiger from Bangladesh waters' },
+                { name: 'Freshwater King Prawn', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop', desc: 'Giant river prawns, naturally grown in freshwater' },
+                { name: 'Vannamei Shrimp', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Pacific white shrimp, versatile and delicious' },
+                { name: 'Cat Tiger Shrimp', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique color and flavor' }
             ];
             return defaults.map(p => `
         <div class="card product-card fade-in visible">
           <div class="card-image">
-            <span class="card-category">${p.category}</span>
             <img src="${p.image}" alt="${p.name}">
             <div class="card-overlay"></div>
           </div>
