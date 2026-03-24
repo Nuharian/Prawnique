@@ -102,6 +102,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug');
 
+            console.log('Loading product with slug:', slug);
+
             if (!slug) {
                 showError('No product specified');
                 return;
@@ -109,8 +111,18 @@
 
             try {
                 const response = await fetch('/api/products');
+                console.log('API response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+
                 const products = await response.json();
+                console.log('All products:', products);
+                console.log('Looking for slug:', slug);
+                
                 const product = products.find(p => p.slug === slug);
+                console.log('Found product:', product);
 
                 if (!product) {
                     showError('Product not found');
@@ -120,15 +132,18 @@
                 displayProduct(product);
             } catch (error) {
                 console.error('Error loading product:', error);
-                showError('Failed to load product');
+                showError('Failed to load product: ' + error.message);
             }
         }
 
         function displayProduct(product) {
+            console.log('Displaying product:', product);
+            
             document.title = `${product.name} - Prawnique`;
             
             const container = document.getElementById('productDetail');
-            container.innerHTML = `
+            
+            const html = `
                 <nav class="breadcrumb" style="margin-bottom: 2rem;">
                     <a href="/">Home</a> <span>/</span> 
                     <a href="/products.html">Products</a> <span>/</span> 
@@ -139,7 +154,7 @@
                     <div class="about-image fade-in-left">
                         <img src="${product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=600&fit=crop'}" 
                              alt="${product.name}"
-                             style="border-radius: 16px; box-shadow: var(--shadow-xl);">
+                             style="border-radius: 16px; box-shadow: var(--shadow-xl); width: 100%; max-width: 600px;">
                     </div>
                     <div class="about-content fade-in-right">
                         <h1 style="margin-bottom: 0.5rem;">${product.name}</h1>
@@ -160,7 +175,7 @@
                             </div>
                         ` : ''}
 
-                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
                             <a href="/contact.html" class="btn btn-primary">
                                 <i class="fas fa-envelope"></i> Request Quote
                             </a>
@@ -171,9 +186,14 @@
                     </div>
                 </div>
             `;
+            
+            console.log('Setting HTML');
+            container.innerHTML = html;
+            console.log('HTML set successfully');
         }
 
         function showError(message) {
+            console.error('Showing error:', message);
             const container = document.getElementById('productDetail');
             container.innerHTML = `
                 <div style="text-align: center; padding: 4rem;">
