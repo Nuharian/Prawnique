@@ -787,7 +787,7 @@ function createNewsCard(post) {
     const excerpt = formatContent(post.excerpt || '');
 
     return `
-    <div class="card news-card">
+    <a href="/news-detail.html?slug=${post.slug}" class="card news-card news-card-link" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image">
         <img src="${image}" alt="${post.title}" loading="lazy">
       </div>
@@ -797,9 +797,9 @@ function createNewsCard(post) {
         </div>
         <h4 class="card-title">${post.title}</h4>
         <p class="card-excerpt">${excerpt}</p>
-        <a href="/news-detail.html?slug=${post.slug}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+        <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
   `;
 }
 

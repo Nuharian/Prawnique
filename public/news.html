@@ -130,7 +130,7 @@
         function createNewsCard(p) {
             const date = p.published_at ? new Date(p.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
             return `
-        <div class="card news-card">
+        <a href="/news-detail.html?slug=${p.slug}" class="card news-card news-card-link" style="text-decoration: none; color: inherit; display: block;">
           <div class="card-image">
             <img src="${p.featured_image || 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=250&fit=crop'}" alt="${p.title}">
           </div>
@@ -140,9 +140,9 @@
             </div>
             <h4 class="card-title">${p.title}</h4>
             <p class="card-excerpt">${formatContent(p.excerpt || '')}</p>
-            <a href="/news-detail.html?slug=${p.slug}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+            <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
           </div>
-        </div>
+        </a>
       `;
         }
 
@@ -170,13 +170,13 @@
                 { title: 'Quality Certifications Renewed', date: 'Jan 5, 2026', excerpt: 'Our facilities have successfully renewed HACCP, BAP, and EU certifications...', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=250&fit=crop' }
             ];
             return defaults.map(p => `
-        <div class="card news-card">
+        <div class="card news-card" style="cursor: pointer;">
           <div class="card-image"><img src="${p.image}" alt="${p.title}"></div>
           <div class="card-content">
             <div class="card-meta"><span class="card-date"><i class="far fa-calendar"></i> ${p.date}</span></div>
             <h4 class="card-title">${p.title}</h4>
             <p class="card-excerpt">${p.excerpt}</p>
-            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+            <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
           </div>
         </div>
       `).join('');

@@ -1198,6 +1198,25 @@ p {
   gap: var(--space-sm);
 }
 
+/* Clickable news card link */
+.news-card-link {
+  cursor: pointer;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.news-card-link:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.news-card-link:hover .read-more {
+  gap: var(--space-sm);
+}
+
+.news-card-link:hover .card-title {
+  color: var(--coral);
+}
+
 /* ---- Gallery ---- */
 .gallery-grid {
   display: grid;
