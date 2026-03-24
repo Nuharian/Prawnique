@@ -386,6 +386,14 @@ async function loadSiteSettings() {
             });
         }
 
+        // Update favicon
+        if (settings.site_logo) {
+            const favicon = document.querySelector('link[rel="icon"]');
+            if (favicon) {
+                favicon.href = settings.site_logo;
+            }
+        }
+
         // Wave Animation Toggle
         const animationType = settings.wave_animation_type || 'realistic';
         initWaveAnimation(animationType);
