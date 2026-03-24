@@ -39,8 +39,11 @@ async function loadFooter() {
         const html = await response.text();
         footerPlaceholder.innerHTML = html;
         
-        // Reinitialize newsletter form after footer loads
-        setTimeout(() => initNewsletterForm(), 100);
+        // Wait a bit for DOM to update, then load settings to update logo
+        setTimeout(() => {
+            initNewsletterForm();
+            loadSiteSettings(); // Reload settings to update footer logo
+        }, 100);
     } catch (error) {
         console.error('Failed to load footer:', error);
     }
