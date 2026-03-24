@@ -15,6 +15,7 @@ function formatContent(text) {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadFooter(); // Load footer first
     initNavbar();
     initMobileMenu();
     initSlider();
@@ -24,6 +25,26 @@ document.addEventListener('DOMContentLoaded', () => {
     initNewsletterForm();
     loadDynamicContent();
 });
+
+// ============================================
+// LOAD FOOTER
+// ============================================
+
+async function loadFooter() {
+    const footerPlaceholder = document.getElementById('footerPlaceholder');
+    if (!footerPlaceholder) return;
+
+    try {
+        const response = await fetch('/footer.html');
+        const html = await response.text();
+        footerPlaceholder.innerHTML = html;
+        
+        // Reinitialize newsletter form after footer loads
+        setTimeout(() => initNewsletterForm(), 100);
+    } catch (error) {
+        console.error('Failed to load footer:', error);
+    }
+}
 
 // ============================================
 // NAVBAR
