@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Product details - Prawnique">
+    <title>Product - Prawnique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container">
+            <a href="/" class="logo"><img src="/img/logo.png" alt="Prawnique" class="logo-image"></a>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Home</a>
+                <a href="/products.html" class="active">Products</a>
+                <a href="/about.html">About Us</a>
+                <a href="/team.html">Team</a>
+                <a href="/news.html">News</a>
+                <a href="/gallery.html">Gallery</a>
+                <a href="/contact.html">Contact</a>
+                <a href="/contact.html" class="btn btn-primary nav-cta">Get Quote</a>
+            </div>
+            <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- Product Detail -->
+    <section class="section" style="padding-top: 120px;">
+        <div class="container">
+            <div id="productDetail">
+                <!-- Loading state -->
+                <div style="text-align: center; padding: 4rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: var(--seafoam);"></i>
+                    <p style="margin-top: 1rem;">Loading product...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="/" class="logo"><img src="/img/logo.png" alt="Prawnique" class="logo-image"></a>
+                    <p>Your trusted partner for premium quality prawns and seafood products.</p>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about.html">About Us</a></li>
+                        <li><a href="/products.html">Products</a></li>
+                        <li><a href="/team.html">Our Team</a></li>
+                        <li><a href="/contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links-section">
+                    <h4 class="footer-title">Products</h4>
+                    <ul class="footer-links">
+                        <li><a href="/products.html">All Products</a></li>
+                    </ul>
+                </div>
+                <div class="footer-newsletter">
+                    <h4 class="footer-title">Newsletter</h4>
+                    <p>Subscribe for updates.</p>
+                    <form class="newsletter-form" id="newsletterForm">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Prawnique. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Helper function to preserve line breaks
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProduct);
+
+        async function loadProduct() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+
+            if (!slug) {
+                showError('No product specified');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/products');
+                const products = await response.json();
+                const product = products.find(p => p.slug === slug);
+
+                if (!product) {
+                    showError('Product not found');
+                    return;
+                }
+
+                displayProduct(product);
+            } catch (error) {
+                console.error('Error loading product:', error);
+                showError('Failed to load product');
+            }
+        }
+
+        function displayProduct(product) {
+            document.title = `${product.name} - Prawnique`;
+            
+            const container = document.getElementById('productDetail');
+            container.innerHTML = `
+                <nav class="breadcrumb" style="margin-bottom: 2rem;">
+                    <a href="/">Home</a> <span>/</span> 
+                    <a href="/products.html">Products</a> <span>/</span> 
+                    <span>${product.name}</span>
+                </nav>
+
+                <div class="about-grid" style="gap: 3rem;">
+                    <div class="about-image fade-in-left">
+                        <img src="${product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=600&fit=crop'}" 
+                             alt="${product.name}"
+                             style="border-radius: 16px; box-shadow: var(--shadow-xl);">
+                    </div>
+                    <div class="about-content fade-in-right">
+                        <h1 style="margin-bottom: 0.5rem;">${product.name}</h1>
+                        ${product.scientific_name ? `<p style="color: var(--gray); font-style: italic; margin-bottom: 1.5rem;">${product.scientific_name}</p>` : ''}
+                        
+                        ${product.short_description ? `
+                            <div style="background: var(--pearl-cream); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                                <p style="margin: 0; font-size: 1.1rem; line-height: 1.6;">${formatContent(product.short_description)}</p>
+                            </div>
+                        ` : ''}
+
+                        ${product.full_description ? `
+                            <div style="margin-bottom: 2rem;">
+                                <h3 style="margin-bottom: 1rem;">Description</h3>
+                                <div style="line-height: 1.8; color: var(--gray);">
+                                    <p>${formatContent(product.full_description)}</p>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <a href="/contact.html" class="btn btn-primary">
+                                <i class="fas fa-envelope"></i> Request Quote
+                            </a>
+                            <a href="/products.html" class="btn btn-outline">
+                                <i class="fas fa-arrow-left"></i> Back to Products
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const container = document.getElementById('productDetail');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 4rem;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--coral); margin-bottom: 1rem;"></i>
+                    <h2>${message}</h2>
+                    <p style="color: var(--gray); margin: 1rem 0 2rem;">The product you're looking for doesn't exist or has been removed.</p>
+                    <a href="/products.html" class="btn btn-primary">View All Products</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>
