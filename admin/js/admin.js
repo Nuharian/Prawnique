@@ -264,17 +264,17 @@ function initUploadArea(areaId, inputId, previewId, type) {
 }
 
 async function handleImageUpload(file, type, previewEl) {
-    // Check file size before uploading
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-        showToast('File too large! Maximum size is 5MB. Please compress your image.', 'error');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('image', file);
-
     try {
+        // Compress image before uploading
+        showToast('Compressing image...', 'info');
+        const compressedFile = await compressImage(file);
+        
+        console.log('Original size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+        console.log('Compressed size:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
+
+        const formData = new FormData();
+        formData.append('image', compressedFile);
+
         const response = await fetchWithCredentials(`/api/admin/upload/${type}`, {
             method: 'POST',
             body: formData
@@ -296,6 +296,66 @@ async function handleImageUpload(file, type, previewEl) {
         console.error('Upload error:', error);
         showToast('Failed to upload image: ' + error.message, 'error');
     }
+}
+
+// Compress image before upload
+async function compressImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Max dimensions
+                const MAX_WIDTH = 1920;
+                const MAX_HEIGHT = 1920;
+
+                // Calculate new dimensions
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width = Math.round((width * MAX_HEIGHT) / height);
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert to blob with compression
+                canvas.toBlob(
+                    (blob) => {
+                        if (!blob) {
+                            reject(new Error('Canvas to Blob conversion failed'));
+                            return;
+                        }
+                        // Create new file from blob
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve(compressedFile);
+                    },
+                    'image/jpeg',
+                    0.85 // Quality (0.85 = 85% quality, good balance)
+                );
+            };
+            img.onerror = () => reject(new Error('Failed to load image'));
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+    });
 }
 
 // ============================================
