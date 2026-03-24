@@ -30,7 +30,7 @@
   --gradient-ocean: linear-gradient(135deg, var(--deep-ocean) 0%, var(--ocean-blue) 50%, var(--ocean-light) 100%);
   --gradient-coral: linear-gradient(135deg, var(--coral) 0%, var(--coral-dark) 100%);
   --gradient-seafoam: linear-gradient(135deg, var(--seafoam) 0%, var(--seafoam-light) 100%);
-  --gradient-hero: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.1) 100%);
+  --gradient-hero: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%);
 
   /* Typography */
   --font-heading: 'Playfair Display', Georgia, serif;
