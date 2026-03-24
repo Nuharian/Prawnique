@@ -162,6 +162,21 @@ async function initPostgres() {
       )
     `;
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS testimonials (
+        id SERIAL PRIMARY KEY,
+        client_name VARCHAR(255) NOT NULL,
+        company VARCHAR(255),
+        position VARCHAR(255),
+        content TEXT NOT NULL,
+        rating INTEGER DEFAULT 5,
+        image_path TEXT,
+        is_featured BOOLEAN DEFAULT false,
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
     // Insert default admin
     const adminCheck = await sql`SELECT id FROM admins WHERE username = 'admin'`;
     if (adminCheck.rows.length === 0) {
@@ -231,6 +246,19 @@ async function initPostgres() {
 
     for (const [key, title, subtitle, content] of defaultSections) {
       await sql`INSERT INTO sections (section_key, title, subtitle, content) VALUES (${key}, ${title}, ${subtitle}, ${content}) ON CONFLICT (section_key) DO NOTHING`;
+    }
+
+    // Insert default testimonials
+    const defaultTestimonials = [
+      ['James Wilson', 'Seafood Imports Ltd', 'Managing Director, UK', 'Prawnique has been our trusted supplier for over 5 years. Their consistency in quality and timely deliveries have made them an invaluable partner.', 5, 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face', true, 0],
+      ['Yuki Tanaka', 'Tokyo Seafood Co.', 'CEO, Japan', 'The quality of their Black Tiger Shrimp is exceptional. Our customers in Japan appreciate the freshness and taste. Highly recommended!', 5, 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face', true, 1],
+      ['Michael Schmidt', 'Euro Foods GmbH', 'Procurement Manager, Germany', 'Professional team, excellent communication, and top-notch products. Prawnique understands what international buyers need.', 5, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face', true, 2]
+    ];
+
+    for (const [name, company, position, content, rating, image, featured, order] of defaultTestimonials) {
+      await sql`INSERT INTO testimonials (client_name, company, position, content, rating, image_path, is_featured, display_order) 
+                VALUES (${name}, ${company}, ${position}, ${content}, ${rating}, ${image}, ${featured}, ${order}) 
+                ON CONFLICT DO NOTHING`;
     }
 
     console.log('Postgres database initialized successfully');

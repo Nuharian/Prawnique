@@ -182,6 +182,9 @@ function loadSectionData(section) {
         case 'team':
             loadTeamMembers();
             break;
+        case 'testimonials':
+            loadTestimonials();
+            break;
         case 'news':
             loadNewsPosts();
             break;
@@ -262,7 +265,7 @@ async function handleImageUpload(file, type, previewEl) {
     formData.append('image', file);
 
     try {
-        const response = await fetch(`/api/admin/upload/${type}`, {
+        const response = await fetchWithCredentials(`/api/admin/upload/${type}`, {
             method: 'POST',
             body: formData
         });
@@ -277,10 +280,11 @@ async function handleImageUpload(file, type, previewEl) {
             }
             showToast('Image uploaded successfully', 'success');
         } else {
-            throw new Error(data.error);
+            throw new Error(data.error || 'Upload failed');
         }
     } catch (error) {
-        showToast('Failed to upload image', 'error');
+        console.error('Upload error:', error);
+        showToast('Failed to upload image: ' + error.message, 'error');
     }
 }
 
@@ -570,6 +574,32 @@ function formatSectionName(key) {
 // PRODUCTS MANAGEMENT
 // ============================================
 
+function toggleImageInput(type) {
+    const urlInput = document.getElementById('imageUrlInput');
+    const uploadArea = document.getElementById('imageUploadArea');
+    const urlBtn = document.getElementById('urlBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    if (type === 'url') {
+        urlInput.style.display = 'block';
+        uploadArea.style.display = 'none';
+        urlBtn.classList.add('btn-primary');
+        urlBtn.classList.remove('btn-outline');
+        uploadBtn.classList.remove('btn-primary');
+        uploadBtn.classList.add('btn-outline');
+        uploadedImagePath = ''; // Clear uploaded image
+    } else {
+        urlInput.style.display = 'none';
+        uploadArea.style.display = 'block';
+        uploadBtn.classList.add('btn-primary');
+        uploadBtn.classList.remove('btn-outline');
+        urlBtn.classList.remove('btn-primary');
+        urlBtn.classList.add('btn-outline');
+        document.getElementById('productImageUrl').value = ''; // Clear URL input
+    }
+}
+
+
 let categories = [];
 
 async function loadProducts() {
@@ -645,8 +675,26 @@ function showProductModal(product = null) {
         <textarea id="productFullDesc" rows="4">${product?.full_description || ''}</textarea>
       </div>
       <div class="form-group full-width">
-        <label>Featured Image URL</label>
-        <input type="text" id="productImage" value="${product?.featured_image || ''}" placeholder="/uploads/products/image.jpg">
+        <label>Featured Image</label>
+        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleImageInput('url')" id="urlBtn">
+            <i class="fas fa-link"></i> Use URL
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleImageInput('upload')" id="uploadBtn">
+            <i class="fas fa-upload"></i> Upload Image
+          </button>
+        </div>
+        <div id="imageUrlInput" style="display: block;">
+          <input type="text" id="productImageUrl" value="${product?.featured_image || ''}" placeholder="https://example.com/image.jpg or /uploads/products/image.jpg">
+        </div>
+        <div id="imageUploadArea" style="display: none;">
+          <div class="upload-area" id="productUploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click or drag image here</p>
+            <input type="file" id="productImageFile" accept="image/*" style="display: none;">
+          </div>
+          <img id="productImagePreview" style="display: none; max-width: 200px; margin-top: 1rem; border-radius: 8px;">
+        </div>
       </div>
       <div class="form-group">
         <label>
@@ -665,6 +713,9 @@ function showProductModal(product = null) {
     </form>
   `);
 
+    // Initialize upload area
+    initUploadArea('productUploadArea', 'productImageFile', 'productImagePreview', 'products');
+
     document.getElementById('productForm').addEventListener('submit', saveProduct);
 
     // Auto-generate slug from name
@@ -681,6 +732,12 @@ function showProductModal(product = null) {
 async function saveProduct(e) {
     e.preventDefault();
 
+    // Get image path from either URL input or uploaded image
+    let imagePath = document.getElementById('productImageUrl').value;
+    if (uploadedImagePath) {
+        imagePath = uploadedImagePath;
+    }
+
     const data = {
         name: document.getElementById('productName').value,
         slug: document.getElementById('productSlug').value,
@@ -688,7 +745,7 @@ async function saveProduct(e) {
         scientific_name: document.getElementById('productScientific').value,
         short_description: document.getElementById('productShortDesc').value,
         full_description: document.getElementById('productFullDesc').value,
-        featured_image: document.getElementById('productImage').value,
+        featured_image: imagePath,
         is_featured: document.getElementById('productFeatured').checked,
         is_active: document.getElementById('productActive').checked
     };
@@ -714,6 +771,7 @@ async function saveProduct(e) {
             showToast(`Product ${currentEditId ? 'updated' : 'created'} successfully`, 'success');
             closeModal();
             loadProducts();
+            uploadedImagePath = ''; // Reset uploaded image path
         } else {
             throw new Error(result.error || 'Failed to save product');
         }
@@ -893,6 +951,186 @@ async function deleteTeamMember(id) {
         loadTeamMembers();
     } catch (error) {
         showToast('Failed to delete member', 'error');
+    }
+}
+
+// ============================================
+// TESTIMONIALS MANAGEMENT
+// ============================================
+
+async function loadTestimonials() {
+    try {
+        const response = await fetch('/api/testimonials');
+        const testimonials = await response.json();
+
+        const grid = document.getElementById('testimonialsGrid');
+        if (!grid) return;
+
+        if (testimonials.length === 0) {
+            grid.innerHTML = '<div class="empty-message">No testimonials yet. Add your first testimonial!</div>';
+            return;
+        }
+
+        grid.innerHTML = testimonials.map(t => `
+            <div class="card">
+                <div class="card-body">
+                    <div style="display: flex; gap: 1rem; align-items: start;">
+                        ${t.image_path ? `<img src="${t.image_path}" alt="${t.client_name}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">` : '<div style="width: 60px; height: 60px; border-radius: 50%; background: var(--light); display: flex; align-items: center; justify-content: center;"><i class="fas fa-user"></i></div>'}
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.25rem 0;">${t.client_name}</h4>
+                            <p style="margin: 0; color: var(--gray); font-size: 0.9rem;">${t.position || ''} ${t.company ? `at ${t.company}` : ''}</p>
+                            <div style="margin: 0.5rem 0;">
+                                ${'<i class="fas fa-star" style="color: gold;"></i>'.repeat(t.rating || 5)}
+                            </div>
+                            <p style="margin: 0.5rem 0; font-style: italic;">"${t.content.substring(0, 100)}${t.content.length > 100 ? '...' : ''}"</p>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-sm btn-primary" onclick="editTestimonial(${t.id})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${t.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Failed to load testimonials:', error);
+        showToast('Failed to load testimonials', 'error');
+    }
+}
+
+function showTestimonialModal(testimonial = null) {
+    const modal = document.getElementById('modal');
+    const title = document.getElementById('modalTitle');
+    const body = document.getElementById('modalBody');
+
+    title.textContent = testimonial ? 'Edit Testimonial' : 'Add Testimonial';
+
+    body.innerHTML = `
+        <form id="testimonialForm" class="form-grid">
+            <div class="form-group">
+                <label>Client Name *</label>
+                <input type="text" id="testimonial-name" value="${testimonial?.client_name || ''}" required>
+            </div>
+            <div class="form-group">
+                <label>Company</label>
+                <input type="text" id="testimonial-company" value="${testimonial?.company || ''}">
+            </div>
+            <div class="form-group">
+                <label>Position</label>
+                <input type="text" id="testimonial-position" value="${testimonial?.position || ''}">
+            </div>
+            <div class="form-group">
+                <label>Rating</label>
+                <select id="testimonial-rating">
+                    <option value="5" ${testimonial?.rating === 5 ? 'selected' : ''}>5 Stars</option>
+                    <option value="4" ${testimonial?.rating === 4 ? 'selected' : ''}>4 Stars</option>
+                    <option value="3" ${testimonial?.rating === 3 ? 'selected' : ''}>3 Stars</option>
+                    <option value="2" ${testimonial?.rating === 2 ? 'selected' : ''}>2 Stars</option>
+                    <option value="1" ${testimonial?.rating === 1 ? 'selected' : ''}>1 Star</option>
+                </select>
+            </div>
+            <div class="form-group full-width">
+                <label>Testimonial Content *</label>
+                <textarea id="testimonial-content" rows="4" required>${testimonial?.content || ''}</textarea>
+            </div>
+            <div class="form-group full-width">
+                <label>Client Image URL</label>
+                <input type="url" id="testimonial-image" value="${testimonial?.image_path || ''}" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Display Order</label>
+                <input type="number" id="testimonial-order" value="${testimonial?.display_order || 0}" min="0">
+            </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="testimonial-featured" ${testimonial?.is_featured ? 'checked' : ''}>
+                    <span>Featured on Homepage</span>
+                </label>
+            </div>
+            <div class="form-actions full-width">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> ${testimonial ? 'Update' : 'Add'} Testimonial
+                </button>
+            </div>
+        </form>
+    `;
+
+    document.getElementById('testimonialForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveTestimonial(testimonial?.id);
+    });
+
+    showModal();
+}
+
+async function saveTestimonial(id = null) {
+    const data = {
+        client_name: document.getElementById('testimonial-name').value,
+        company: document.getElementById('testimonial-company').value,
+        position: document.getElementById('testimonial-position').value,
+        content: document.getElementById('testimonial-content').value,
+        rating: parseInt(document.getElementById('testimonial-rating').value),
+        image_path: document.getElementById('testimonial-image').value,
+        display_order: parseInt(document.getElementById('testimonial-order').value),
+        is_featured: document.getElementById('testimonial-featured').checked
+    };
+
+    try {
+        const url = id ? `/api/admin/testimonials/${id}` : '/api/admin/testimonials';
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await fetchWithCredentials(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) throw new Error('Failed to save testimonial');
+
+        showToast(`Testimonial ${id ? 'updated' : 'added'} successfully`, 'success');
+        closeModal();
+        loadTestimonials();
+    } catch (error) {
+        console.error('Save testimonial error:', error);
+        showToast('Failed to save testimonial', 'error');
+    }
+}
+
+async function editTestimonial(id) {
+    try {
+        const response = await fetch('/api/testimonials');
+        const testimonials = await response.json();
+        const testimonial = testimonials.find(t => t.id === id);
+
+        if (testimonial) {
+            showTestimonialModal(testimonial);
+        }
+    } catch (error) {
+        console.error('Failed to load testimonial:', error);
+        showToast('Failed to load testimonial', 'error');
+    }
+}
+
+async function deleteTestimonial(id) {
+    if (!confirm('Are you sure you want to delete this testimonial?')) return;
+
+    try {
+        const response = await fetchWithCredentials(`/api/admin/testimonials/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Failed to delete testimonial');
+
+        showToast('Testimonial deleted successfully', 'success');
+        loadTestimonials();
+    } catch (error) {
+        console.error('Delete testimonial error:', error);
+        showToast('Failed to delete testimonial', 'error');
     }
 }
 

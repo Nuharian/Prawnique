@@ -215,6 +215,21 @@ app.get('/api/team', async (req, res) => {
     }
 });
 
+app.get('/api/testimonials', async (req, res) => {
+    try {
+        let testimonials;
+        if (isVercelPostgres) {
+            const result = await sql`SELECT * FROM testimonials ORDER BY display_order ASC`;
+            testimonials = result.rows;
+        } else {
+            testimonials = await all('SELECT * FROM testimonials ORDER BY display_order ASC');
+        }
+        res.json(testimonials);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/api/news', async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 10;
@@ -628,6 +643,55 @@ app.delete('/api/admin/team/:id', requireAuth, async (req, res) => {
             await sql`DELETE FROM team_members WHERE id = ${parseInt(req.params.id)}`;
         } else {
             await run('DELETE FROM team_members WHERE id = ?', [req.params.id]);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Testimonials CRUD
+app.post('/api/admin/testimonials', requireAuth, async (req, res) => {
+    try {
+        const { client_name, company, position, content, rating, image_path, is_featured, display_order } = req.body;
+
+        if (isVercelPostgres) {
+            await sql`INSERT INTO testimonials (client_name, company, position, content, rating, image_path, is_featured, display_order) 
+                      VALUES (${client_name}, ${company || ''}, ${position || ''}, ${content}, ${rating || 5}, ${image_path || ''}, ${is_featured || false}, ${display_order || 0})`;
+        } else {
+            await run('INSERT INTO testimonials (client_name, company, position, content, rating, image_path, is_featured, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                [client_name, company || '', position || '', content, rating || 5, image_path || '', is_featured ? 1 : 0, display_order || 0]);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/admin/testimonials/:id', requireAuth, async (req, res) => {
+    try {
+        const { client_name, company, position, content, rating, image_path, is_featured, display_order } = req.body;
+
+        if (isVercelPostgres) {
+            await sql`UPDATE testimonials SET client_name = ${client_name}, company = ${company}, position = ${position}, content = ${content}, 
+                      rating = ${rating}, image_path = ${image_path}, is_featured = ${is_featured !== false}, display_order = ${display_order || 0} 
+                      WHERE id = ${parseInt(req.params.id)}`;
+        } else {
+            await run('UPDATE testimonials SET client_name = ?, company = ?, position = ?, content = ?, rating = ?, image_path = ?, is_featured = ?, display_order = ? WHERE id = ?',
+                [client_name, company, position, content, rating, image_path, is_featured ? 1 : 0, display_order || 0, req.params.id]);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/admin/testimonials/:id', requireAuth, async (req, res) => {
+    try {
+        if (isVercelPostgres) {
+            await sql`DELETE FROM testimonials WHERE id = ${parseInt(req.params.id)}`;
+        } else {
+            await run('DELETE FROM testimonials WHERE id = ?', [req.params.id]);
         }
         res.json({ success: true });
     } catch (error) {

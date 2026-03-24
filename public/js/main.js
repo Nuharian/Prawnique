@@ -366,6 +366,9 @@ async function loadDynamicContent() {
     // Load featured products
     loadFeaturedProducts();
 
+    // Load testimonials
+    loadTestimonials();
+
     // Load latest news
     loadLatestNews();
 }
@@ -737,6 +740,47 @@ async function loadLatestNews() {
     } catch (error) {
         console.log('Using default news');
     }
+}
+
+async function loadTestimonials() {
+    const container = document.getElementById('testimonialsList');
+    if (!container) return;
+
+    try {
+        const response = await fetch('/api/testimonials');
+        const testimonials = await response.json();
+
+        // Filter featured testimonials or take first 3
+        const featured = testimonials.filter(t => t.is_featured).slice(0, 3);
+        const toShow = featured.length > 0 ? featured : testimonials.slice(0, 3);
+
+        if (toShow.length > 0) {
+            container.innerHTML = toShow.map(t => createTestimonialCard(t)).join('');
+        }
+        // Otherwise keep default HTML content
+    } catch (error) {
+        console.log('Using default testimonials');
+    }
+}
+
+function createTestimonialCard(testimonial) {
+    const stars = '<i class="fas fa-star"></i>'.repeat(testimonial.rating || 5);
+    const image = testimonial.image_path || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face';
+    const content = formatContent(testimonial.content);
+
+    return `
+        <div class="testimonial-card">
+            <div class="testimonial-stars">${stars}</div>
+            <p class="testimonial-content">"${content}"</p>
+            <div class="testimonial-author">
+                <img src="${image}" alt="${testimonial.client_name}" loading="lazy">
+                <div class="testimonial-author-info">
+                    <h4>${testimonial.client_name}</h4>
+                    <span>${testimonial.position || ''}${testimonial.position && testimonial.company ? ', ' : ''}${testimonial.company || ''}</span>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function createNewsCard(post) {
