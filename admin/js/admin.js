@@ -1332,7 +1332,7 @@ function showTestimonialModal(testimonial = null) {
         saveTestimonial(testimonial?.id);
     });
 
-    showModal();
+    document.getElementById('modalOverlay').classList.add('active');
 }
 
 async function saveTestimonial(id = null) {
