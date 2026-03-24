@@ -1953,10 +1953,9 @@ function initSettingsForm() {
 
             const formData = new FormData();
             formData.append('image', file);
-            formData.append('category', 'general');
 
             try {
-                const response = await fetchWithCredentials('/api/admin/upload', {
+                const response = await fetchWithCredentials('/api/admin/upload/general', {
                     method: 'POST',
                     body: formData
                 });
