@@ -179,6 +179,9 @@ function loadSectionData(section) {
         case 'products':
             loadProducts();
             break;
+        case 'categories':
+            loadCategories();
+            break;
         case 'team':
             loadTeamMembers();
             break;
@@ -809,8 +812,174 @@ async function deleteProduct(id) {
 }
 
 // ============================================
+// CATEGORIES MANAGEMENT
+// ============================================
+
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories');
+        categories = await response.json();
+
+        const table = document.getElementById('categoriesTable');
+        if (!table) return;
+
+        if (categories.length === 0) {
+            table.innerHTML = '<tr><td colspan="5" class="empty-message">No categories yet. Add your first category!</td></tr>';
+            return;
+        }
+
+        table.innerHTML = categories.map(c => `
+            <tr>
+                <td><strong>${c.name}</strong></td>
+                <td><code>${c.slug}</code></td>
+                <td>${c.description || '-'}</td>
+                <td>${c.display_order}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="editCategory(${c.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCategory(${c.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Failed to load categories:', error);
+        showToast('Failed to load categories', 'error');
+    }
+}
+
+function showCategoryModal(category = null) {
+    const title = category ? 'Edit Category' : 'Add Category';
+
+    openModal(title, `
+        <form id="categoryForm" class="form-grid">
+            <div class="form-group">
+                <label>Category Name *</label>
+                <input type="text" id="categoryName" value="${category?.name || ''}" required>
+            </div>
+            <div class="form-group">
+                <label>URL Slug *</label>
+                <input type="text" id="categorySlug" value="${category?.slug || ''}" required placeholder="e.g., black-tiger-shrimp">
+            </div>
+            <div class="form-group full-width">
+                <label>Description</label>
+                <textarea id="categoryDesc" rows="2">${category?.description || ''}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Display Order</label>
+                <input type="number" id="categoryOrder" value="${category?.display_order || 0}" min="0">
+            </div>
+            <div class="form-actions full-width">
+                <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">${category ? 'Update' : 'Create'} Category</button>
+            </div>
+        </form>
+    `);
+
+    document.getElementById('categoryForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveCategory(category?.id);
+    });
+
+    // Auto-generate slug from name
+    if (!category) {
+        document.getElementById('categoryName').addEventListener('input', (e) => {
+            document.getElementById('categorySlug').value = e.target.value
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+        });
+    }
+}
+
+async function saveCategory(id = null) {
+    const data = {
+        name: document.getElementById('categoryName').value,
+        slug: document.getElementById('categorySlug').value,
+        description: document.getElementById('categoryDesc').value,
+        display_order: parseInt(document.getElementById('categoryOrder').value) || 0
+    };
+
+    try {
+        const url = id ? `/api/admin/categories/${id}` : '/api/admin/categories';
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await fetchWithCredentials(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save category');
+        }
+
+        showToast(`Category ${id ? 'updated' : 'created'} successfully`, 'success');
+        closeModal();
+        loadCategories();
+    } catch (error) {
+        console.error('Save category error:', error);
+        showToast('Failed to save category: ' + error.message, 'error');
+    }
+}
+
+async function editCategory(id) {
+    const category = categories.find(c => c.id === id);
+    if (category) {
+        showCategoryModal(category);
+    }
+}
+
+async function deleteCategory(id) {
+    if (!confirm('Are you sure you want to delete this category? Products in this category will not be deleted.')) return;
+
+    try {
+        const response = await fetchWithCredentials(`/api/admin/categories/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Failed to delete category');
+
+        showToast('Category deleted successfully', 'success');
+        loadCategories();
+    } catch (error) {
+        console.error('Delete category error:', error);
+        showToast('Failed to delete category', 'error');
+    }
+}
+
+// ============================================
 // TEAM MANAGEMENT
 // ============================================
+
+function toggleTeamImageInput(type) {
+    const urlInput = document.getElementById('teamImageUrlInput');
+    const uploadArea = document.getElementById('teamImageUploadArea');
+    const urlBtn = document.getElementById('teamUrlBtn');
+    const uploadBtn = document.getElementById('teamUploadBtn');
+
+    if (type === 'url') {
+        urlInput.style.display = 'block';
+        uploadArea.style.display = 'none';
+        urlBtn.classList.add('btn-primary');
+        urlBtn.classList.remove('btn-outline');
+        uploadBtn.classList.remove('btn-primary');
+        uploadBtn.classList.add('btn-outline');
+        uploadedImagePath = '';
+    } else {
+        urlInput.style.display = 'none';
+        uploadArea.style.display = 'block';
+        uploadBtn.classList.add('btn-primary');
+        uploadBtn.classList.remove('btn-outline');
+        urlBtn.classList.remove('btn-primary');
+        urlBtn.classList.add('btn-outline');
+        document.getElementById('memberImageUrl').value = '';
+    }
+}
+
 
 async function loadTeamMembers() {
     try {
@@ -862,8 +1031,26 @@ function showTeamModal(member = null) {
         <textarea id="memberBio" rows="3">${member?.bio || ''}</textarea>
       </div>
       <div class="form-group full-width">
-        <label>Photo URL</label>
-        <input type="text" id="memberImage" value="${member?.image_path || ''}" placeholder="/uploads/team/photo.jpg">
+        <label>Photo</label>
+        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleTeamImageInput('url')" id="teamUrlBtn">
+            <i class="fas fa-link"></i> Use URL
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleTeamImageInput('upload')" id="teamUploadBtn">
+            <i class="fas fa-upload"></i> Upload Photo
+          </button>
+        </div>
+        <div id="teamImageUrlInput" style="display: block;">
+          <input type="text" id="memberImageUrl" value="${member?.image_path || ''}" placeholder="https://example.com/photo.jpg">
+        </div>
+        <div id="teamImageUploadArea" style="display: none;">
+          <div class="upload-area" id="teamUploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click or drag photo here</p>
+            <input type="file" id="teamImageFile" accept="image/*" style="display: none;">
+          </div>
+          <img id="teamImagePreview" style="display: none; max-width: 200px; margin-top: 1rem; border-radius: 8px;">
+        </div>
       </div>
       <div class="form-group">
         <label>Email</label>
@@ -884,17 +1071,23 @@ function showTeamModal(member = null) {
     </form>
   `);
 
+    initUploadArea('teamUploadArea', 'teamImageFile', 'teamImagePreview', 'team');
     document.getElementById('teamForm').addEventListener('submit', saveTeamMember);
 }
 
 async function saveTeamMember(e) {
     e.preventDefault();
 
+    let imagePath = document.getElementById('memberImageUrl').value;
+    if (uploadedImagePath) {
+        imagePath = uploadedImagePath;
+    }
+
     const data = {
         name: document.getElementById('memberName').value,
         position: document.getElementById('memberPosition').value,
         bio: document.getElementById('memberBio').value,
-        image_path: document.getElementById('memberImage').value,
+        image_path: imagePath,
         email: document.getElementById('memberEmail').value,
         phone: document.getElementById('memberPhone').value,
         linkedin: document.getElementById('memberLinkedin').value,
@@ -1038,8 +1231,26 @@ function showTestimonialModal(testimonial = null) {
                 <textarea id="testimonial-content" rows="4" required>${testimonial?.content || ''}</textarea>
             </div>
             <div class="form-group full-width">
-                <label>Client Image URL</label>
-                <input type="url" id="testimonial-image" value="${testimonial?.image_path || ''}" placeholder="https://...">
+                <label>Client Photo</label>
+                <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+                    <button type="button" class="btn btn-sm btn-outline" onclick="toggleTestimonialImageInput('url')" id="testimonialUrlBtn">
+                        <i class="fas fa-link"></i> Use URL
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline" onclick="toggleTestimonialImageInput('upload')" id="testimonialUploadBtn">
+                        <i class="fas fa-upload"></i> Upload Photo
+                    </button>
+                </div>
+                <div id="testimonialImageUrlInput" style="display: block;">
+                    <input type="url" id="testimonial-image-url" value="${testimonial?.image_path || ''}" placeholder="https://example.com/photo.jpg">
+                </div>
+                <div id="testimonialImageUploadArea" style="display: none;">
+                    <div class="upload-area" id="testimonialUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click or drag photo here</p>
+                        <input type="file" id="testimonialImageFile" accept="image/*" style="display: none;">
+                    </div>
+                    <img id="testimonialImagePreview" style="display: none; max-width: 200px; margin-top: 1rem; border-radius: 8px;">
+                </div>
             </div>
             <div class="form-group">
                 <label>Display Order</label>
@@ -1060,6 +1271,7 @@ function showTestimonialModal(testimonial = null) {
         </form>
     `;
 
+    initUploadArea('testimonialUploadArea', 'testimonialImageFile', 'testimonialImagePreview', 'team');
     document.getElementById('testimonialForm').addEventListener('submit', (e) => {
         e.preventDefault();
         saveTestimonial(testimonial?.id);
@@ -1069,13 +1281,18 @@ function showTestimonialModal(testimonial = null) {
 }
 
 async function saveTestimonial(id = null) {
+    let imagePath = document.getElementById('testimonial-image-url').value;
+    if (uploadedImagePath) {
+        imagePath = uploadedImagePath;
+    }
+
     const data = {
         client_name: document.getElementById('testimonial-name').value,
         company: document.getElementById('testimonial-company').value,
         position: document.getElementById('testimonial-position').value,
         content: document.getElementById('testimonial-content').value,
         rating: parseInt(document.getElementById('testimonial-rating').value),
-        image_path: document.getElementById('testimonial-image').value,
+        image_path: imagePath,
         display_order: parseInt(document.getElementById('testimonial-order').value),
         is_featured: document.getElementById('testimonial-featured').checked
     };
@@ -1095,6 +1312,7 @@ async function saveTestimonial(id = null) {
         showToast(`Testimonial ${id ? 'updated' : 'added'} successfully`, 'success');
         closeModal();
         loadTestimonials();
+        uploadedImagePath = '';
     } catch (error) {
         console.error('Save testimonial error:', error);
         showToast('Failed to save testimonial', 'error');
@@ -1137,6 +1355,32 @@ async function deleteTestimonial(id) {
 // ============================================
 // NEWS MANAGEMENT
 // ============================================
+
+function toggleNewsImageInput(type) {
+    const urlInput = document.getElementById('newsImageUrlInput');
+    const uploadArea = document.getElementById('newsImageUploadArea');
+    const urlBtn = document.getElementById('newsUrlBtn');
+    const uploadBtn = document.getElementById('newsUploadBtn');
+
+    if (type === 'url') {
+        urlInput.style.display = 'block';
+        uploadArea.style.display = 'none';
+        urlBtn.classList.add('btn-primary');
+        urlBtn.classList.remove('btn-outline');
+        uploadBtn.classList.remove('btn-primary');
+        uploadBtn.classList.add('btn-outline');
+        uploadedImagePath = '';
+    } else {
+        urlInput.style.display = 'none';
+        uploadArea.style.display = 'block';
+        uploadBtn.classList.add('btn-primary');
+        uploadBtn.classList.remove('btn-outline');
+        urlBtn.classList.remove('btn-primary');
+        urlBtn.classList.add('btn-outline');
+        document.getElementById('newsImageUrl').value = '';
+    }
+}
+
 
 async function loadNewsPosts() {
     try {
@@ -1191,8 +1435,26 @@ function showNewsModal(post = null) {
         <textarea id="newsContent" rows="6">${post?.content || ''}</textarea>
       </div>
       <div class="form-group full-width">
-        <label>Featured Image URL</label>
-        <input type="text" id="newsImage" value="${post?.featured_image || ''}">
+        <label>Featured Image</label>
+        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleNewsImageInput('url')" id="newsUrlBtn">
+            <i class="fas fa-link"></i> Use URL
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleNewsImageInput('upload')" id="newsUploadBtn">
+            <i class="fas fa-upload"></i> Upload Image
+          </button>
+        </div>
+        <div id="newsImageUrlInput" style="display: block;">
+          <input type="text" id="newsImageUrl" value="${post?.featured_image || ''}" placeholder="https://example.com/image.jpg">
+        </div>
+        <div id="newsImageUploadArea" style="display: none;">
+          <div class="upload-area" id="newsUploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click or drag image here</p>
+            <input type="file" id="newsImageFile" accept="image/*" style="display: none;">
+          </div>
+          <img id="newsImagePreview" style="display: none; max-width: 200px; margin-top: 1rem; border-radius: 8px;">
+        </div>
       </div>
       <div class="form-group">
         <label>Author</label>
@@ -1210,6 +1472,7 @@ function showNewsModal(post = null) {
     </form>
   `);
 
+    initUploadArea('newsUploadArea', 'newsImageFile', 'newsImagePreview', 'news');
     document.getElementById('newsForm').addEventListener('submit', saveNews);
 
     document.getElementById('newsTitle').addEventListener('input', (e) => {
@@ -1225,12 +1488,17 @@ function showNewsModal(post = null) {
 async function saveNews(e) {
     e.preventDefault();
 
+    let imagePath = document.getElementById('newsImageUrl').value;
+    if (uploadedImagePath) {
+        imagePath = uploadedImagePath;
+    }
+
     const data = {
         title: document.getElementById('newsTitle').value,
         slug: document.getElementById('newsSlug').value,
         excerpt: document.getElementById('newsExcerpt').value,
         content: document.getElementById('newsContent').value,
-        featured_image: document.getElementById('newsImage').value,
+        featured_image: imagePath,
         author: document.getElementById('newsAuthor').value,
         is_published: document.getElementById('newsPublished').checked
     };
@@ -1292,6 +1560,32 @@ async function deleteNews(id) {
 // GALLERY MANAGEMENT
 // ============================================
 
+function toggleGalleryImageInput(type) {
+    const urlInput = document.getElementById('galleryImageUrlInput');
+    const uploadArea = document.getElementById('galleryImageUploadArea');
+    const urlBtn = document.getElementById('galleryUrlBtn');
+    const uploadBtn = document.getElementById('galleryUploadBtn');
+
+    if (type === 'url') {
+        urlInput.style.display = 'block';
+        uploadArea.style.display = 'none';
+        urlBtn.classList.add('btn-primary');
+        urlBtn.classList.remove('btn-outline');
+        uploadBtn.classList.remove('btn-primary');
+        uploadBtn.classList.add('btn-outline');
+        uploadedImagePath = '';
+    } else {
+        urlInput.style.display = 'none';
+        uploadArea.style.display = 'block';
+        uploadBtn.classList.add('btn-primary');
+        uploadBtn.classList.remove('btn-outline');
+        urlBtn.classList.remove('btn-primary');
+        urlBtn.classList.add('btn-outline');
+        document.getElementById('galleryImageUrl').value = '';
+    }
+}
+
+
 async function loadGalleryImages() {
     try {
         const response = await fetchWithCredentials('/api/admin/gallery');
@@ -1322,8 +1616,26 @@ function showGalleryModal() {
     openModal('Add Gallery Images', `
     <form id="galleryForm" class="form-grid">
       <div class="form-group full-width">
-        <label>Image URL</label>
-        <input type="text" id="galleryImage" placeholder="/uploads/gallery/image.jpg" required>
+        <label>Image</label>
+        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleGalleryImageInput('url')" id="galleryUrlBtn">
+            <i class="fas fa-link"></i> Use URL
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleGalleryImageInput('upload')" id="galleryUploadBtn">
+            <i class="fas fa-upload"></i> Upload Image
+          </button>
+        </div>
+        <div id="galleryImageUrlInput" style="display: block;">
+          <input type="text" id="galleryImageUrl" placeholder="https://example.com/image.jpg">
+        </div>
+        <div id="galleryImageUploadArea" style="display: none;">
+          <div class="upload-area" id="galleryUploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click or drag image here</p>
+            <input type="file" id="galleryImageFile" accept="image/*" style="display: none;">
+          </div>
+          <img id="galleryImagePreview" style="display: none; max-width: 200px; margin-top: 1rem; border-radius: 8px;">
+        </div>
       </div>
       <div class="form-group">
         <label>Title (optional)</label>
@@ -1344,14 +1656,25 @@ function showGalleryModal() {
     </form>
   `);
 
+    initUploadArea('galleryUploadArea', 'galleryImageFile', 'galleryImagePreview', 'gallery');
     document.getElementById('galleryForm').addEventListener('submit', saveGalleryImage);
 }
 
 async function saveGalleryImage(e) {
     e.preventDefault();
 
+    let imagePath = document.getElementById('galleryImageUrl').value;
+    if (uploadedImagePath) {
+        imagePath = uploadedImagePath;
+    }
+
+    if (!imagePath) {
+        showToast('Please provide an image URL or upload an image', 'error');
+        return;
+    }
+
     const data = {
-        image_path: document.getElementById('galleryImage').value,
+        image_path: imagePath,
         title: document.getElementById('galleryTitle').value,
         category: document.getElementById('galleryCategory').value,
         description: document.getElementById('galleryDesc').value

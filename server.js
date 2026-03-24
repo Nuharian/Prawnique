@@ -589,6 +589,52 @@ app.delete('/api/admin/products/:id', requireAuth, async (req, res) => {
     }
 });
 
+// Categories CRUD
+app.post('/api/admin/categories', requireAuth, async (req, res) => {
+    try {
+        const { name, slug, description, display_order } = req.body;
+
+        if (isVercelPostgres) {
+            await sql`INSERT INTO product_categories (name, slug, description, display_order) VALUES (${name}, ${slug}, ${description || ''}, ${display_order || 0})`;
+        } else {
+            await run('INSERT INTO product_categories (name, slug, description, display_order) VALUES (?, ?, ?, ?)',
+                [name, slug, description || '', display_order || 0]);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/admin/categories/:id', requireAuth, async (req, res) => {
+    try {
+        const { name, slug, description, display_order } = req.body;
+
+        if (isVercelPostgres) {
+            await sql`UPDATE product_categories SET name = ${name}, slug = ${slug}, description = ${description}, display_order = ${display_order} WHERE id = ${parseInt(req.params.id)}`;
+        } else {
+            await run('UPDATE product_categories SET name = ?, slug = ?, description = ?, display_order = ? WHERE id = ?',
+                [name, slug, description, display_order, req.params.id]);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/admin/categories/:id', requireAuth, async (req, res) => {
+    try {
+        if (isVercelPostgres) {
+            await sql`DELETE FROM product_categories WHERE id = ${parseInt(req.params.id)}`;
+        } else {
+            await run('DELETE FROM product_categories WHERE id = ?', [req.params.id]);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Team CRUD
 app.get('/api/admin/team', requireAuth, async (req, res) => {
     try {
