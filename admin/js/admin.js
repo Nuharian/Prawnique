@@ -1304,26 +1304,9 @@ function showTestimonialModal(testimonial = null) {
                 <textarea id="testimonial-content" rows="4" required>${testimonial?.content || ''}</textarea>
             </div>
             <div class="form-group full-width">
-                <label>Client Photo</label>
-                <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
-                    <button type="button" class="btn btn-sm btn-outline" onclick="toggleTestimonialImageInput('url')" id="testimonialUrlBtn">
-                        <i class="fas fa-link"></i> Use URL
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline" onclick="toggleTestimonialImageInput('upload')" id="testimonialUploadBtn">
-                        <i class="fas fa-upload"></i> Upload Photo
-                    </button>
-                </div>
-                <div id="testimonialImageUrlInput" style="display: block;">
-                    <input type="url" id="testimonial-image-url" value="${testimonial?.image_path || ''}" placeholder="https://example.com/photo.jpg">
-                </div>
-                <div id="testimonialImageUploadArea" style="display: none;">
-                    <div class="upload-area" id="testimonialUploadArea">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Click or drag photo here</p>
-                        <input type="file" id="testimonialImageFile" accept="image/*" style="display: none;">
-                    </div>
-                    <img id="testimonialImagePreview" style="display: none; max-width: 200px; margin-top: 1rem; border-radius: 8px;">
-                </div>
+                <label>Client Photo URL</label>
+                <input type="url" id="testimonial-image-url" value="${testimonial?.image_path || ''}" placeholder="https://example.com/photo.jpg">
+                <small style="color: var(--gray); display: block; margin-top: 0.5rem;">Optional: Enter a URL to a client photo</small>
             </div>
             <div class="form-group">
                 <label>Display Order</label>
@@ -1344,7 +1327,6 @@ function showTestimonialModal(testimonial = null) {
         </form>
     `;
 
-    initUploadArea('testimonialUploadArea', 'testimonialImageFile', 'testimonialImagePreview', 'team');
     document.getElementById('testimonialForm').addEventListener('submit', (e) => {
         e.preventDefault();
         saveTestimonial(testimonial?.id);
@@ -1354,18 +1336,13 @@ function showTestimonialModal(testimonial = null) {
 }
 
 async function saveTestimonial(id = null) {
-    let imagePath = document.getElementById('testimonial-image-url').value;
-    if (uploadedImagePath) {
-        imagePath = uploadedImagePath;
-    }
-
     const data = {
         client_name: document.getElementById('testimonial-name').value,
         company: document.getElementById('testimonial-company').value,
         position: document.getElementById('testimonial-position').value,
         content: document.getElementById('testimonial-content').value,
         rating: parseInt(document.getElementById('testimonial-rating').value),
-        image_path: imagePath,
+        image_path: document.getElementById('testimonial-image-url').value,
         display_order: parseInt(document.getElementById('testimonial-order').value),
         is_featured: document.getElementById('testimonial-featured').checked
     };
@@ -1385,7 +1362,6 @@ async function saveTestimonial(id = null) {
         showToast(`Testimonial ${id ? 'updated' : 'added'} successfully`, 'success');
         closeModal();
         loadTestimonials();
-        uploadedImagePath = '';
     } catch (error) {
         console.error('Save testimonial error:', error);
         showToast('Failed to save testimonial', 'error');
