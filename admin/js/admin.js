@@ -280,6 +280,17 @@ async function handleImageUpload(file, type, previewEl) {
             body: formData
         });
 
+        console.log('Upload response status:', response.status);
+        console.log('Upload response headers:', response.headers.get('content-type'));
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text);
+            throw new Error('Server returned an error. Please check if you are logged in.');
+        }
+
         const data = await response.json();
 
         if (data.success) {
