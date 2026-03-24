@@ -103,15 +103,14 @@
     <!-- Water Waves -->
     <div class="wave-container">
       <!-- Classic Mode: CSS Backgrounds -->
-      <div id="waveClassic" class="wave-classic-layer">
+      <div id="waveClassic" class="wave-classic-layer" style="display: none;">
         <div class="wave"></div>
         <div class="wave"></div>
         <div class="wave"></div>
       </div>
 
       <!-- Realistic Mode: Inline SVG -->
-      <svg id="waveRealistic" class="wave-realistic-svg" preserveAspectRatio="none" viewBox="0 0 1440 320"
-        style="display: none;">
+      <svg id="waveRealistic" class="wave-realistic-svg" preserveAspectRatio="none" viewBox="0 0 1440 320">
         <defs>
           <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" style="stop-color:#40c4ff;stop-opacity:1" />
@@ -136,15 +135,9 @@
         <div class="about-content fade-in-right">
           <span class="section-subtitle">About Us</span>
           <h2 id="aboutTitle">Your Trusted Seafood Partner</h2>
-          <p id="aboutContent">
-            We are dedicated to providing the highest quality prawns and seafood products. With years of experience in
-            aquaculture and a commitment to sustainability, we ensure every product meets international standards of
-            quality and freshness.
-          </p>
-          <p>
-            From our carefully managed farms in the coastal regions of Bangladesh to processing facilities that meet
-            global safety standards, every step of our process is designed to deliver excellence.
-          </p>
+          <div id="aboutContent">
+            <!-- Content loaded dynamically from database -->
+          </div>
           <a href="/about.html" class="btn btn-ocean" style="margin-top: 2rem;">Learn More About Us</a>
           <div class="about-stats stagger-in" style="margin-top: 2rem;">
             <div class="stat-item">

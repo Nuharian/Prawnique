@@ -205,6 +205,10 @@ async function initPostgres() {
       ['hero', 'Premium Prawns, Naturally Sourced', 'From the pristine waters of Bangladesh', ''],
       ['about_preview', 'About Prawnique', 'Your Trusted Seafood Partner', 'We are dedicated to providing the highest quality prawns.'],
       ['mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns.'],
+      // About Page Sections
+      ['about_story', 'Bringing the Best of Bangladesh\'s Seafood to the World', 'Our Story', 'Founded with a vision to showcase Bangladesh\'s exceptional prawn and seafood industry to the global market, Prawnique has grown to become a trusted name in quality seafood exports.\n\nOur journey began in the coastal regions of Bangladesh, where generations of fishing communities have honed their craft. We partner directly with these skilled farmers and fishermen to bring you the freshest, most sustainably sourced prawns available.\n\nToday, we export to over 50 countries, maintaining our commitment to quality, sustainability, and fair partnerships with local communities.'],
+      ['about_mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns and seafood while supporting local fishing communities and preserving marine ecosystems for future generations.'],
+      ['about_vision', 'Our Vision', '', 'To be the world\'s most trusted seafood partner, recognized for exceptional quality, ethical practices, and positive impact on communities and environment.'],
       // Products Section
       ['products_header', 'Our Products', 'Premium Seafood Selection', 'Discover our range of premium prawns and seafood, sourced responsibly and processed with care.'],
       // Features Section

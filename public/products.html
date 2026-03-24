@@ -134,6 +134,12 @@
 
     <script src="/js/main.js"></script>
     <script>
+        // Helper function to preserve line breaks in content
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        }
+
         // Products page specific JS
         let allProducts = [];
         let currentCategory = 'all';
@@ -208,7 +214,7 @@
             </div>
             <div class="card-content">
               <h4 class="card-title">${p.name}</h4>
-              <p class="card-text">${p.short_description || ''}</p>
+              <p class="card-text">${formatContent(p.short_description || '')}</p>
             </div>
           </div>
         `).join('');

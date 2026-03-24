@@ -178,6 +178,12 @@
 
     <script src="/js/main.js"></script>
     <script>
+        // Helper function to preserve line breaks in content
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             loadContactInfo();
             initContactForm();

@@ -99,6 +99,12 @@
 
     <script src="/js/main.js"></script>
     <script>
+        // Helper function to preserve line breaks in content
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        }
+
         let currentPage = 0;
         const limit = 9;
 
@@ -133,7 +139,7 @@
               <span class="card-date"><i class="far fa-calendar"></i> ${date}</span>
             </div>
             <h4 class="card-title">${p.title}</h4>
-            <p class="card-excerpt">${p.excerpt || ''}</p>
+            <p class="card-excerpt">${formatContent(p.excerpt || '')}</p>
             <a href="/news-detail.html?slug=${p.slug}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
           </div>
         </div>

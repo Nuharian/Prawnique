@@ -103,6 +103,12 @@
 
     <script src="/js/main.js"></script>
     <script>
+        // Helper function to preserve line breaks in content
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        }
+
         document.addEventListener('DOMContentLoaded', loadGallery);
 
         async function loadGallery() {
@@ -126,7 +132,7 @@
         <div class="gallery-item" onclick="openLightbox('${img.image_path}')">
           <img src="${img.image_path}" alt="${img.title || 'Gallery image'}" loading="lazy">
           <div class="gallery-item-overlay">
-            <h4>${img.title || ''}</h4>
+            <h4>${formatContent(img.title || '')}</h4>
           </div>
         </div>
       `;

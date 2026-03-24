@@ -527,9 +527,9 @@ async function loadSections() {
             const aboutTitle = document.getElementById('aboutTitle');
             const aboutContent = document.getElementById('aboutContent');
             if (aboutTitle) aboutTitle.textContent = sections.about_preview.title;
-            if (aboutContent) {
-                // Use innerHTML with formatted content to preserve line breaks
-                aboutContent.innerHTML = formatContent(sections.about_preview.content);
+            if (aboutContent && sections.about_preview.content) {
+                // Format content and wrap in paragraph tags
+                aboutContent.innerHTML = '<p>' + formatContent(sections.about_preview.content) + '</p>';
             }
         }
 
@@ -599,27 +599,54 @@ async function loadSections() {
 // Helper function to update section headers
 function updateSectionHeader(sectionId, sectionData) {
     const section = document.getElementById(sectionId);
-    if (!section || !sectionData) return;
+    if (!section || !sectionData) {
+        console.warn('Section not found:', sectionId, sectionData);
+        return;
+    }
 
     const subtitle = section.querySelector('.section-subtitle');
     const title = section.querySelector('.section-header h2');
     const description = section.querySelector('.section-header p');
 
-    if (subtitle) subtitle.textContent = sectionData.subtitle || sectionData.title;
-    if (title) title.textContent = sectionData.title;
-    if (description) description.innerHTML = formatContent(sectionData.content);
+    // Use subtitle field for the small text above the title
+    if (subtitle && sectionData.subtitle) {
+        subtitle.textContent = sectionData.subtitle;
+        console.log(`Updated ${sectionId} subtitle to:`, sectionData.subtitle);
+    }
+    
+    // Use title field for the main heading
+    if (title && sectionData.title) {
+        title.textContent = sectionData.title;
+        console.log(`Updated ${sectionId} title to:`, sectionData.title);
+    }
+    
+    // Use content field for the description paragraph
+    if (description && sectionData.content) {
+        description.innerHTML = formatContent(sectionData.content);
+        console.log(`Updated ${sectionId} description to:`, sectionData.content);
+    }
 }
 
 // Helper function to update feature items
 function updateFeatureItem(featureId, featureData) {
     const feature = document.getElementById(featureId);
-    if (!feature || !featureData) return;
+    if (!feature || !featureData) {
+        console.warn('Feature not found:', featureId, featureData);
+        return;
+    }
 
     const title = feature.querySelector('h3');
     const description = feature.querySelector('p');
 
-    if (title) title.textContent = featureData.title;
-    if (description) description.innerHTML = formatContent(featureData.content);
+    if (title && featureData.title) {
+        title.textContent = featureData.title;
+        console.log(`Updated ${featureId} title to:`, featureData.title);
+    }
+    
+    if (description && featureData.content) {
+        description.innerHTML = formatContent(featureData.content);
+        console.log(`Updated ${featureId} description to:`, featureData.content);
+    }
 }
 
 async function loadFeaturedProducts() {

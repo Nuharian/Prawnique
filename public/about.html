@@ -55,14 +55,16 @@
                 </div>
                 <div class="about-content fade-in-right">
                     <span class="section-subtitle">Our Story</span>
-                    <h2>Bringing the Best of Bangladesh's Seafood to the World</h2>
-                    <p>Founded with a vision to showcase Bangladesh's exceptional prawn and seafood industry to the
-                        global market, Prawnique has grown to become a trusted name in quality seafood exports.</p>
-                    <p>Our journey began in the coastal regions of Bangladesh, where generations of fishing communities
-                        have honed their craft. We partner directly with these skilled farmers and fishermen to bring
-                        you the freshest, most sustainably sourced prawns available.</p>
-                    <p>Today, we export to over 50 countries, maintaining our commitment to quality, sustainability, and
-                        fair partnerships with local communities.</p>
+                    <h2 id="aboutStoryTitle">Bringing the Best of Bangladesh's Seafood to the World</h2>
+                    <div id="aboutStoryContent">
+                        <p>Founded with a vision to showcase Bangladesh's exceptional prawn and seafood industry to the
+                            global market, Prawnique has grown to become a trusted name in quality seafood exports.</p>
+                        <p>Our journey began in the coastal regions of Bangladesh, where generations of fishing communities
+                            have honed their craft. We partner directly with these skilled farmers and fishermen to bring
+                            you the freshest, most sustainably sourced prawns available.</p>
+                        <p>Today, we export to over 50 countries, maintaining our commitment to quality, sustainability, and
+                            fair partnerships with local communities.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -78,7 +80,7 @@
                         <i class="fas fa-bullseye"></i>
                     </div>
                     <h3>Our Mission</h3>
-                    <p style="color: var(--gray);">To deliver premium, sustainably sourced prawns and seafood while
+                    <p id="aboutMissionContent" style="color: var(--gray);">To deliver premium, sustainably sourced prawns and seafood while
                         supporting local fishing communities and preserving marine ecosystems for future generations.
                     </p>
                 </div>
@@ -88,7 +90,7 @@
                         <i class="fas fa-eye"></i>
                     </div>
                     <h3>Our Vision</h3>
-                    <p style="color: var(--gray);">To be the world's most trusted seafood partner, recognized for
+                    <p id="aboutVisionContent" style="color: var(--gray);">To be the world's most trusted seafood partner, recognized for
                         exceptional quality, ethical practices, and positive impact on communities and environment.</p>
                 </div>
             </div>
@@ -246,6 +248,56 @@
 
     <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
     <script src="/js/main.js"></script>
+    <script>
+        // Helper function to preserve line breaks in content
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAboutContent);
+
+        async function loadAboutContent() {
+            try {
+                const response = await fetch('/api/sections');
+                const sections = await response.json();
+
+                console.log('Loaded sections for about page:', sections);
+
+                // Update About Story section
+                if (sections.about_story) {
+                    const storyTitle = document.getElementById('aboutStoryTitle');
+                    const storyContent = document.getElementById('aboutStoryContent');
+                    
+                    if (storyTitle && sections.about_story.title) {
+                        storyTitle.textContent = sections.about_story.title;
+                    }
+                    if (storyContent && sections.about_story.content) {
+                        storyContent.innerHTML = '<p>' + formatContent(sections.about_story.content) + '</p>';
+                    }
+                }
+
+                // Update Mission
+                if (sections.about_mission) {
+                    const missionContent = document.getElementById('aboutMissionContent');
+                    if (missionContent && sections.about_mission.content) {
+                        missionContent.innerHTML = formatContent(sections.about_mission.content);
+                    }
+                }
+
+                // Update Vision
+                if (sections.about_vision) {
+                    const visionContent = document.getElementById('aboutVisionContent');
+                    if (visionContent && sections.about_vision.content) {
+                        visionContent.innerHTML = formatContent(sections.about_vision.content);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading about content:', error);
+                console.log('Using default about content');
+            }
+        }
+    </script>
 </body>
 
 </html>

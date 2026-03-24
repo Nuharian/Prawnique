@@ -126,6 +126,12 @@
 
     <script src="/js/main.js"></script>
     <script>
+        // Helper function to preserve line breaks in content
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+        }
+
         document.addEventListener('DOMContentLoaded', loadTeam);
 
         async function loadTeam() {
@@ -153,7 +159,7 @@
           <div class="card-content">
             <h4 class="card-title">${m.name}</h4>
             <p class="member-position">${m.position || 'Team Member'}</p>
-            <p class="card-text" style="font-size: 0.9rem; margin-top: 0.5rem;">${m.bio || ''}</p>
+            <p class="card-text" style="font-size: 0.9rem; margin-top: 0.5rem;">${formatContent(m.bio || '')}</p>
             <div class="social-links">
               ${m.email ? `<a href="mailto:${m.email}" title="Email"><i class="fas fa-envelope"></i></a>` : ''}
               ${m.linkedin ? `<a href="${m.linkedin}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>` : ''}
