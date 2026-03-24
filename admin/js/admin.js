@@ -264,6 +264,13 @@ function initUploadArea(areaId, inputId, previewId, type) {
 }
 
 async function handleImageUpload(file, type, previewEl) {
+    // Check file size before uploading
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+        showToast('File too large! Maximum size is 5MB. Please compress your image.', 'error');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('image', file);
 

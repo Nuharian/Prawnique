@@ -30,7 +30,10 @@ const cloudinaryStorage = new CloudinaryStorage({
         return {
             folder: folder,
             allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-            transformation: [{ width: 1200, height: 1200, crop: 'limit', quality: 'auto' }]
+            transformation: [
+                { width: 1920, height: 1920, crop: 'limit', quality: 'auto:good' },
+                { fetch_format: 'auto' }
+            ]
         };
     }
 });
@@ -71,7 +74,10 @@ const fileFilter = (req, file, cb) => {
 // Create upload middleware
 const upload = multer({
     storage: isCloudinaryConfigured ? cloudinaryStorage : localStorage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+    limits: { 
+        fileSize: 5 * 1024 * 1024, // 5MB max (reduced for better performance)
+        files: 1
+    },
     fileFilter
 });
 

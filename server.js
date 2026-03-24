@@ -19,8 +19,8 @@ app.use(cors({
     credentials: true
 }));
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Simple token-based auth (stateless)
 const crypto = require('crypto');
@@ -390,14 +390,32 @@ app.get('/api/admin/check', requireAuth, (req, res) => {
 // ============================================
 
 // Upload with Cloudinary support
-app.post('/api/admin/upload/:type', requireAuth, upload.single('image'), (req, res) => {
-    try {
-        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-        const imageUrl = getImageUrl(req);
-        res.json({ success: true, path: imageUrl, cloudinary: isCloudinaryConfigured });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+app.post('/api/admin/upload/:type', requireAuth, (req, res) => {
+    upload.single('image')(req, res, (err) => {
+        if (err) {
+            console.error('Upload error:', err);
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ 
+                    error: 'File too large. Maximum size is 5MB. Please compress your image before uploading.' 
+                });
+            }
+            if (err.message === 'Only image files are allowed!') {
+                return res.status(400).json({ error: err.message });
+            }
+            return res.status(500).json({ error: 'Upload failed: ' + err.message });
+        }
+
+        try {
+            if (!req.file) {
+                return res.status(400).json({ error: 'No file uploaded' });
+            }
+            const imageUrl = getImageUrl(req);
+            res.json({ success: true, path: imageUrl, cloudinary: isCloudinaryConfigured });
+        } catch (error) {
+            console.error('Error processing upload:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
 });
 
 // Settings
