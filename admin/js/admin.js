@@ -1249,12 +1249,16 @@ async function loadTestimonials() {
                     <div style="display: flex; gap: 1rem; align-items: start;">
                         ${t.image_path ? `<img src="${t.image_path}" alt="${t.client_name}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">` : '<div style="width: 60px; height: 60px; border-radius: 50%; background: var(--light); display: flex; align-items: center; justify-content: center;"><i class="fas fa-user"></i></div>'}
                         <div style="flex: 1;">
-                            <h4 style="margin: 0 0 0.25rem 0;">${t.client_name}</h4>
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <h4 style="margin: 0 0 0.25rem 0;">${t.client_name}</h4>
+                                <small style="color: var(--gray);">ID: ${t.id} | Order: ${t.display_order}</small>
+                            </div>
                             <p style="margin: 0; color: var(--gray); font-size: 0.9rem;">${t.position || ''} ${t.company ? `at ${t.company}` : ''}</p>
                             <div style="margin: 0.5rem 0;">
                                 ${'<i class="fas fa-star" style="color: gold;"></i>'.repeat(t.rating || 5)}
                             </div>
                             <p style="margin: 0.5rem 0; font-style: italic;">"${t.content.substring(0, 100)}${t.content.length > 100 ? '...' : ''}"</p>
+                            ${t.is_featured ? '<span style="background: var(--seafoam); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; display: inline-block; margin-top: 0.5rem;">Featured</span>' : ''}
                             <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                                 <button class="btn btn-sm btn-primary" onclick="editTestimonial(${t.id})">
                                     <i class="fas fa-edit"></i> Edit
