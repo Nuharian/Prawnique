@@ -54,22 +54,8 @@ function initNavbar() {
     const navbar = document.getElementById('navbar');
     if (!navbar) return;
 
-    // Check if we're on the homepage (has hero section)
-    const isHomepage = document.querySelector('.hero') !== null;
-
-    if (isHomepage) {
-        // Only toggle scrolled class on homepage
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-    } else {
-        // On other pages, always keep navbar scrolled
-        navbar.classList.add('scrolled');
-    }
+    // Always keep navbar visible and scrolled
+    navbar.classList.add('scrolled');
 }
 
 function initMobileMenu() {
