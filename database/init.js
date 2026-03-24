@@ -261,6 +261,19 @@ async function initPostgres() {
                 ON CONFLICT DO NOTHING`;
     }
 
+    // Insert default news articles
+    const defaultNews = [
+      ['sustainable-prawn-farming-bangladesh', 'Sustainable Prawn Farming: Leading the Way in Bangladesh', 'Our commitment to eco-friendly aquaculture practices is setting new standards in the industry.', 'Bangladesh has emerged as a global leader in sustainable prawn farming, with innovative techniques that protect marine ecosystems while delivering premium quality seafood.\n\nOur farms utilize advanced water management systems, natural feed supplements, and strict environmental monitoring to ensure minimal impact on local waterways. This approach not only preserves the delicate coastal ecosystem but also produces prawns with superior taste and nutritional value.\n\nThe integration of traditional farming wisdom with modern technology has created a model that other countries are now studying and implementing.', 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop', 'Prawnique Team', true],
+      ['export-milestone-50-countries', 'Prawnique Reaches Export Milestone: Now Serving 50+ Countries', 'A major achievement in our global expansion as we celebrate reaching customers across six continents.', 'We are proud to announce that Prawnique has successfully expanded its reach to over 50 countries worldwide, marking a significant milestone in our journey to bring premium Bangladeshi seafood to global markets.\n\nThis achievement reflects our commitment to quality, reliability, and customer satisfaction. From Europe to Asia, North America to Australia, our products are now enjoyed by seafood lovers across diverse cultures and cuisines.\n\nOur success is built on strong partnerships with local distributors, rigorous quality control, and innovative cold-chain logistics that ensure our prawns arrive fresh and delicious, no matter the destination.', 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop', 'Prawnique Team', true],
+      ['new-processing-facility-opens', 'State-of-the-Art Processing Facility Opens in Chittagong', 'Our new facility incorporates the latest technology for enhanced quality control and increased production capacity.', 'Prawnique has inaugurated its newest processing facility in Chittagong, featuring cutting-edge technology and expanded capacity to meet growing international demand.\n\nThe facility includes advanced freezing systems, automated sorting equipment, and comprehensive quality testing laboratories. These improvements allow us to process larger volumes while maintaining our strict quality standards.\n\nThe new facility also creates over 200 jobs in the local community and incorporates sustainable practices including solar power generation and water recycling systems.', 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=800&h=600&fit=crop', 'Prawnique Team', true]
+    ];
+
+    for (const [slug, title, excerpt, content, image, author, published] of defaultNews) {
+      await sql`INSERT INTO news_posts (slug, title, excerpt, content, featured_image, author, is_published, published_at) 
+                VALUES (${slug}, ${title}, ${excerpt}, ${content}, ${image}, ${author}, ${published}, CURRENT_TIMESTAMP) 
+                ON CONFLICT (slug) DO NOTHING`;
+    }
+
     console.log('Postgres database initialized successfully');
   } catch (error) {
     console.error('Postgres init error:', error);
