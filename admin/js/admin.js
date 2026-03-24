@@ -1941,12 +1941,51 @@ function initSettingsForm() {
     const form = document.getElementById('settingsForm');
     if (!form) return;
 
+    // Handle logo upload
+    const logoUpload = document.getElementById('logoUpload');
+    const siteLogo = document.getElementById('siteLogo');
+    const currentLogo = document.getElementById('currentLogo');
+
+    if (logoUpload) {
+        logoUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('category', 'general');
+
+            try {
+                const response = await fetchWithCredentials('/api/admin/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const result = await response.json();
+                siteLogo.value = result.path;
+                currentLogo.src = result.path;
+                showToast('Logo uploaded successfully', 'success');
+            } catch (error) {
+                console.error('Logo upload error:', error);
+                showToast('Failed to upload logo', 'error');
+            }
+        });
+
+        // Update preview when URL is changed manually
+        siteLogo.addEventListener('input', () => {
+            currentLogo.src = siteLogo.value || '/img/logo.png';
+        });
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const settings = {
             site_name: document.getElementById('siteName').value,
             site_tagline: document.getElementById('siteTagline').value,
+            site_logo: document.getElementById('siteLogo').value,
             contact_email: document.getElementById('contactEmail').value,
             contact_phone: document.getElementById('contactPhone').value,
             contact_address: document.getElementById('contactAddress').value,
@@ -1989,6 +2028,8 @@ async function loadSettings() {
 
         document.getElementById('siteName').value = settings.site_name || '';
         document.getElementById('siteTagline').value = settings.site_tagline || '';
+        document.getElementById('siteLogo').value = settings.site_logo || '/img/logo.png';
+        document.getElementById('currentLogo').src = settings.site_logo || '/img/logo.png';
         document.getElementById('contactEmail').value = settings.contact_email || '';
         document.getElementById('contactPhone').value = settings.contact_phone || '';
         document.getElementById('contactAddress').value = settings.contact_address || '';

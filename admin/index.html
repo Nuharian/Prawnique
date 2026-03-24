@@ -499,6 +499,18 @@
                                     <label>Tagline</label>
                                     <input type="text" id="siteTagline" placeholder="Premium Prawns, Naturally Sourced">
                                 </div>
+                                <div class="form-group full-width">
+                                    <label>Site Logo</label>
+                                    <div style="display: flex; gap: 1rem; align-items: center;">
+                                        <img id="currentLogo" src="/img/logo.png" alt="Current Logo" style="max-height: 60px; border: 1px solid #ddd; padding: 0.5rem; border-radius: 8px; background: white;">
+                                        <input type="text" id="siteLogo" placeholder="/img/logo.png or image URL" style="flex: 1;">
+                                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('logoUpload').click()">
+                                            <i class="fas fa-upload"></i> Upload
+                                        </button>
+                                        <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+                                    </div>
+                                    <small style="color: #666; margin-top: 0.5rem; display: block;">Upload a new logo or enter an image URL. Recommended: PNG with transparent background, max 200px height.</small>
+                                </div>
                                 <div class="form-group">
                                     <label>Contact Email</label>
                                     <input type="email" id="contactEmail" placeholder="info@prawnique.com">

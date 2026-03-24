@@ -378,6 +378,14 @@ async function loadSiteSettings() {
         const response = await fetch('/api/settings');
         const settings = await response.json();
 
+        // Update logo on all pages
+        const logoImages = document.querySelectorAll('.logo-image');
+        if (settings.site_logo && logoImages.length > 0) {
+            logoImages.forEach(img => {
+                img.src = settings.site_logo;
+            });
+        }
+
         // Wave Animation Toggle
         const animationType = settings.wave_animation_type || 'realistic';
         initWaveAnimation(animationType);

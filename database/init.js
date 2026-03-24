@@ -189,6 +189,7 @@ async function initPostgres() {
     const defaultSettings = [
       ['site_name', 'Prawnique'],
       ['site_tagline', 'Premium Prawns, Naturally Sourced'],
+      ['site_logo', '/img/logo.png'],
       ['contact_email', 'info@prawnique.com'],
       ['contact_phone', '+880 1XXX-XXXXXX'],
       ['contact_address', 'Dhaka, Bangladesh'],
