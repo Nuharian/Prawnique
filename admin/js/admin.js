@@ -618,7 +618,7 @@ async function loadProducts() {
         if (!tbody) return;
 
         if (products.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="empty-message">No products yet. Add your first product.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-message">No products yet. Add your first product.</td></tr>';
             return;
         }
 
@@ -626,7 +626,6 @@ async function loadProducts() {
       <tr>
         <td><img src="${p.featured_image || 'https://via.placeholder.com/60x45?text=No+Image'}" alt="${p.name}"></td>
         <td><strong>${p.name}</strong><br><small style="color: #718096;">${p.scientific_name || ''}</small></td>
-        <td>${p.category_name || 'Uncategorized'}</td>
         <td>${p.is_featured ? '<span class="status-badge status-active">Yes</span>' : 'No'}</td>
         <td><span class="status-badge ${p.is_active ? 'status-active' : 'status-draft'}">${p.is_active ? 'Active' : 'Inactive'}</span></td>
         <td>
@@ -659,15 +658,11 @@ function showProductModal(product = null) {
         <input type="text" id="productSlug" value="${product?.slug || ''}" required placeholder="e.g., black-tiger-shrimp">
       </div>
       <div class="form-group">
-        <label>Category</label>
-        <select id="productCategory">
-          <option value="">Select Category</option>
-          ${categoryOptions}
-        </select>
-      </div>
-      <div class="form-group">
         <label>Scientific Name</label>
         <input type="text" id="productScientific" value="${product?.scientific_name || ''}">
+      </div>
+      <div class="form-group">
+        <!-- Spacer -->
       </div>
       <div class="form-group full-width">
         <label>Short Description</label>
@@ -744,7 +739,7 @@ async function saveProduct(e) {
     const data = {
         name: document.getElementById('productName').value,
         slug: document.getElementById('productSlug').value,
-        category_id: document.getElementById('productCategory').value || null,
+        category_id: null,
         scientific_name: document.getElementById('productScientific').value,
         short_description: document.getElementById('productShortDesc').value,
         full_description: document.getElementById('productFullDesc').value,
