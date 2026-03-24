@@ -138,48 +138,79 @@
 
         function displayProduct(product) {
             console.log('Displaying product:', product);
+            console.log('Product name:', product.name);
+            console.log('Product image:', product.featured_image);
+            console.log('Product scientific name:', product.scientific_name);
+            console.log('Product short desc:', product.short_description);
+            console.log('Product full desc:', product.full_description);
             
-            document.title = `${product.name} - Prawnique`;
+            document.title = `${product.name || 'Product'} - Prawnique`;
             
             const container = document.getElementById('productDetail');
             
-            const html = `
+            const imageUrl = product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=600&fit=crop';
+            const productName = product.name || 'Unnamed Product';
+            const scientificName = product.scientific_name || '';
+            const shortDesc = product.short_description || '';
+            const fullDesc = product.full_description || '';
+            
+            let html = `
                 <nav class="breadcrumb" style="margin-bottom: 2rem;">
                     <a href="/">Home</a> <span>/</span> 
                     <a href="/products.html">Products</a> <span>/</span> 
-                    <span>${product.name}</span>
+                    <span>${productName}</span>
                 </nav>
 
-                <div class="about-grid" style="gap: 3rem;">
-                    <div class="about-image fade-in-left">
-                        <img src="${product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=600&fit=crop'}" 
-                             alt="${product.name}"
-                             style="border-radius: 16px; box-shadow: var(--shadow-xl); width: 100%; max-width: 600px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+                    <div>
+                        <img src="${imageUrl}" 
+                             alt="${productName}"
+                             style="border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 100%; max-width: 600px;">
                     </div>
-                    <div class="about-content fade-in-right">
-                        <h1 style="margin-bottom: 0.5rem;">${product.name}</h1>
-                        ${product.scientific_name ? `<p style="color: var(--gray); font-style: italic; margin-bottom: 1.5rem;">${product.scientific_name}</p>` : ''}
-                        
-                        ${product.short_description ? `
-                            <div style="background: var(--pearl-cream); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
-                                <p style="margin: 0; font-size: 1.1rem; line-height: 1.6;">${formatContent(product.short_description)}</p>
-                            </div>
-                        ` : ''}
+                    <div>
+                        <h1 style="margin-bottom: 0.5rem; font-size: 2.5rem;">${productName}</h1>
+            `;
+            
+            if (scientificName) {
+                html += `<p style="color: #718096; font-style: italic; margin-bottom: 1.5rem; font-size: 1.1rem;">${scientificName}</p>`;
+            }
+            
+            if (shortDesc) {
+                html += `
+                    <div style="background: #f7f3ef; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                        <p style="margin: 0; font-size: 1.1rem; line-height: 1.6;">${formatContent(shortDesc)}</p>
+                    </div>
+                `;
+            }
 
-                        ${product.full_description ? `
-                            <div style="margin-bottom: 2rem;">
-                                <h3 style="margin-bottom: 1rem;">Description</h3>
-                                <div style="line-height: 1.8; color: var(--gray);">
-                                    <p>${formatContent(product.full_description)}</p>
-                                </div>
-                            </div>
-                        ` : ''}
+            if (fullDesc) {
+                html += `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">Description</h3>
+                        <div style="line-height: 1.8; color: #4a5568;">
+                            ${formatContent(fullDesc)}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (!shortDesc && !fullDesc) {
+                html += `
+                    <div style="background: #fff3cd; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border-left: 4px solid #ffc107;">
+                        <p style="margin: 0; color: #856404;">
+                            <i class="fas fa-info-circle"></i> No description available for this product yet. 
+                            Please contact us for more information.
+                        </p>
+                    </div>
+                `;
+            }
 
+            html += `
                         <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
-                            <a href="/contact.html" class="btn btn-primary">
+                            <a href="/contact.html" class="btn btn-primary" style="text-decoration: none;">
                                 <i class="fas fa-envelope"></i> Request Quote
                             </a>
-                            <a href="/products.html" class="btn btn-outline">
+                            <a href="/products.html" class="btn btn-outline" style="text-decoration: none;">
                                 <i class="fas fa-arrow-left"></i> Back to Products
                             </a>
                         </div>
@@ -187,7 +218,7 @@
                 </div>
             `;
             
-            console.log('Setting HTML');
+            console.log('Setting HTML, length:', html.length);
             container.innerHTML = html;
             console.log('HTML set successfully');
         }
