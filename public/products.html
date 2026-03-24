@@ -160,17 +160,17 @@
             } else {
                 emptyState.style.display = 'none';
                 grid.innerHTML = allProducts.map(p => `
-          <div class="card product-card fade-in visible">
+          <a href="/product.html?slug=${p.slug}" class="card product-card fade-in visible" style="text-decoration: none; color: inherit; display: block;">
             <div class="card-image">
               <img src="${p.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop'}" alt="${p.name}">
               <div class="card-overlay"></div>
-              <a href="/product.html?slug=${p.slug}" class="card-cta"><i class="fas fa-arrow-right"></i></a>
+              <div class="card-cta"><i class="fas fa-arrow-right"></i></div>
             </div>
             <div class="card-content">
               <h4 class="card-title">${p.name}</h4>
               <p class="card-text">${formatContent(p.short_description || '')}</p>
             </div>
-          </div>
+          </a>
         `).join('');
             }
         }
@@ -183,7 +183,7 @@
                 { name: 'Cat Tiger Shrimp', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique color and flavor' }
             ];
             return defaults.map(p => `
-        <div class="card product-card fade-in visible">
+        <a href="/products.html" class="card product-card fade-in visible" style="text-decoration: none; color: inherit; display: block;">
           <div class="card-image">
             <img src="${p.image}" alt="${p.name}">
             <div class="card-overlay"></div>
@@ -192,7 +192,7 @@
             <h4 class="card-title">${p.name}</h4>
             <p class="card-text">${p.desc}</p>
           </div>
-        </div>
+        </a>
       `).join('');
         }
     </script>

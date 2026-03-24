@@ -682,19 +682,19 @@ function createProductCard(product) {
     const image = product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop';
     const description = formatContent(product.short_description || '');
     return `
-    <div class="card product-card">
+    <a href="/product.html?slug=${product.slug}" class="card product-card" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image">
         <img src="${image}" alt="${product.name}" loading="lazy">
         <div class="card-overlay"></div>
-        <a href="/product.html?slug=${product.slug}" class="card-cta">
+        <div class="card-cta">
           <i class="fas fa-arrow-right"></i>
-        </a>
+        </div>
       </div>
       <div class="card-content">
         <h4 class="card-title">${product.name}</h4>
         <p class="card-text">${description}</p>
       </div>
-    </div>
+    </a>
   `;
 }
 
