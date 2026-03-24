@@ -1229,8 +1229,14 @@ async function loadTestimonials() {
         const response = await fetch('/api/testimonials');
         const testimonials = await response.json();
 
+        console.log('Loaded testimonials:', testimonials);
+        console.log('Number of testimonials:', testimonials.length);
+
         const grid = document.getElementById('testimonialsGrid');
-        if (!grid) return;
+        if (!grid) {
+            console.error('testimonialsGrid element not found');
+            return;
+        }
 
         if (testimonials.length === 0) {
             grid.innerHTML = '<div class="empty-message">No testimonials yet. Add your first testimonial!</div>';
@@ -1262,6 +1268,8 @@ async function loadTestimonials() {
                 </div>
             </div>
         `).join('');
+        
+        console.log('Testimonials grid updated');
     } catch (error) {
         console.error('Failed to load testimonials:', error);
         showToast('Failed to load testimonials', 'error');
@@ -1347,6 +1355,8 @@ async function saveTestimonial(id = null) {
         is_featured: document.getElementById('testimonial-featured').checked
     };
 
+    console.log('Saving testimonial:', data);
+
     try {
         const url = id ? `/api/admin/testimonials/${id}` : '/api/admin/testimonials';
         const method = id ? 'PUT' : 'POST';
@@ -1357,14 +1367,25 @@ async function saveTestimonial(id = null) {
             body: JSON.stringify(data)
         });
 
-        if (!response.ok) throw new Error('Failed to save testimonial');
+        console.log('Save response status:', response.status);
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save testimonial');
+        }
+
+        const result = await response.json();
+        console.log('Save result:', result);
 
         showToast(`Testimonial ${id ? 'updated' : 'added'} successfully`, 'success');
         closeModal();
-        loadTestimonials();
+        
+        // Reload testimonials
+        await loadTestimonials();
+        console.log('Testimonials reloaded');
     } catch (error) {
         console.error('Save testimonial error:', error);
-        showToast('Failed to save testimonial', 'error');
+        showToast('Failed to save testimonial: ' + error.message, 'error');
     }
 }
 
