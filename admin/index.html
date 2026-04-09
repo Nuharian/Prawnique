@@ -61,6 +61,10 @@
                     <i class="fas fa-images"></i>
                     <span>Homepage Slider</span>
                 </a>
+                <a href="#homepage-images" class="nav-item" data-section="homepage-images">
+                    <i class="fas fa-image"></i>
+                    <span>Homepage Images</span>
+                </a>
                 <a href="#sections" class="nav-item" data-section="sections">
                     <i class="fas fa-layer-group"></i>
                     <span>Page Sections</span>
@@ -261,6 +265,39 @@
                         <div class="card-body">
                             <div class="slider-list" id="sliderList">
                                 <p class="empty-message">No slides yet. Add your first slide above.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Homepage Images -->
+                <section class="content-section" id="section-homepage-images">
+                    <div class="section-header">
+                        <h3>Homepage Images</h3>
+                        <p>Manage images displayed on the homepage.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h4>About Section Image</h4>
+                            <p style="color: #666; margin-bottom: 1rem;">This image appears in the "About Us" section on the homepage.</p>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <img id="aboutSectionImagePreview" src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop" 
+                                     alt="About section" style="max-width: 300px; border-radius: 8px; border: 2px solid #ddd;">
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <input type="text" id="aboutSectionImageUrl" placeholder="Image URL" 
+                                       value="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop"
+                                       style="flex: 1;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('aboutSectionImageFile').click()">
+                                    <i class="fas fa-upload"></i> Upload Image
+                                </button>
+                                <input type="file" id="aboutSectionImageFile" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-primary" onclick="saveAboutSectionImage()">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
                             </div>
                         </div>
                     </div>

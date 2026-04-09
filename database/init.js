@@ -190,6 +190,7 @@ async function initPostgres() {
       ['site_name', 'Prawnique'],
       ['site_tagline', 'Premium Prawns, Naturally Sourced'],
       ['site_logo', '/img/logo.png'],
+      ['about_section_image', 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop'],
       ['contact_email', 'info@prawnique.com'],
       ['contact_phone', '+880 1XXX-XXXXXX'],
       ['contact_address', 'Dhaka, Bangladesh'],

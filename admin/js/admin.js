@@ -151,6 +151,7 @@ function showSection(section) {
     const titles = {
         dashboard: 'Dashboard',
         slider: 'Homepage Slider',
+        'homepage-images': 'Homepage Images',
         sections: 'Page Sections',
         products: 'Products',
         team: 'Team Members',
@@ -172,6 +173,9 @@ function loadSectionData(section) {
             break;
         case 'slider':
             loadSliderImages();
+            break;
+        case 'homepage-images':
+            loadHomepageImages();
             break;
         case 'sections':
             loadSections();
@@ -2097,4 +2101,85 @@ function loadAllData() {
     loadContacts();
     loadNewsletterSubscribers();
     loadSettings();
+}
+
+
+// ============================================
+// HOMEPAGE IMAGES
+// ============================================
+
+async function loadHomepageImages() {
+    try {
+        const response = await fetch('/api/settings');
+        const settings = await response.json();
+        
+        const aboutImageUrl = settings.about_section_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop';
+        
+        document.getElementById('aboutSectionImageUrl').value = aboutImageUrl;
+        document.getElementById('aboutSectionImagePreview').src = aboutImageUrl;
+    } catch (error) {
+        console.error('Failed to load homepage images:', error);
+    }
+}
+
+// Handle about section image upload
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('aboutSectionImageFile');
+    if (fileInput) {
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetchWithCredentials('/api/admin/upload/general', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const result = await response.json();
+                document.getElementById('aboutSectionImageUrl').value = result.path;
+                document.getElementById('aboutSectionImagePreview').src = result.path;
+                
+                showToast('Image uploaded successfully', 'success');
+            } catch (error) {
+                console.error('Image upload error:', error);
+                showToast('Failed to upload image', 'error');
+            }
+        });
+    }
+    
+    // Update preview when URL changes
+    const urlInput = document.getElementById('aboutSectionImageUrl');
+    if (urlInput) {
+        urlInput.addEventListener('input', () => {
+            document.getElementById('aboutSectionImagePreview').src = urlInput.value;
+        });
+    }
+});
+
+async function saveAboutSectionImage() {
+    const imageUrl = document.getElementById('aboutSectionImageUrl').value;
+    
+    try {
+        const response = await fetchWithCredentials('/api/admin/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ about_section_image: imageUrl })
+        });
+
+        if (!response.ok) throw new Error('Failed to save');
+
+        const result = await response.json();
+        if (result.success) {
+            showToast('About section image saved successfully', 'success');
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        showToast('Failed to save image', 'error');
+    }
 }

@@ -413,6 +413,14 @@ async function loadSiteSettings() {
             }
         }
 
+        // Update about section image
+        if (settings.about_section_image) {
+            const aboutImage = document.getElementById('aboutImage');
+            if (aboutImage) {
+                aboutImage.src = settings.about_section_image;
+            }
+        }
+
         // Wave Animation Toggle
         const animationType = settings.wave_animation_type || 'realistic';
         initWaveAnimation(animationType);
