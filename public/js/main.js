@@ -818,16 +818,21 @@ async function loadTestimonials() {
 
 function createTestimonialCard(testimonial) {
     const stars = '<i class="fas fa-star"></i>'.repeat(testimonial.rating || 5);
-    // Use a generic silhouette icon if no image is provided
-    const image = testimonial.image_path || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e2e8f0"/%3E%3Cpath d="M50 45c8.284 0 15-6.716 15-15s-6.716-15-15-15-15 6.716-15 15 6.716 15 15 15zm0 5c-10 0-30 5-30 15v10h60V65c0-10-20-15-30-15z" fill="%2394a3b8"/%3E%3C/svg%3E';
     const content = formatContent(testimonial.content);
+    
+    // Check if image exists and is not empty
+    const hasImage = testimonial.image_path && testimonial.image_path.trim() !== '';
+    
+    const imageHtml = hasImage 
+        ? `<img src="${testimonial.image_path}" alt="${testimonial.client_name}" loading="lazy">`
+        : `<div style="width: 80px; height: 80px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center;"><i class="fas fa-user" style="font-size: 2rem; color: #94a3b8;"></i></div>`;
 
     return `
         <div class="testimonial-card">
             <div class="testimonial-stars">${stars}</div>
             <p class="testimonial-content">"${content}"</p>
             <div class="testimonial-author">
-                <img src="${image}" alt="${testimonial.client_name}" loading="lazy">
+                ${imageHtml}
                 <div class="testimonial-author-info">
                     <h4>${testimonial.client_name}</h4>
                     <span>${testimonial.position || ''}${testimonial.position && testimonial.company ? ', ' : ''}${testimonial.company || ''}</span>
