@@ -397,6 +397,8 @@ async function loadSiteSettings() {
         const response = await fetch('/api/settings');
         const settings = await response.json();
 
+        console.log('Loaded settings:', settings);
+
         // Update logo on all pages
         const logoImages = document.querySelectorAll('.logo-image');
         if (settings.site_logo && logoImages.length > 0) {
@@ -414,11 +416,9 @@ async function loadSiteSettings() {
         }
 
         // Update about section image
-        if (settings.about_section_image) {
-            const aboutImage = document.getElementById('aboutImage');
-            if (aboutImage) {
-                aboutImage.src = settings.about_section_image;
-            }
+        const aboutImage = document.getElementById('aboutImage');
+        if (aboutImage && settings.about_section_image) {
+            aboutImage.src = settings.about_section_image;
         }
 
         // Wave Animation Toggle
@@ -434,6 +434,7 @@ async function loadSiteSettings() {
         // Update social links
         updateSocialLinks(settings);
     } catch (error) {
+        console.error('Error loading settings:', error);
         console.log('Using default settings');
         initWaveAnimation('realistic');
     }
