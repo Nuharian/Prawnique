@@ -792,6 +792,11 @@ async function loadTestimonials() {
     try {
         // Add cache-busting parameter to force fresh data
         const response = await fetch('/api/testimonials?_=' + Date.now());
+        
+        if (!response.ok) {
+            throw new Error('Failed to load testimonials');
+        }
+        
         const testimonials = await response.json();
 
         // Filter featured testimonials or take first 3
@@ -800,10 +805,14 @@ async function loadTestimonials() {
 
         if (toShow.length > 0) {
             container.innerHTML = toShow.map(t => createTestimonialCard(t)).join('');
+        } else {
+            // No testimonials found
+            container.innerHTML = '<div style="text-align: center; padding: 2rem; grid-column: 1 / -1;"><p style="color: var(--gray);">No testimonials available yet.</p></div>';
         }
-        // Otherwise keep default HTML content
     } catch (error) {
-        console.log('Using default testimonials');
+        console.error('Error loading testimonials:', error);
+        // Show error message
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; grid-column: 1 / -1;"><p style="color: var(--gray);">Unable to load testimonials.</p></div>';
     }
 }
 
