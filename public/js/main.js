@@ -790,7 +790,8 @@ async function loadTestimonials() {
     if (!container) return;
 
     try {
-        const response = await fetch('/api/testimonials');
+        // Add cache-busting parameter to force fresh data
+        const response = await fetch('/api/testimonials?_=' + Date.now());
         const testimonials = await response.json();
 
         // Filter featured testimonials or take first 3
