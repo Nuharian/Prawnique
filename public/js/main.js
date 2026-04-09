@@ -564,16 +564,15 @@ async function loadSections() {
         if (sections.about_preview) {
             const aboutTitle = document.getElementById('aboutTitle');
             const aboutContent = document.getElementById('aboutContent');
-            const aboutImage = document.getElementById('aboutImage');
             
             if (aboutTitle) aboutTitle.textContent = sections.about_preview.title;
             if (aboutContent && sections.about_preview.content) {
                 // Format content and wrap in paragraph tags
                 aboutContent.innerHTML = '<p>' + formatContent(sections.about_preview.content) + '</p>';
             }
-            if (aboutImage && sections.about_preview.image_path) {
-                aboutImage.src = sections.about_preview.image_path;
-            }
+            
+            // Load about image from gallery
+            loadAboutImage();
         }
 
         // Update Products Header
@@ -583,6 +582,29 @@ async function loadSections() {
         } else {
             console.warn('products_header section not found in API response');
         }
+    } catch (error) {
+        console.error('Failed to load sections:', error);
+    }
+}
+
+async function loadAboutImage() {
+    try {
+        const response = await fetch('/api/gallery');
+        const images = await response.json();
+        
+        // Find image with category "about-section"
+        const aboutImage = images.find(img => img.category === 'about-section' && img.is_active);
+        
+        if (aboutImage) {
+            const imgElement = document.getElementById('aboutImage');
+            if (imgElement) {
+                imgElement.src = aboutImage.image_path;
+            }
+        }
+    } catch (error) {
+        console.log('Using default about image');
+    }
+}
 
         // Update Features Header
         if (sections.features_header) {

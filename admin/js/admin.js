@@ -558,7 +558,6 @@ async function loadSections() {
 
         container.innerHTML = sectionKeys.map(key => {
             const section = sections[key];
-            const hasImage = section.image_path && section.image_path !== '';
             return `
         <div class="card">
           <div class="card-header" onclick="toggleAccordion(this)">
@@ -577,17 +576,6 @@ async function loadSections() {
               <div class="form-group full-width">
                 <label>Content</label>
                 <textarea id="section-${key}-content" rows="4">${section.content || ''}</textarea>
-              </div>
-              <div class="form-group full-width">
-                <label>Image (Optional)</label>
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                  ${hasImage ? `<img src="${section.image_path}" alt="Section image" style="max-height: 80px; border: 1px solid #ddd; padding: 0.5rem; border-radius: 8px;">` : ''}
-                  <input type="text" id="section-${key}-image" value="${section.image_path || ''}" placeholder="Image URL or upload below" style="flex: 1;">
-                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('section-${key}-upload').click()">
-                    <i class="fas fa-upload"></i> Upload
-                  </button>
-                  <input type="file" id="section-${key}-upload" accept="image/*" style="display: none;" onchange="uploadSectionImage(event, '${key}')">
-                </div>
               </div>
               <div class="form-actions full-width">
                 <button type="submit" class="btn btn-primary">
@@ -626,7 +614,7 @@ async function saveSection(e, key) {
         title: document.getElementById(`section-${key}-title`).value,
         subtitle: document.getElementById(`section-${key}-subtitle`).value,
         content: document.getElementById(`section-${key}-content`).value,
-        image_path: document.getElementById(`section-${key}-image`).value || ''
+        image_path: ''
     };
 
     console.log('Saving section:', key, 'with data:', data);
@@ -651,40 +639,10 @@ async function saveSection(e, key) {
 
         if (result.success) {
             showToast('Section updated successfully', 'success');
-            // Don't reload - just show success message
         }
     } catch (error) {
         console.error('Save section error:', error);
         showToast('Failed to update section: ' + error.message, 'error');
-    }
-}
-
-async function uploadSectionImage(event, key) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-        const response = await fetchWithCredentials('/api/admin/upload/general', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) throw new Error('Upload failed');
-
-        const result = await response.json();
-        const imageInput = document.getElementById(`section-${key}-image`);
-        imageInput.value = result.path;
-        
-        showToast('Image uploaded successfully', 'success');
-        
-        // Reload sections to show the new image
-        loadSections();
-    } catch (error) {
-        console.error('Image upload error:', error);
-        showToast('Failed to upload image', 'error');
     }
 }
 
