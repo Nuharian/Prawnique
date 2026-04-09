@@ -279,7 +279,7 @@
 
                     <div class="card">
                         <div class="card-body">
-                            <h4>About Section Image</h4>
+                            <h4>About Section Image (Homepage)</h4>
                             <p style="color: #666; margin-bottom: 1rem;">This image appears in the "About Us" section on the homepage.</p>
                             
                             <div style="margin-bottom: 1.5rem;">
@@ -287,7 +287,7 @@
                                      alt="About section" style="max-width: 300px; border-radius: 8px; border: 2px solid #ddd;">
                             </div>
                             
-                            <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
                                 <input type="text" id="aboutSectionImageUrl" placeholder="Image URL" 
                                        value="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop"
                                        style="flex: 1;">
@@ -296,6 +296,29 @@
                                 </button>
                                 <input type="file" id="aboutSectionImageFile" accept="image/*" style="display: none;">
                                 <button type="button" class="btn btn-primary" onclick="saveAboutSectionImage()">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            </div>
+
+                            <hr style="margin: 2rem 0; border: none; border-top: 1px solid #e2e8f0;">
+
+                            <h4>About Story Image (About Page)</h4>
+                            <p style="color: #666; margin-bottom: 1rem;">This image appears in the "Our Story" section on the About page.</p>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <img id="aboutStoryImagePreview" src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&h=500&fit=crop" 
+                                     alt="About story" style="max-width: 300px; border-radius: 8px; border: 2px solid #ddd;">
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <input type="text" id="aboutStoryImageUrl" placeholder="Image URL" 
+                                       value="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&h=500&fit=crop"
+                                       style="flex: 1;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('aboutStoryImageFile').click()">
+                                    <i class="fas fa-upload"></i> Upload Image
+                                </button>
+                                <input type="file" id="aboutStoryImageFile" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-primary" onclick="saveAboutStoryImage()">
                                     <i class="fas fa-save"></i> Save
                                 </button>
                             </div>

@@ -2114,9 +2114,13 @@ async function loadHomepageImages() {
         const settings = await response.json();
         
         const aboutImageUrl = settings.about_section_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop';
+        const aboutStoryImageUrl = settings.about_story_image || 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&h=500&fit=crop';
         
         document.getElementById('aboutSectionImageUrl').value = aboutImageUrl;
         document.getElementById('aboutSectionImagePreview').src = aboutImageUrl;
+        
+        document.getElementById('aboutStoryImageUrl').value = aboutStoryImageUrl;
+        document.getElementById('aboutStoryImagePreview').src = aboutStoryImageUrl;
     } catch (error) {
         console.error('Failed to load homepage images:', error);
     }
@@ -2177,6 +2181,69 @@ async function saveAboutSectionImage() {
         const result = await response.json();
         if (result.success) {
             showToast('About section image saved successfully', 'success');
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        showToast('Failed to save image', 'error');
+    }
+}
+
+
+// Handle about story image upload
+document.addEventListener('DOMContentLoaded', () => {
+    const storyFileInput = document.getElementById('aboutStoryImageFile');
+    if (storyFileInput) {
+        storyFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetchWithCredentials('/api/admin/upload/general', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Upload failed');
+
+                const result = await response.json();
+                document.getElementById('aboutStoryImageUrl').value = result.path;
+                document.getElementById('aboutStoryImagePreview').src = result.path;
+                
+                showToast('Image uploaded successfully', 'success');
+            } catch (error) {
+                console.error('Image upload error:', error);
+                showToast('Failed to upload image', 'error');
+            }
+        });
+    }
+    
+    // Update preview when URL changes
+    const storyUrlInput = document.getElementById('aboutStoryImageUrl');
+    if (storyUrlInput) {
+        storyUrlInput.addEventListener('input', () => {
+            document.getElementById('aboutStoryImagePreview').src = storyUrlInput.value;
+        });
+    }
+});
+
+async function saveAboutStoryImage() {
+    const imageUrl = document.getElementById('aboutStoryImageUrl').value;
+    
+    try {
+        const response = await fetchWithCredentials('/api/admin/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ about_story_image: imageUrl })
+        });
+
+        if (!response.ok) throw new Error('Failed to save');
+
+        const result = await response.json();
+        if (result.success) {
+            showToast('About story image saved successfully', 'success');
         }
     } catch (error) {
         console.error('Save error:', error);

@@ -415,10 +415,16 @@ async function loadSiteSettings() {
             }
         }
 
-        // Update about section image
+        // Update about section image (homepage)
         const aboutImage = document.getElementById('aboutImage');
         if (aboutImage && settings.about_section_image) {
             aboutImage.src = settings.about_section_image;
+        }
+
+        // Update about story image (about page)
+        const aboutStoryImage = document.getElementById('aboutStoryImage');
+        if (aboutStoryImage && settings.about_story_image) {
+            aboutStoryImage.src = settings.about_story_image;
         }
 
         // Wave Animation Toggle
