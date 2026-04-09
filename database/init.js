@@ -250,18 +250,21 @@ async function initPostgres() {
       await sql`INSERT INTO sections (section_key, title, subtitle, content, image_path) VALUES (${key}, ${title}, ${subtitle}, ${content}, ${imagePath || ''}) ON CONFLICT (section_key) DO UPDATE SET image_path = COALESCE(NULLIF(sections.image_path, ''), ${imagePath || ''})`;
     }
 
-    // Clear and insert default testimonials
-    await sql`DELETE FROM testimonials`;
+    // Insert default testimonials only if none exist
+    const testimonialCheck = await sql`SELECT COUNT(*) as count FROM testimonials`;
+    const testimonialCount = testimonialCheck.rows[0].count;
     
-    const defaultTestimonials = [
-      ['James Wilson', 'Seafood Imports Ltd', 'Managing Director, UK', 'Prawnique has been our trusted supplier for over 5 years. Their consistency in quality and timely deliveries have made them an invaluable partner.', 5, 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face', true, 0],
-      ['Yuki Tanaka', 'Tokyo Seafood Co.', 'CEO, Japan', 'The quality of their Black Tiger Shrimp is exceptional. Our customers in Japan appreciate the freshness and taste. Highly recommended!', 5, 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face', true, 1],
-      ['Michael Schmidt', 'Euro Foods GmbH', 'Procurement Manager, Germany', 'Professional team, excellent communication, and top-notch products. Prawnique understands what international buyers need.', 5, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face', true, 2]
-    ];
+    if (testimonialCount === 0) {
+      const defaultTestimonials = [
+        ['James Wilson', 'Seafood Imports Ltd', 'Managing Director, UK', 'Prawnique has been our trusted supplier for over 5 years. Their consistency in quality and timely deliveries have made them an invaluable partner.', 5, 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face', true, 0],
+        ['Yuki Tanaka', 'Tokyo Seafood Co.', 'CEO, Japan', 'The quality of their Black Tiger Shrimp is exceptional. Our customers in Japan appreciate the freshness and taste. Highly recommended!', 5, 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face', true, 1],
+        ['Michael Schmidt', 'Euro Foods GmbH', 'Procurement Manager, Germany', 'Professional team, excellent communication, and top-notch products. Prawnique understands what international buyers need.', 5, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face', true, 2]
+      ];
 
-    for (const [name, company, position, content, rating, image, featured, order] of defaultTestimonials) {
-      await sql`INSERT INTO testimonials (client_name, company, position, content, rating, image_path, is_featured, display_order) 
-                VALUES (${name}, ${company}, ${position}, ${content}, ${rating}, ${image}, ${featured}, ${order})`;
+      for (const [name, company, position, content, rating, image, featured, order] of defaultTestimonials) {
+        await sql`INSERT INTO testimonials (client_name, company, position, content, rating, image_path, is_featured, display_order) 
+                  VALUES (${name}, ${company}, ${position}, ${content}, ${rating}, ${image}, ${featured}, ${order})`;
+      }
     }
 
     // Insert default news articles
