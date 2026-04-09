@@ -419,12 +419,14 @@ async function loadSiteSettings() {
         const aboutImage = document.getElementById('aboutImage');
         if (aboutImage && settings.about_section_image) {
             aboutImage.src = settings.about_section_image;
+            aboutImage.style.opacity = '1';
         }
 
         // Update about story image (about page)
         const aboutStoryImage = document.getElementById('aboutStoryImage');
         if (aboutStoryImage && settings.about_story_image) {
             aboutStoryImage.src = settings.about_story_image;
+            aboutStoryImage.style.opacity = '1';
         }
 
         // Wave Animation Toggle
