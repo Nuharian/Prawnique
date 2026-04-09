@@ -818,7 +818,8 @@ async function loadTestimonials() {
 
 function createTestimonialCard(testimonial) {
     const stars = '<i class="fas fa-star"></i>'.repeat(testimonial.rating || 5);
-    const image = testimonial.image_path || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face';
+    // Use a generic silhouette icon if no image is provided
+    const image = testimonial.image_path || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e2e8f0"/%3E%3Cpath d="M50 45c8.284 0 15-6.716 15-15s-6.716-15-15-15-15 6.716-15 15 6.716 15 15 15zm0 5c-10 0-30 5-30 15v10h60V65c0-10-20-15-30-15z" fill="%2394a3b8"/%3E%3C/svg%3E';
     const content = formatContent(testimonial.content);
 
     return `
