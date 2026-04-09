@@ -564,10 +564,15 @@ async function loadSections() {
         if (sections.about_preview) {
             const aboutTitle = document.getElementById('aboutTitle');
             const aboutContent = document.getElementById('aboutContent');
+            const aboutImage = document.getElementById('aboutImage');
+            
             if (aboutTitle) aboutTitle.textContent = sections.about_preview.title;
             if (aboutContent && sections.about_preview.content) {
                 // Format content and wrap in paragraph tags
                 aboutContent.innerHTML = '<p>' + formatContent(sections.about_preview.content) + '</p>';
+            }
+            if (aboutImage && sections.about_preview.image_path) {
+                aboutImage.src = sections.about_preview.image_path;
             }
         }
 
