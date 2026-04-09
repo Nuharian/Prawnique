@@ -218,35 +218,35 @@ async function initPostgres() {
 
     // Insert default sections
     const defaultSections = [
-      ['hero', 'Premium Prawns, Naturally Sourced', 'From the pristine waters of Bangladesh', ''],
-      ['about_preview', 'About Prawnique', 'Your Trusted Seafood Partner', 'We are dedicated to providing the highest quality prawns.'],
-      ['mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns.'],
+      ['hero', 'Premium Prawns, Naturally Sourced', 'From the pristine waters of Bangladesh', '', ''],
+      ['about_preview', 'About Prawnique', 'Your Trusted Seafood Partner', 'We are dedicated to providing the highest quality prawns.', 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop'],
+      ['mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns.', ''],
       // About Page Sections
-      ['about_story', 'Bringing the Best of Bangladesh\'s Seafood to the World', 'Our Story', 'Founded with a vision to showcase Bangladesh\'s exceptional prawn and seafood industry to the global market, Prawnique has grown to become a trusted name in quality seafood exports.\n\nOur journey began in the coastal regions of Bangladesh, where generations of fishing communities have honed their craft. We partner directly with these skilled farmers and fishermen to bring you the freshest, most sustainably sourced prawns available.\n\nToday, we export to over 50 countries, maintaining our commitment to quality, sustainability, and fair partnerships with local communities.'],
-      ['about_mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns and seafood while supporting local fishing communities and preserving marine ecosystems for future generations.'],
-      ['about_vision', 'Our Vision', '', 'To be the world\'s most trusted seafood partner, recognized for exceptional quality, ethical practices, and positive impact on communities and environment.'],
+      ['about_story', 'Bringing the Best of Bangladesh\'s Seafood to the World', 'Our Story', 'Founded with a vision to showcase Bangladesh\'s exceptional prawn and seafood industry to the global market, Prawnique has grown to become a trusted name in quality seafood exports.\n\nOur journey began in the coastal regions of Bangladesh, where generations of fishing communities have honed their craft. We partner directly with these skilled farmers and fishermen to bring you the freshest, most sustainably sourced prawns available.\n\nToday, we export to over 50 countries, maintaining our commitment to quality, sustainability, and fair partnerships with local communities.', ''],
+      ['about_mission', 'Our Mission', '', 'To deliver premium, sustainably sourced prawns and seafood while supporting local fishing communities and preserving marine ecosystems for future generations.', ''],
+      ['about_vision', 'Our Vision', '', 'To be the world\'s most trusted seafood partner, recognized for exceptional quality, ethical practices, and positive impact on communities and environment.', ''],
       // Products Section
-      ['products_header', 'Our Products', 'Premium Seafood Selection', 'Discover our range of premium prawns and seafood, sourced responsibly and processed with care.'],
+      ['products_header', 'Our Products', 'Premium Seafood Selection', 'Discover our range of premium prawns and seafood, sourced responsibly and processed with care.', ''],
       // Features Section
-      ['features_header', 'Why Choose Us', 'The Prawnique Difference', 'Quality you can trust, freshness you can taste.'],
-      ['feature_quality', 'Premium Quality', '', 'Only the finest prawns make it through our rigorous quality control process.'],
-      ['feature_sustainable', 'Sustainably Sourced', '', 'Our farms follow eco-friendly practices to protect marine ecosystems.'],
-      ['feature_fresh', 'Fresh Frozen', '', 'Flash-frozen at peak freshness to lock in flavor and nutrients.'],
-      ['feature_delivery', 'Global Delivery', '', 'We export to over 50 countries with reliable cold-chain logistics.'],
+      ['features_header', 'Why Choose Us', 'The Prawnique Difference', 'Quality you can trust, freshness you can taste.', ''],
+      ['feature_quality', 'Premium Quality', '', 'Only the finest prawns make it through our rigorous quality control process.', ''],
+      ['feature_sustainable', 'Sustainably Sourced', '', 'Our farms follow eco-friendly practices to protect marine ecosystems.', ''],
+      ['feature_fresh', 'Fresh Frozen', '', 'Flash-frozen at peak freshness to lock in flavor and nutrients.', ''],
+      ['feature_delivery', 'Global Delivery', '', 'We export to over 50 countries with reliable cold-chain logistics.', ''],
       // Testimonials Section
-      ['testimonials_header', 'Testimonials', 'What Our Clients Say', 'Trusted by seafood importers and distributors worldwide.'],
+      ['testimonials_header', 'Testimonials', 'What Our Clients Say', 'Trusted by seafood importers and distributors worldwide.', ''],
       // News Section
-      ['news_header', 'Latest News', 'From Our Blog', 'Stay updated with industry news and company updates.'],
+      ['news_header', 'Latest News', 'From Our Blog', 'Stay updated with industry news and company updates.', ''],
       // CTA Section
-      ['cta_section', 'Ready to Partner With Us?', '', 'Get in touch today to discuss your seafood requirements. We offer competitive pricing, reliable supply, and exceptional quality.'],
+      ['cta_section', 'Ready to Partner With Us?', '', 'Get in touch today to discuss your seafood requirements. We offer competitive pricing, reliable supply, and exceptional quality.', ''],
       // Footer
-      ['footer_about', 'About Footer', '', 'Your trusted partner for premium quality prawns and seafood products. Sustainably sourced from the coastal waters of Bangladesh.'],
-      ['footer_newsletter', 'Newsletter', '', 'Subscribe to get the latest news and offers.'],
-      ['footer_tagline', 'Footer Tagline', '', 'Designed with 💙 for seafood lovers']
+      ['footer_about', 'About Footer', '', 'Your trusted partner for premium quality prawns and seafood products. Sustainably sourced from the coastal waters of Bangladesh.', ''],
+      ['footer_newsletter', 'Newsletter', '', 'Subscribe to get the latest news and offers.', ''],
+      ['footer_tagline', 'Footer Tagline', '', 'Designed with 💙 for seafood lovers', '']
     ];
 
-    for (const [key, title, subtitle, content] of defaultSections) {
-      await sql`INSERT INTO sections (section_key, title, subtitle, content) VALUES (${key}, ${title}, ${subtitle}, ${content}) ON CONFLICT (section_key) DO NOTHING`;
+    for (const [key, title, subtitle, content, imagePath] of defaultSections) {
+      await sql`INSERT INTO sections (section_key, title, subtitle, content, image_path) VALUES (${key}, ${title}, ${subtitle}, ${content}, ${imagePath || ''}) ON CONFLICT (section_key) DO UPDATE SET image_path = COALESCE(NULLIF(sections.image_path, ''), ${imagePath || ''})`;
     }
 
     // Clear and insert default testimonials
