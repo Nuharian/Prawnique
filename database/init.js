@@ -60,7 +60,7 @@ const sectionColumnMigrations = [
 
 // Bump this whenever database/seed.js gains rows or the schema changes, so the
 // next deploy runs the full DDL and seed pass again instead of the fast path.
-const SCHEMA_VERSION = '3';
+const SCHEMA_VERSION = '4';
 
 // A cold start would otherwise replay ~65 statements before serving its first
 // request. Once the schema is at the current version there is nothing to do.
@@ -301,6 +301,16 @@ async function initPostgres() {
                 ON CONFLICT (slug) DO NOTHING`;
     }
 
+    // Section buttons saved before the site moved to extensionless URLs still
+    // point at /contact.html and friends. Those redirect, but rewriting them
+    // removes the extra hop on every call-to-action click.
+    await sql`
+      UPDATE sections
+      SET button_link = regexp_replace(button_link, '^/([a-z0-9-]+)\.html$', '/\1')
+      WHERE button_link ~ '^/[a-z0-9-]+\.html$'
+    `;
+    await sql`UPDATE sections SET button_link = '/' WHERE button_link = '/index'`;
+
     // One-time correction for databases seeded before the default changed.
     // Seeding uses DO NOTHING, so an existing row would otherwise keep the old
     // value forever. This only runs on the full-init path, i.e. once per schema
@@ -400,6 +410,16 @@ async function initLocalDb() {
         'INSERT INTO team_members (name, position, bio, image_path, email, phone, linkedin, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [name, position, bio, image, email, phone, linkedin, order]
       );
+    }
+  }
+
+  // SQLite has no regexp_replace, so the handful of affected rows are rewritten
+  // in JS. Mirrors the Postgres migration above.
+  const linkRows = localDb.exec("SELECT section_key, button_link FROM sections WHERE button_link LIKE '/%.html'");
+  if (linkRows.length) {
+    for (const [key, link] of linkRows[0].values) {
+      const clean = link === '/index.html' ? '/' : link.replace(/\.html$/, '');
+      localDb.run('UPDATE sections SET button_link = ? WHERE section_key = ?', [clean, key]);
     }
   }
 

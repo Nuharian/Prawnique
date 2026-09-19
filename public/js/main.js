@@ -716,7 +716,7 @@ function createProductCard(product) {
     const image = product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop';
     const description = formatContent(product.short_description || '');
     return `
-    <a href="/product.html?slug=${encodeURIComponent(product.slug)}" class="card product-card" style="text-decoration: none; color: inherit; display: block;">
+    <a href="/product?slug=${encodeURIComponent(product.slug)}" class="card product-card" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image">
         <img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" loading="lazy">
         <div class="card-overlay"></div>
@@ -745,7 +745,7 @@ function getDefaultProductCards() {
       <div class="card-image">
         <img src="${p.image}" alt="${p.name}" loading="lazy">
         <div class="card-overlay"></div>
-        <a href="/products.html" class="card-cta">
+        <a href="/products" class="card-cta">
           <i class="fas fa-arrow-right"></i>
         </a>
       </div>
@@ -837,7 +837,7 @@ function createNewsCard(post) {
     const excerpt = formatContent(post.excerpt || '');
 
     return `
-    <a href="/news-detail.html?slug=${encodeURIComponent(post.slug)}" class="card news-card news-card-link" style="text-decoration: none; color: inherit; display: block;">
+    <a href="/news-detail?slug=${encodeURIComponent(post.slug)}" class="card news-card news-card-link" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image">
         <img src="${escapeHtml(image)}" alt="${escapeHtml(post.title)}" loading="lazy">
       </div>

@@ -19,7 +19,9 @@
     // navigation, and replaying it there would sit in front of the content the
     // visitor just asked for.
     var path = window.location.pathname.replace(/\/+$/, '');
-    var isLandingPage = path === '' || path === '/index.html' || path === '/index';
+    // Trailing slashes are stripped above, so the landing page is the empty
+    // path. /index.html is redirected to / by the server before it gets here.
+    var isLandingPage = path === '' || path === '/index';
     if (!isLandingPage) return;
 
     var SETTINGS_CACHE_KEY = 'prawnique.introSettings';

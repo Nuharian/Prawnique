@@ -31,6 +31,23 @@ document.addEventListener('DOMContentLoaded', () => {
     initSettingsForm();
 });
 
+// Admin list endpoints return an array on success and an object like
+// {error: "Unauthorized"} on failure. Calling .map on that throws inside a
+// catch block that only logs, which is why a failed load showed an empty panel
+// with no message. Every loader routes its response through this instead.
+function asList(data, container, label) {
+    if (Array.isArray(data)) return data;
+
+    console.error(`Failed to load ${label}:`, data);
+    if (container) {
+        const message = data && data.error === 'Unauthorized'
+            ? 'Your session expired. Please reload the page and log in again.'
+            : `Could not load ${label}. Please reload the page.`;
+        container.innerHTML = `<p class="empty-message">${message}</p>`;
+    }
+    return null;
+}
+
 // ============================================
 // AUTHENTICATION
 // ============================================
@@ -438,6 +455,9 @@ async function loadSliderImages() {
         const images = await response.json();
 
         const container = document.getElementById('sliderList');
+        if (!container) return;
+        images = asList(images, container, 'slider images');
+        if (!images) return;
         const countEl = document.getElementById('slideCount');
 
         if (countEl) {
@@ -805,6 +825,9 @@ async function loadProducts() {
 
         const tbody = document.getElementById('productsTable');
         if (!tbody) return;
+        products = asList(products, tbody, 'products');
+        if (!products) return;
+        if (!tbody) return;
 
         if (products.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" class="empty-message">No products yet. Add your first product.</td></tr>';
@@ -1171,6 +1194,9 @@ async function loadTeamMembers() {
         const members = await response.json();
 
         const container = document.getElementById('teamGrid');
+        if (!container) return;
+        members = asList(members, container, 'team members');
+        if (!members) return;
         if (!container) return;
 
         if (members.length === 0) {
@@ -1574,6 +1600,9 @@ async function loadNewsPosts() {
 
         const tbody = document.getElementById('newsTable');
         if (!tbody) return;
+        posts = asList(posts, tbody, 'news posts');
+        if (!posts) return;
+        if (!tbody) return;
 
         if (posts.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" class="empty-message">No posts yet. Add your first news post.</td></tr>';
@@ -1778,6 +1807,9 @@ async function loadGalleryImages() {
 
         const container = document.getElementById('galleryGrid');
         if (!container) return;
+        images = asList(images, container, 'gallery images');
+        if (!images) return;
+        if (!container) return;
 
         if (images.length === 0) {
             container.innerHTML = '<p class="empty-message" style="grid-column: 1/-1;">No gallery images yet. Add some images to showcase your products.</p>';
@@ -1913,6 +1945,9 @@ async function loadContacts() {
 
         const tbody = document.getElementById('contactsTable');
         if (!tbody) return;
+        contacts = asList(contacts, tbody, 'messages');
+        if (!contacts) return;
+        if (!tbody) return;
 
         if (contacts.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="empty-message">No messages yet.</td></tr>';
@@ -1971,6 +2006,9 @@ async function loadNewsletterSubscribers() {
         const subscribers = await response.json();
 
         const tbody = document.getElementById('newsletterTable');
+        if (!tbody) return;
+        subscribers = asList(subscribers, tbody, 'subscribers');
+        if (!subscribers) return;
         if (!tbody) return;
 
         if (subscribers.length === 0) {

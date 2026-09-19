@@ -27,13 +27,13 @@
             </a>
             <div class="nav-links" id="navLinks">
                 <a href="/">Home</a>
-                <a href="/products.html" class="active">Products</a>
-                <a href="/about.html">About Us</a>
-                <a href="/team.html">Team</a>
-                <a href="/news.html">News</a>
-                <a href="/gallery.html">Gallery</a>
-                <a href="/contact.html">Contact</a>
-                <a href="/contact.html" class="btn btn-primary nav-cta">Get Quote</a>
+                <a href="/products" class="active">Products</a>
+                <a href="/about">About Us</a>
+                <a href="/team">Team</a>
+                <a href="/news">News</a>
+                <a href="/gallery">Gallery</a>
+                <a href="/contact">Contact</a>
+                <a href="/contact" class="btn btn-primary nav-cta">Get Quote</a>
             </div>
             <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
                 <span></span><span></span><span></span>
@@ -75,7 +75,7 @@
                 Products?</h2>
             <p style="max-width: 600px; margin: 1rem auto 2rem; opacity: 0.9;">Contact us for pricing, availability, and
                 custom orders. We ship worldwide.</p>
-            <a href="/contact.html" class="btn btn-primary">Request a Quote</a>
+            <a href="/contact" class="btn btn-primary">Request a Quote</a>
         </div>
     </section>
 
@@ -113,7 +113,7 @@
             } else {
                 emptyState.style.display = 'none';
                 grid.innerHTML = allProducts.map(p => `
-          <a href="/product.html?slug=${p.slug}" class="card product-card fade-in visible" style="text-decoration: none; color: inherit; display: block;">
+          <a href="/product?slug=${p.slug}" class="card product-card fade-in visible" style="text-decoration: none; color: inherit; display: block;">
             <div class="card-image">
               <img src="${p.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop'}" alt="${p.name}">
               <div class="card-overlay"></div>
@@ -136,7 +136,7 @@
                 { name: 'Cat Tiger Shrimp', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique color and flavor' }
             ];
             return defaults.map(p => `
-        <a href="/products.html" class="card product-card fade-in visible" style="text-decoration: none; color: inherit; display: block;">
+        <a href="/products" class="card product-card fade-in visible" style="text-decoration: none; color: inherit; display: block;">
           <div class="card-image">
             <img src="${p.image}" alt="${p.name}">
             <div class="card-overlay"></div>

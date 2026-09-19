@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Page Not Found - Prawnique</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css?v=5">
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <style>
+    .notfound {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 1.5rem 4rem;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% 10%, #17547d 0%, transparent 60%),
+        linear-gradient(180deg, var(--deep-ocean) 0%, #041627 100%);
+      color: #fff;
+    }
+
+    .notfound-code {
+      font-family: var(--font-heading);
+      font-size: clamp(5rem, 18vw, 10rem);
+      line-height: 1;
+      color: #fff;
+      opacity: 0.18;
+      letter-spacing: 0.04em;
+    }
+
+    .notfound h1 {
+      color: #fff;
+      margin-top: -0.4em;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+    }
+
+    .notfound p {
+      max-width: 34rem;
+      margin: 1rem auto 2.5rem;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .notfound-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="notfound">
+    <div>
+      <div class="notfound-code">404</div>
+      <h1>This page swam away</h1>
+      <p>The page you are looking for does not exist, or it may have moved. Let us get you back to dry land.</p>
+      <div class="notfound-links">
+        <a href="/" class="btn btn-primary">Back to Home</a>
+        <a href="/products" class="btn btn-secondary">Browse Products</a>
+        <a href="/contact" class="btn btn-secondary">Contact Us</a>
+      </div>
+    </div>
+  </section>
+</body>
+
+</html>

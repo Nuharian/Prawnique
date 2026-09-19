@@ -5,6 +5,7 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
+const fs = require('fs');
 
 // Import modules
 const { initDatabase, all, get, run, sql, isVercelPostgres } = require('./database/init');
@@ -56,14 +57,30 @@ function resolveSessionSecret() {
     }
 
     if (IS_PRODUCTION) {
-        // A predictable secret means anyone can forge an admin auth token, so in
-        // production we refuse to fall back to the shared default. A random
-        // secret keeps the site up but invalidates tokens on restart, which is
-        // the safe failure mode.
+        // A predictable secret means anyone can forge an admin auth token, so the
+        // shared default is never acceptable in production.
+        //
+        // A per-boot random secret is secure but wrong on serverless: each
+        // instance would sign with a different key, so a token minted by one
+        // instance is rejected by the next, and the admin panel 401s at random.
+        // Deriving the key from an existing per-deployment secret keeps it both
+        // unguessable and identical across instances.
+        const material = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
+
+        if (material) {
+            console.error(
+                'SECURITY: SESSION_SECRET is not set. Deriving a fallback key from ' +
+                'the database credentials. Set SESSION_SECRET in your environment ' +
+                'variables - rotating the database would sign every admin out.'
+            );
+            return crypto.createHmac('sha256', 'prawnique/session-secret/v1')
+                .update(material).digest('hex');
+        }
+
         console.error(
-            'SECURITY: SESSION_SECRET is missing or too weak. Set it in your ' +
-            'environment variables. Falling back to a random per-boot secret, ' +
-            'which will sign admins out whenever the server restarts.'
+            'SECURITY: SESSION_SECRET is missing and there is nothing stable to ' +
+            'derive it from. Falling back to a random per-boot secret; admin ' +
+            'sessions will not survive a restart.'
         );
         return crypto.randomBytes(48).toString('hex');
     }
@@ -113,10 +130,61 @@ function fail(res, error, context, status = 500) {
     res.status(status).json({ error: 'Something went wrong. Please try again.' });
 }
 
+// ============================================
+// CLEAN URLS
+// ============================================
+// Pages live on disk as public/<name>.html but are served at /<name>. The set
+// is read once at boot so an unknown name still falls through to the 404.
+const PUBLIC_DIR = path.join(__dirname, 'public');
+
+// Fetched by the front end as an HTML fragment rather than visited as a page,
+// so it must keep its .html URL instead of being redirected.
+const HTML_PARTIALS = new Set(['footer']);
+
+const PAGES = new Set(
+    fs.readdirSync(PUBLIC_DIR)
+        .filter(file => file.endsWith('.html'))
+        .map(file => file.slice(0, -'.html'.length).toLowerCase())
+);
+
+function queryString(req) {
+    const index = req.originalUrl.indexOf('?');
+    return index === -1 ? '' : req.originalUrl.slice(index);
+}
+
+// Send the old /about.html links to /about permanently, so existing links,
+// bookmarks and search results keep working against a single canonical URL.
+// This has to run before express.static, which would otherwise serve the file.
+app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+
+    const match = req.path.match(/^\/([A-Za-z0-9_-]+)\.html$/);
+    if (!match) return next();
+
+    const name = match[1].toLowerCase();
+    if (HTML_PARTIALS.has(name) || !PAGES.has(name)) return next();
+
+    return res.redirect(301, (name === 'index' ? '/' : '/' + name) + queryString(req));
+});
+
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(PUBLIC_DIR));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Resolve the extensionless page URLs themselves, after static so real assets
+// always win.
+app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+
+    const match = req.path.match(/^\/([A-Za-z0-9_-]+)$/);
+    if (!match) return next();
+
+    const name = match[1].toLowerCase();
+    if (!PAGES.has(name) || HTML_PARTIALS.has(name) || name === 'index') return next();
+
+    return res.sendFile(path.join(PUBLIC_DIR, name + '.html'));
+});
 
 // Auth middleware
 const requireAuth = (req, res, next) => {
@@ -1185,12 +1253,13 @@ app.get('/admin/*', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-    // Returning index.html for a missing .png or .css hid broken asset paths
-    // behind a 200 response. Only unknown *page* routes get the SPA fallback.
-    if (path.extname(req.path)) {
-        return res.status(404).send('Not found');
+    // Every real page is resolved by the clean-URL middleware above, so anything
+    // reaching here does not exist. Serving index.html with a 200 would make
+    // typos and dead links look like real pages.
+    if (req.path === '/') {
+        return res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
     }
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.status(404).sendFile(path.join(PUBLIC_DIR, '404.html'));
 });
 
 // ============================================

@@ -46,13 +46,13 @@ const sections = [
         title: 'Premium Prawns, Naturally Sourced',
         subtitle: 'From the pristine waters of Bangladesh to your table — experience the finest quality prawns cultivated with care and delivered with excellence.',
         button_text: 'Explore Products',
-        button_link: '/products.html'
+        button_link: '/products'
     },
     {
         key: 'hero_secondary_button',
         title: 'Hero Secondary Button',
         button_text: 'Contact Us',
-        button_link: '/contact.html'
+        button_link: '/contact'
     },
     {
         key: 'about_preview',
@@ -61,7 +61,7 @@ const sections = [
         content: 'We are dedicated to providing the highest quality prawns.',
         image_path: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop',
         button_text: 'Learn More About Us',
-        button_link: '/about.html'
+        button_link: '/about'
     },
     {
         key: 'products_header',
@@ -69,7 +69,7 @@ const sections = [
         subtitle: 'Our Products',
         content: 'Discover our range of premium prawns and seafood, sourced responsibly and processed with care.',
         button_text: 'View All Products',
-        button_link: '/products.html'
+        button_link: '/products'
     },
     {
         key: 'features_header',
@@ -93,14 +93,14 @@ const sections = [
         subtitle: 'Latest News',
         content: 'Stay updated with industry news and company updates.',
         button_text: 'View All News',
-        button_link: '/news.html'
+        button_link: '/news'
     },
     {
         key: 'cta_section',
         title: 'Ready to Partner With Us?',
         content: 'Get in touch today to discuss your seafood requirements. We offer competitive pricing, reliable supply, and exceptional quality.',
         button_text: 'Get In Touch',
-        button_link: '/contact.html'
+        button_link: '/contact'
     },
 
     // ---------- Page headers (the banner at the top of each inner page) ----------
@@ -140,7 +140,7 @@ const sections = [
         title: 'Ready to Partner With Us?',
         content: 'Contact us to learn more about our products and how we can serve your seafood needs.',
         button_text: 'Get In Touch',
-        button_link: '/contact.html'
+        button_link: '/contact'
     },
 
     // ---------- Products page ----------
@@ -149,7 +149,7 @@ const sections = [
         title: 'Interested in Our Products?',
         content: 'Get in touch for pricing, specifications and export documentation.',
         button_text: 'Request a Quote',
-        button_link: '/contact.html'
+        button_link: '/contact'
     },
 
     // ---------- Team page ----------
