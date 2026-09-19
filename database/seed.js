@@ -177,7 +177,7 @@ const team = [
         'Rafiqul Islam',
         'Head of Aquaculture & Farm Partnerships',
         'Rafiqul works directly with the farming families who supply Prawnique across the southern delta, from Khulna and Bagerhat down to Satkhira. He advises partner farms on pond management, stocking density, feed and water quality, and leads our programme to keep production sustainable and fully traceable back to the pond it came from.',
-        '',
+        '/img/team/rafiqul-islam.jpg',
         'rafiqul@prawnique.com',
         '',
         '',
@@ -187,7 +187,7 @@ const team = [
         'Hasan Chowdhury',
         'Director of Operations & Supply Chain',
         'Hasan oversees everything between harvest and vessel: intake, grading, processing schedules and the cold chain that holds our product at temperature all the way to the port. He coordinates our processing facilities and freight partners so that shipments leave on time and arrive in the condition our buyers expect.',
-        '',
+        '/img/team/hasan-chowdhury.jpg',
         'hasan@prawnique.com',
         '',
         '',
@@ -197,7 +197,7 @@ const team = [
         'Shahidul Islam Shahid',
         'Head of International Sales & Business Development',
         'Shahidul builds and manages Prawnique\'s relationships with importers, distributors and retail buyers across Europe, Asia and North America. He handles pricing, contract negotiation and export documentation, and is usually the first person a new buyer speaks to about specifications, volumes and lead times.',
-        '',
+        '/img/team/shahidul-islam-shahid.jpg',
         'shahidul@prawnique.com',
         '',
         '',
@@ -207,7 +207,7 @@ const team = [
         'Asif Ahmed',
         'Quality Assurance & Food Safety Manager',
         'Asif runs our HACCP and BAP compliance programme and the laboratory checks behind it. Every consignment passes his team\'s inspection for size grading, cold-chain integrity, microbiological safety and antibiotic residue before it is cleared for export, and he maintains the certification records our international buyers audit against.',
-        '',
+        '/img/team/asif-ahmed.jpg',
         'asif@prawnique.com',
         '',
         '',
@@ -217,9 +217,10 @@ const team = [
 
 // [client_name, company, position, content, rating, image_path, is_featured, display_order]
 const testimonials = [
-    ['James Wilson', 'Seafood Imports Ltd', 'Managing Director, UK', 'Prawnique has been our trusted supplier for over 5 years. Their consistency in quality and timely deliveries have made them an invaluable partner.', 5, 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face', true, 0],
-    ['Yuki Tanaka', 'Tokyo Seafood Co.', 'CEO, Japan', 'The quality of their Black Tiger Shrimp is exceptional. Our customers in Japan appreciate the freshness and taste. Highly recommended!', 5, 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face', true, 1],
-    ['Michael Schmidt', 'Euro Foods GmbH', 'Procurement Manager, Germany', 'Professional team, excellent communication, and top-notch products. Prawnique understands what international buyers need.', 5, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face', true, 2]
+    ['James Whitfield', 'Northgate Seafoods', 'Head of Procurement, United Kingdom', 'Prawnique has supplied us for five seasons and the grading has never drifted. Counts are accurate, the cold chain holds, and paperwork arrives before the container does. That reliability is worth more to us than a lower price.', 5, '', true, 0],
+    ['Marieke de Vries', 'Rotterdam Fine Foods', 'Import Manager, Netherlands', 'Their documentation is the cleanest we receive from South Asia. EU health certificates, traceability records and lab results are complete every time, which means our consignments clear customs without delays.', 5, '', true, 1],
+    ['Kenji Matsuda', 'Sakura Marine Trading', 'Director, Japan', 'The black tiger shrimp holds its texture and colour after thawing, which our retail customers notice immediately. We have moved a growing share of our sourcing to Prawnique on the strength of that consistency.', 5, '', true, 2],
+    ['Lorenzo Ferrari', 'Adriatica Foods', 'Purchasing Director, Italy', 'What stands out is the communication. We get harvest updates, honest lead times and a straight answer when something moves. For a supplier eight thousand kilometres away, that builds a lot of trust.', 5, '', true, 3]
 ];
 
 // [slug, title, excerpt, content, featured_image, author, is_published]

@@ -30,3 +30,6 @@ Thumbs.db
 *.swo
 .vercel
 .env*.local
+
+# Raw team photo originals (processed copies live in public/img/team/)
+/Team/
