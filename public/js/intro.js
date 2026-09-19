@@ -1,8 +1,8 @@
 /**
  * Prawnique - Wave Intro Animation
  *
- * Loaded synchronously from <head> so the page underneath is hidden before it
- * ever paints. The sequence is:
+ * Runs on the landing page only, loaded synchronously from <head> so the page
+ * underneath is hidden before it ever paints. The sequence is:
  *
  *   1. logo spins in and settles, ripples push outward
  *   2. the tagline surfaces letter by letter
@@ -14,6 +14,13 @@
  */
 (function () {
     'use strict';
+
+    // The intro belongs to the landing page only. Inner pages are reached by
+    // navigation, and replaying it there would sit in front of the content the
+    // visitor just asked for.
+    var path = window.location.pathname.replace(/\/+$/, '');
+    var isLandingPage = path === '' || path === '/index.html' || path === '/index';
+    if (!isLandingPage) return;
 
     var SETTINGS_CACHE_KEY = 'prawnique.introSettings';
     var SESSION_SEEN_KEY = 'prawnique.introSeen';

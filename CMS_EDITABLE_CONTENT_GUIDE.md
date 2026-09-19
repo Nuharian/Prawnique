@@ -75,10 +75,12 @@ The banner at the top of each inner page: `Page Header About`, `Products`,
   the homepage hero.
 
 ### Intro Animation
-The full-screen wave intro that plays when someone opens the site.
+The full-screen wave intro on the **home page**. It replays on every reload of
+the home page; inner pages never show it.
 
 - **Show Intro Animation** — On or Off.
-- **Play Frequency** — *Every page load* (default) or *Once per visit*.
+- **Play Frequency** — *Every page load* (default) replays it on each home-page
+  reload; *Once per visit* shows it only the first time in a browsing session.
 - **Duration** — how long it runs, in milliseconds. 3200 ≈ 3.2 seconds.
 - **Intro Tagline** — the line that surfaces under the logo.
 
