@@ -735,7 +735,7 @@ function createProductCard(product) {
 function getDefaultProductCards() {
     const defaults = [
         { name: 'Black Tiger Shrimp', category: 'Premium', image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop', desc: 'Premium quality Black Tiger from Bangladesh' },
-        { name: 'Freshwater King Prawn', category: 'Premium', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop', desc: 'Giant river prawns, naturally grown' },
+        { name: 'Freshwater King Prawn', category: 'Premium', image: 'https://images.unsplash.com/photo-1504309250229-4f08315f3b5c?w=400&h=300&fit=crop', desc: 'Giant river prawns, naturally grown' },
         { name: 'Vannamei Shrimp', category: 'Popular', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Pacific white shrimp, versatile and delicious' },
         { name: 'Cat Tiger Shrimp', category: 'Specialty', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique flavor' }
     ];
@@ -832,7 +832,7 @@ function createTestimonialCard(testimonial) {
 }
 
 function createNewsCard(post) {
-    const image = post.featured_image || 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=250&fit=crop';
+    const image = post.featured_image || 'https://images.unsplash.com/photo-1504309250229-4f08315f3b5c?w=400&h=250&fit=crop';
     const date = post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
     const excerpt = formatContent(post.excerpt || '');
 

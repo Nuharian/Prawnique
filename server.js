@@ -998,7 +998,11 @@ app.get('/api/admin/news', requireAuth, async (req, res) => {
 app.post('/api/admin/news', requireAuth, async (req, res) => {
     try {
         const { title, slug, excerpt, content, featured_image, author, is_published } = req.body;
-        const publishedAt = is_published ? new Date().toISOString() : null;
+        // An explicit published_at lets existing posts be backdated on import;
+        // otherwise publishing stamps the current time.
+        const supplied = req.body.published_at ? new Date(req.body.published_at) : null;
+        const validSupplied = supplied && !isNaN(supplied.getTime()) ? supplied.toISOString() : null;
+        const publishedAt = is_published ? (validSupplied || new Date().toISOString()) : null;
 
         if (isVercelPostgres) {
             await sql`INSERT INTO news_posts (title, slug, excerpt, content, featured_image, author, is_published, published_at) VALUES (${title}, ${slug}, ${excerpt || ''}, ${content || ''}, ${featured_image || ''}, ${author || ''}, ${is_published || false}, ${publishedAt})`;

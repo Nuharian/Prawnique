@@ -60,7 +60,7 @@ const sectionColumnMigrations = [
 
 // Bump this whenever database/seed.js gains rows or the schema changes, so the
 // next deploy runs the full DDL and seed pass again instead of the fast path.
-const SCHEMA_VERSION = '4';
+const SCHEMA_VERSION = '5';
 
 // A cold start would otherwise replay ~65 statements before serving its first
 // request. Once the schema is at the current version there is nothing to do.
@@ -295,9 +295,9 @@ async function initPostgres() {
       }
     }
 
-    for (const [slug, title, excerpt, content, image, author, published] of seed.news) {
+    for (const [slug, title, excerpt, content, image, author, published, publishedAt] of seed.news) {
       await sql`INSERT INTO news_posts (slug, title, excerpt, content, featured_image, author, is_published, published_at)
-                VALUES (${slug}, ${title}, ${excerpt}, ${content}, ${image}, ${author}, ${published}, CURRENT_TIMESTAMP)
+                VALUES (${slug}, ${title}, ${excerpt}, ${content}, ${image}, ${author}, ${published}, ${publishedAt})
                 ON CONFLICT (slug) DO NOTHING`;
     }
 
@@ -434,10 +434,10 @@ async function initLocalDb() {
     }
   }
 
-  for (const [slug, title, excerpt, content, image, author, published] of seed.news) {
+  for (const [slug, title, excerpt, content, image, author, published, publishedAt] of seed.news) {
     localDb.run(
-      'INSERT OR IGNORE INTO news_posts (slug, title, excerpt, content, featured_image, author, is_published, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
-      [slug, title, excerpt, content, image, author, published ? 1 : 0]
+      'INSERT OR IGNORE INTO news_posts (slug, title, excerpt, content, featured_image, author, is_published, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [slug, title, excerpt, content, image, author, published ? 1 : 0, publishedAt]
     );
   }
 
