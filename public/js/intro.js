@@ -5,12 +5,12 @@
  * ever paints. The sequence is:
  *
  *   1. logo spins in and settles, ripples push outward
- *   2. the wordmark surfaces letter by letter
+ *   2. the tagline surfaces letter by letter
  *   3. the sea rises and swallows the screen
  *   4. the whole overlay lifts away, revealing the site
  *
  * Everything here is controlled from the admin panel (Settings -> Intro
- * Animation): on/off, duration, tagline, and whether it plays once per session.
+ * Animation): on/off, duration, tagline, and how often it plays.
  */
 (function () {
     'use strict';
@@ -22,7 +22,7 @@
         enabled: true,
         duration: 3200,
         tagline: 'Premium Prawns, Naturally Sourced',
-        oncePerSession: true,
+        oncePerSession: false,
         logo: '/img/logo.png',
         wordmark: 'Prawnique'
     };

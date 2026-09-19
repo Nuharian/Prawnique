@@ -136,11 +136,11 @@ const requireAuth = (req, res, next) => {
 };
 
 // On serverless the module can start handling requests before the database
-// finishes initialising. `databaseReady` is declared at the bottom of this file;
-// it is only dereferenced here at request time, so the ordering is fine.
+// finishes initialising. `ensureDatabaseReady` is declared at the bottom of this
+// file; it is only called here at request time, so the ordering is fine.
 app.use('/api', async (req, res, next) => {
     try {
-        await databaseReady;
+        await ensureDatabaseReady();
         next();
     } catch (error) {
         fail(res, error, 'database initialization', 503);
@@ -1198,21 +1198,37 @@ app.get('*', (req, res) => {
 // ============================================
 
 // On Vercel the app is imported rather than listened on, and the first request
-// can arrive before initDatabase() resolves. This promise is awaited by the
-// gate middleware above so no request ever hits an uninitialised database.
-const databaseReady = initDatabase()
-    .then(() => {
-        console.log('\n📦 Configuration:');
-        console.log(`   Database: ${isVercelPostgres ? 'Vercel Postgres' : 'Local SQLite'}`);
-        console.log(`   Images: ${isCloudinaryConfigured ? 'Cloudinary' : 'Local Storage'}`);
-    })
-    .catch(error => {
-        console.error('Database initialization failed:', error);
-        throw error;
-    });
+// can arrive before initDatabase() resolves. The gate middleware above awaits
+// this so no request ever hits an uninitialised database.
+//
+// A failed attempt must not be cached: holding on to the rejected promise would
+// leave that serverless instance returning 503 for its whole lifetime after a
+// single transient error at cold start. Clearing it lets the next request retry.
+let initPromise = null;
+
+function ensureDatabaseReady() {
+    if (!initPromise) {
+        initPromise = initDatabase()
+            .then(() => {
+                console.log('\n📦 Configuration:');
+                console.log(`   Database: ${isVercelPostgres ? 'Vercel Postgres' : 'Local SQLite'}`);
+                console.log(`   Images: ${isCloudinaryConfigured ? 'Cloudinary' : 'Local Storage'}`);
+            })
+            .catch(error => {
+                console.error('Database initialization failed, will retry on next request:', error);
+                initPromise = null;
+                throw error;
+            });
+    }
+    return initPromise;
+}
+
+// Warm the connection at boot rather than on the first request. Failures here
+// are expected to be retried by the gate, so the rejection is absorbed.
+ensureDatabaseReady().catch(() => {});
 
 if (!process.env.VERCEL) {
-    databaseReady
+    ensureDatabaseReady()
         .then(() => {
             app.listen(PORT, () => {
                 console.log(`\n🦐 Prawnique server running at http://localhost:${PORT}`);

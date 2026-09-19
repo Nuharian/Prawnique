@@ -1770,3 +1770,35 @@ p {
     right: 15px;
   }
 }
+/* Team member without an uploaded photo: a branded initials avatar rather than
+   a stock headshot of an unrelated person. */
+.team-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-ocean);
+  position: relative;
+  overflow: hidden;
+}
+
+.team-avatar-fallback::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -35% -10%;
+  height: 60%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(64, 196, 255, 0.35), transparent 70%);
+}
+
+.team-avatar-fallback span {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading);
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 6px 24px rgba(4, 22, 39, 0.5);
+}

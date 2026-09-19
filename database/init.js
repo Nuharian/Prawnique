@@ -8,14 +8,45 @@ const isVercelPostgres = !!process.env.POSTGRES_URL;
 
 let localDb = null;
 
+// Postgres does not serialise concurrent "IF NOT EXISTS" DDL against the same
+// object. When several serverless instances cold-start at once they race and one
+// of them loses with a duplicate-object error or a deadlock. Those are safe to
+// retry: by the time we come back the other instance has finished the work.
+const TRANSIENT_DDL_ERRORS = [
+  '23505', // unique_violation (pg_type / pg_class catalog races)
+  '42P07', // duplicate_table
+  '42701', // duplicate_column
+  '42P16', // invalid_table_definition
+  '40P01', // deadlock_detected
+  '40001'  // serialization_failure
+];
+
+function isTransientDdlError(error) {
+  return !!error && TRANSIENT_DDL_ERRORS.includes(error.code);
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 // Initialize database
 async function initDatabase() {
-  if (isVercelPostgres) {
-    console.log('Using Vercel Postgres database');
-    await initPostgres();
-  } else {
+  if (!isVercelPostgres) {
     console.log('Using local SQLite database (for development)');
     await initLocalDb();
+    return;
+  }
+
+  console.log('Using Vercel Postgres database');
+
+  const attempts = 3;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      await initPostgres();
+      return;
+    } catch (error) {
+      if (attempt === attempts || !isTransientDdlError(error)) throw error;
+      console.warn(`Postgres init raced with another instance (${error.code}), retrying ${attempt}/${attempts - 1}`);
+      await sleep(250 * attempt);
+    }
   }
 }
 
@@ -27,8 +58,29 @@ const sectionColumnMigrations = [
   ['button_link', 'VARCHAR(255)']
 ];
 
+// Bump this whenever database/seed.js gains rows or the schema changes, so the
+// next deploy runs the full DDL and seed pass again instead of the fast path.
+const SCHEMA_VERSION = '3';
+
+// A cold start would otherwise replay ~65 statements before serving its first
+// request. Once the schema is at the current version there is nothing to do.
+async function postgresAlreadyInitialised() {
+  try {
+    const result = await sql`SELECT value FROM site_settings WHERE key = 'schema_version'`;
+    return result.rows[0] && result.rows[0].value === SCHEMA_VERSION;
+  } catch (error) {
+    // The table does not exist yet, so this is a first run.
+    return false;
+  }
+}
+
 // Initialize Vercel Postgres tables
 async function initPostgres() {
+  if (await postgresAlreadyInitialised()) {
+    console.log('Postgres schema already current, skipping migration');
+    return;
+  }
+
   try {
     // Create tables
     await sql`
@@ -223,6 +275,16 @@ async function initPostgres() {
       `;
     }
 
+    // Team members are matched on name so an entry edited or deleted in the
+    // admin panel is not resurrected, and existing members are left untouched.
+    for (const [name, position, bio, image, email, phone, linkedin, order] of seed.team) {
+      const existing = await sql`SELECT id FROM team_members WHERE name = ${name}`;
+      if (existing.rows.length === 0) {
+        await sql`INSERT INTO team_members (name, position, bio, image_path, email, phone, linkedin, display_order)
+                  VALUES (${name}, ${position}, ${bio}, ${image}, ${email}, ${phone}, ${linkedin}, ${order})`;
+      }
+    }
+
     // Insert default testimonials only if none exist.
     // Postgres returns COUNT(*) as a string, so this must be parsed before comparing.
     const testimonialCheck = await sql`SELECT COUNT(*) as count FROM testimonials`;
@@ -238,6 +300,19 @@ async function initPostgres() {
                 VALUES (${slug}, ${title}, ${excerpt}, ${content}, ${image}, ${author}, ${published}, CURRENT_TIMESTAMP)
                 ON CONFLICT (slug) DO NOTHING`;
     }
+
+    // One-time correction for databases seeded before the default changed.
+    // Seeding uses DO NOTHING, so an existing row would otherwise keep the old
+    // value forever. This only runs on the full-init path, i.e. once per schema
+    // version, so a later choice made in the admin panel is not overwritten.
+    await sql`UPDATE site_settings SET value = 'false' WHERE key = 'intro_animation_once_per_session'`;
+
+    // Written last: a cold start only takes the fast path once everything above
+    // has actually succeeded.
+    await sql`
+      INSERT INTO site_settings (key, value) VALUES ('schema_version', ${SCHEMA_VERSION})
+      ON CONFLICT (key) DO UPDATE SET value = ${SCHEMA_VERSION}
+    `;
 
     console.log('Postgres database initialized successfully');
   } catch (error) {
@@ -316,6 +391,16 @@ async function initLocalDb() {
       'INSERT OR IGNORE INTO sections (section_key, title, subtitle, content, image_path, icon, button_text, button_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [s.key, s.title || '', s.subtitle || '', s.content || '', s.image_path || '', s.icon || '', s.button_text || '', s.button_link || '']
     );
+  }
+
+  for (const [name, position, bio, image, email, phone, linkedin, order] of seed.team) {
+    const existing = localDb.exec('SELECT id FROM team_members WHERE name = ?', [name]);
+    if (existing.length === 0 || existing[0].values.length === 0) {
+      localDb.run(
+        'INSERT INTO team_members (name, position, bio, image_path, email, phone, linkedin, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [name, position, bio, image, email, phone, linkedin, order]
+      );
+    }
   }
 
   const testimonialCheck = localDb.exec('SELECT COUNT(*) as count FROM testimonials');

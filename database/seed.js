@@ -27,7 +27,7 @@ const settings = [
     ['intro_animation_enabled', 'true'],
     ['intro_animation_duration', '3200'],
     ['intro_animation_tagline', 'Premium Prawns, Naturally Sourced'],
-    ['intro_animation_once_per_session', 'true']
+    ['intro_animation_once_per_session', 'false']
 ];
 
 // [name, slug, description, display_order]
@@ -167,6 +167,54 @@ const sections = [
     { key: 'footer_tagline', title: 'Footer Tagline', content: 'Designed with 💙 for seafood lovers' }
 ];
 
+// Team members seeded for the site launch. Inserted by name only when that name
+// is not already present, so edits and deletions made in the admin panel stick.
+// Photos are uploaded through Admin -> Team Members; an empty image_path falls
+// back to a neutral placeholder rather than a broken image.
+// [name, position, bio, image_path, email, phone, linkedin, display_order]
+const team = [
+    [
+        'Rafiqul Islam',
+        'Head of Aquaculture & Farm Partnerships',
+        'Rafiqul works directly with the farming families who supply Prawnique across the southern delta, from Khulna and Bagerhat down to Satkhira. He advises partner farms on pond management, stocking density, feed and water quality, and leads our programme to keep production sustainable and fully traceable back to the pond it came from.',
+        '',
+        'rafiqul@prawnique.com',
+        '',
+        '',
+        1
+    ],
+    [
+        'Hasan Chowdhury',
+        'Director of Operations & Supply Chain',
+        'Hasan oversees everything between harvest and vessel: intake, grading, processing schedules and the cold chain that holds our product at temperature all the way to the port. He coordinates our processing facilities and freight partners so that shipments leave on time and arrive in the condition our buyers expect.',
+        '',
+        'hasan@prawnique.com',
+        '',
+        '',
+        2
+    ],
+    [
+        'Shahidul Islam Shahid',
+        'Head of International Sales & Business Development',
+        'Shahidul builds and manages Prawnique\'s relationships with importers, distributors and retail buyers across Europe, Asia and North America. He handles pricing, contract negotiation and export documentation, and is usually the first person a new buyer speaks to about specifications, volumes and lead times.',
+        '',
+        'shahidul@prawnique.com',
+        '',
+        '',
+        3
+    ],
+    [
+        'Asif Ahmed',
+        'Quality Assurance & Food Safety Manager',
+        'Asif runs our HACCP and BAP compliance programme and the laboratory checks behind it. Every consignment passes his team\'s inspection for size grading, cold-chain integrity, microbiological safety and antibiotic residue before it is cleared for export, and he maintains the certification records our international buyers audit against.',
+        '',
+        'asif@prawnique.com',
+        '',
+        '',
+        4
+    ]
+];
+
 // [client_name, company, position, content, rating, image_path, is_featured, display_order]
 const testimonials = [
     ['James Wilson', 'Seafood Imports Ltd', 'Managing Director, UK', 'Prawnique has been our trusted supplier for over 5 years. Their consistency in quality and timely deliveries have made them an invaluable partner.', 5, 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face', true, 0],
@@ -181,4 +229,4 @@ const news = [
     ['new-processing-facility-opens', 'State-of-the-Art Processing Facility Opens in Chittagong', 'Our new facility incorporates the latest technology for enhanced quality control and increased production capacity.', 'Prawnique has inaugurated its newest processing facility in Chittagong, featuring cutting-edge technology and expanded capacity to meet growing international demand.\n\nThe facility includes advanced freezing systems, automated sorting equipment, and comprehensive quality testing laboratories. These improvements allow us to process larger volumes while maintaining our strict quality standards.\n\nThe new facility also creates over 200 jobs in the local community and incorporates sustainable practices including solar power generation and water recycling systems.', 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=800&h=600&fit=crop', 'Prawnique Team', true]
 ];
 
-module.exports = { settings, categories, sections, testimonials, news };
+module.exports = { settings, categories, sections, team, testimonials, news };
