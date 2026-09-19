@@ -126,7 +126,7 @@ function formatContent(text) {
 
 ### To Test the Fix:
 1. Go to admin panel: https://prawnique.vercel.app/admin
-2. Login with: `admin` / `admin123`
+2. Login with: `admin` / <your ADMIN_PASSWORD>
 3. Go to "Page Sections"
 4. Edit "About Prawnique" content
 5. Add some text with line breaks:

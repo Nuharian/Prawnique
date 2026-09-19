@@ -22,7 +22,7 @@ The login issue has been fixed with proper cookie settings for Vercel deployment
 1. Go to: **https://prawnique.vercel.app/admin**
 2. Enter credentials:
    - Username: `admin`
-   - Password: `admin123`
+   - Password: <your ADMIN_PASSWORD>
 3. Click Login
 
 ### Step 3: Check Console
@@ -66,7 +66,7 @@ Added console logs to track login process:
 
 ### "Invalid credentials" error
 - Double-check username: `admin` (lowercase)
-- Double-check password: `admin123`
+- Double-check password: <your ADMIN_PASSWORD>
 - Make sure there are no extra spaces
 
 ### Login button does nothing
@@ -91,7 +91,7 @@ Added console logs to track login process:
 - [ ] Cleared browser cookies completely
 - [ ] Went to https://prawnique.vercel.app/admin
 - [ ] Entered username: admin
-- [ ] Entered password: admin123
+- [ ] Entered password: <your ADMIN_PASSWORD>
 - [ ] Clicked Login button
 - [ ] Checked console for "Login response" message
 - [ ] Admin panel loaded successfully
@@ -136,7 +136,7 @@ If login still doesn't work after following all steps:
 - **Status:** ✅ Live with login fix
 - **Last Updated:** March 6, 2026
 - **Username:** admin
-- **Password:** admin123
+- **Password:** <your ADMIN_PASSWORD>
 
 ---
 

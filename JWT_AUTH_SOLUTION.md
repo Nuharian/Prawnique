@@ -49,7 +49,7 @@ npm install jsonwebtoken cookie-parser
 ### Step 2: Login
 1. Go to: **https://prawnique.vercel.app/admin**
 2. Username: `admin`
-3. Password: `admin123`
+3. Password: <your ADMIN_PASSWORD>
 4. Click Login
 
 ### Step 3: Verify
@@ -140,7 +140,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### "Invalid credentials" error?
 - Username must be: `admin` (lowercase)
-- Password must be: `admin123`
+- Password must be: <your ADMIN_PASSWORD>
 - No extra spaces
 
 ### Login works but then "Unauthorized"?
@@ -156,7 +156,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 - [ ] Cleared browser cookies/cache
 - [ ] Went to https://prawnique.vercel.app/admin
-- [ ] Logged in with admin/admin123
+- [ ] Logged in with admin / <your ADMIN_PASSWORD>
 - [ ] Dashboard loaded successfully
 - [ ] Can navigate between sections
 - [ ] Can save data without errors
@@ -177,7 +177,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 **Login Credentials:**
 - Username: `admin`
-- Password: `admin123`
+- Password: <your ADMIN_PASSWORD>
 
 ---
 

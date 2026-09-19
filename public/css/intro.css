@@ -1,0 +1,300 @@
+/* =========================================
+   PRAWNIQUE - Wave Intro Animation
+   =========================================
+   A full-screen ocean intro: the logo spins in, ripples out, the water rises
+   to swallow the screen and then drains away to reveal the page.
+
+   The stylesheet and its head script run before <body> paints, so the page
+   underneath is hidden from the very first frame - no flash of the hero
+   section before the intro takes over.
+   ========================================= */
+
+:root {
+  --intro-deep: #041627;
+  --intro-ocean: #0a2342;
+  --intro-mid: #1a4a6e;
+  --intro-surf: #40c4ff;
+  --intro-foam: #88d8b0;
+}
+
+/* Hide everything except the intro while it is on screen. */
+html.intro-armed body > *:not(#introOverlay) {
+  visibility: hidden;
+}
+
+html.intro-armed,
+html.intro-armed body {
+  overflow: hidden;
+}
+
+/* ---- Overlay shell ---- */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 18%, #17547d 0%, transparent 62%),
+    linear-gradient(180deg, var(--intro-ocean) 0%, var(--intro-deep) 100%);
+  /* Kept out of the accessibility tree: it is pure decoration. */
+  will-change: transform, opacity;
+}
+
+/* The drain-away at the end. */
+.intro-overlay.intro-finishing {
+  transform: translate3d(0, -100%, 0);
+  transition: transform 900ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* ---- Light rays filtering down through the water ---- */
+
+.intro-rays {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 130%;
+  pointer-events: none;
+  opacity: 0;
+  animation: introRaysIn 1200ms ease-out 200ms forwards;
+}
+
+.intro-ray {
+  position: absolute;
+  top: -10%;
+  width: 14vmax;
+  height: 130%;
+  background: linear-gradient(180deg, rgba(136, 216, 176, 0.22) 0%, rgba(64, 196, 255, 0.05) 55%, transparent 100%);
+  filter: blur(14px);
+  transform-origin: top center;
+  animation: introRaySway 6s ease-in-out infinite alternate;
+}
+
+.intro-ray:nth-child(1) { left: 6%;  transform: rotate(9deg);   animation-delay: 0s; }
+.intro-ray:nth-child(2) { left: 28%; transform: rotate(-6deg);  animation-delay: -1.6s; opacity: 0.75; }
+.intro-ray:nth-child(3) { left: 52%; transform: rotate(12deg);  animation-delay: -3.1s; opacity: 0.6; }
+.intro-ray:nth-child(4) { left: 76%; transform: rotate(-10deg); animation-delay: -4.4s; opacity: 0.8; }
+
+@keyframes introRaysIn {
+  to { opacity: 1; }
+}
+
+@keyframes introRaySway {
+  from { transform: rotate(-8deg) translateX(-2vw); }
+  to   { transform: rotate(8deg)  translateX(2vw); }
+}
+
+/* ---- Rising bubbles ---- */
+
+.intro-bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.intro-bubble {
+  position: absolute;
+  bottom: -60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.85), rgba(136, 216, 176, 0.18) 60%, rgba(255, 255, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  animation: introBubbleRise linear infinite;
+}
+
+@keyframes introBubbleRise {
+  0%   { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  12%  { opacity: 0.9; }
+  85%  { opacity: 0.55; }
+  100% { transform: translate3d(var(--drift, 20px), -102vh, 0) scale(1.1); opacity: 0; }
+}
+
+/* ---- Centre stage: logo + wordmark ---- */
+
+.intro-stage {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.intro-logo-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(230px, 46vw);
+  height: min(230px, 46vw);
+}
+
+/* The logo artwork is a square with its own dark background, so it is framed as
+   a medallion - a rounded card with a seafoam ring and a deep drop shadow -
+   rather than floating as a bare rectangle over the water. */
+.intro-logo-medallion {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  border-radius: 28px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(136, 216, 176, 0.06));
+  border: 1px solid rgba(136, 216, 176, 0.45);
+  box-shadow:
+    0 24px 60px rgba(4, 22, 39, 0.75),
+    0 0 0 10px rgba(64, 196, 255, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  opacity: 0;
+  transform: rotate(-540deg) scale(0.15);
+  /* The signature move: a long spin that overshoots then settles. */
+  animation: introLogoSpin 1500ms cubic-bezier(0.18, 0.9, 0.24, 1.08) 120ms forwards;
+}
+
+.intro-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 20px;
+}
+
+@keyframes introLogoSpin {
+  0%   { opacity: 0; transform: rotate(-540deg) scale(0.15); }
+  55%  { opacity: 1; }
+  78%  { transform: rotate(14deg) scale(1.1); }
+  100% { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+
+/* Concentric ripples pushed out by the logo landing. */
+.intro-ripple {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 2px solid rgba(136, 216, 176, 0.55);
+  border-radius: 50%;
+  opacity: 0;
+  animation: introRipple 2200ms cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+.intro-ripple:nth-of-type(2) { animation-delay: 1250ms; }
+.intro-ripple:nth-of-type(3) { animation-delay: 1750ms; }
+
+@keyframes introRipple {
+  0%   { opacity: 0;    transform: scale(0.72); }
+  18%  { opacity: 0.85; }
+  100% { opacity: 0;    transform: scale(2.1); }
+}
+
+.intro-tagline {
+  margin: 34px 0 0;
+  max-width: 22ch;
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
+  font-size: clamp(1.15rem, 3.4vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+  color: #fff;
+  text-shadow: 0 6px 28px rgba(4, 22, 39, 0.75);
+  text-wrap: balance;
+}
+
+/* Keeps line breaks at spaces even though every letter is its own box. */
+.intro-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Each letter surfaces like it is bobbing up through water. */
+.intro-tagline span span,
+.intro-tagline > span:not(.intro-word) {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(24px) scale(0.92);
+  animation: introLetterUp 720ms cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+}
+
+@keyframes introLetterUp {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- The water itself ---- */
+
+.intro-water {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---- Skip control ---- */
+
+.intro-skip {
+  position: absolute;
+  right: max(18px, 3vw);
+  bottom: max(18px, 3vh);
+  z-index: 5;
+  padding: 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  animation: introSkipIn 500ms ease-out 900ms forwards;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.intro-skip:hover,
+.intro-skip:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+}
+
+@keyframes introSkipIn {
+  to { opacity: 1; }
+}
+
+/* ---- Reduced motion ----
+   Someone who has asked for less motion still gets the brand moment, but as a
+   short cross-fade with no spinning, rippling or rising water. */
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-overlay,
+  .intro-overlay * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .intro-logo-medallion {
+    opacity: 1;
+    transform: none;
+  }
+
+  .intro-tagline span,
+  .intro-tagline,
+  .intro-skip,
+  .intro-rays {
+    opacity: 1;
+    transform: none;
+  }
+
+  .intro-ripple {
+    display: none;
+  }
+
+  .intro-overlay.intro-finishing {
+    transform: none;
+    opacity: 0;
+    transition: opacity 320ms linear;
+  }
+}

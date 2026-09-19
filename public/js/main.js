@@ -3,11 +3,88 @@
  * Handles slider, animations, and dynamic content loading
  */
 
+// Escape first, then turn line breaks into markup. Everything that renders CMS
+// copy goes through here, so content entered in the admin panel is treated as
+// text rather than as HTML.
+function escapeHtml(text) {
+    return String(text == null ? '' : text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // Helper function to preserve line breaks in content
 function formatContent(text) {
     if (!text) return '';
     // Convert line breaks to <br> tags and preserve paragraphs
-    return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+    return escapeHtml(text).replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+}
+
+// Inline elements cannot contain <p>, so blank lines become <br><br> there and
+// real paragraphs only inside block containers.
+const INLINE_CONTENT_TAGS = ['P', 'SPAN', 'SMALL', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'FIGCAPTION'];
+
+function setContentHtml(node, text) {
+    if (!node) return;
+    if (INLINE_CONTENT_TAGS.indexOf(node.tagName) !== -1) {
+        node.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+    } else {
+        node.innerHTML = '<p>' + formatContent(text) + '</p>';
+    }
+}
+
+/**
+ * Declarative CMS binding.
+ *
+ * Any element with data-section="<key>" has its descendants bound to that
+ * section's fields via data-field="title|subtitle|content|icon|image|button".
+ * Adding a new editable block is then markup only - no JavaScript change.
+ */
+function applySections(sections) {
+    document.querySelectorAll('[data-section]').forEach(host => {
+        const data = sections[host.dataset.section];
+        if (!data) return;
+
+        // The host itself may carry a field, so a single element can be bound
+        // without needing a wrapper: <a data-section="hero" data-field="button">
+        const targets = Array.from(host.querySelectorAll('[data-field]'));
+        if (host.hasAttribute('data-field')) targets.unshift(host);
+
+        targets.forEach(node => {
+            switch (node.dataset.field) {
+                case 'title':
+                    if (data.title) node.textContent = data.title;
+                    break;
+                case 'subtitle':
+                    if (data.subtitle) node.textContent = data.subtitle;
+                    break;
+                case 'content':
+                    if (data.content) setContentHtml(node, data.content);
+                    break;
+                case 'icon':
+                    if (data.icon) node.className = data.icon;
+                    break;
+                case 'image':
+                    if (data.image_path) {
+                        node.src = data.image_path;
+                        node.style.opacity = '1';
+                    }
+                    break;
+                case 'button':
+                    // An empty button label is how the admin hides a call to action.
+                    if (data.button_text) {
+                        node.textContent = data.button_text;
+                        node.style.display = '';
+                        if (data.button_link) node.href = data.button_link;
+                    } else {
+                        node.style.display = 'none';
+                    }
+                    break;
+            }
+        });
+    });
 }
 
 // ============================================
@@ -38,12 +115,16 @@ async function loadFooter() {
         const response = await fetch('/footer.html');
         const html = await response.text();
         footerPlaceholder.innerHTML = html;
-        
-        // Wait a bit for DOM to update, then load settings to update logo
-        setTimeout(() => {
-            initNewsletterForm();
-            loadSiteSettings(); // Reload settings to update footer logo
-        }, 100);
+
+        // The footer arrives after the first CMS pass, so its bindings have to
+        // be applied again once the markup is in the document.
+        initNewsletterForm();
+        loadSiteSettings();
+        if (cachedSections) {
+            applySections(cachedSections);
+        } else {
+            loadSections();
+        }
     } catch (error) {
         console.error('Failed to load footer:', error);
     }
@@ -165,7 +246,7 @@ function renderSlider() {
     sliderImages.forEach((image, index) => {
         const slide = document.createElement('div');
         slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
-        slide.innerHTML = `<img src="${image.image_path}" alt="${image.title || 'Prawnique'}" loading="${index === 0 ? 'eager' : 'lazy'}">`;
+        slide.innerHTML = `<img src="${escapeHtml(image.image_path)}" alt="${escapeHtml(image.title || 'Prawnique')}" loading="${index === 0 ? 'eager' : 'lazy'}">`;
         sliderContainer.appendChild(slide);
 
         // Create nav dot
@@ -397,8 +478,6 @@ async function loadSiteSettings() {
         const response = await fetch('/api/settings');
         const settings = await response.json();
 
-        console.log('Loaded settings:', settings);
-
         // Update logo on all pages
         const logoImages = document.querySelectorAll('.logo-image');
         if (settings.site_logo && logoImages.length > 0) {
@@ -437,6 +516,22 @@ async function loadSiteSettings() {
         const footerText = document.getElementById('footerText');
         if (footerText && settings.footer_text) {
             footerText.textContent = settings.footer_text;
+        }
+
+        // Contact page map. A blank setting hides the map section entirely.
+        const mapFrame = document.getElementById('contactMap');
+        if (mapFrame) {
+            const mapSection = document.getElementById('contactMapSection');
+            if (settings.contact_map_embed) {
+                mapFrame.src = settings.contact_map_embed;
+            } else if (mapSection) {
+                mapSection.style.display = 'none';
+            }
+        }
+
+        // Document title / meta follow the site name so a rename is complete.
+        if (settings.site_name) {
+            document.title = document.title.replace(/Prawnique/g, settings.site_name);
         }
 
         // Update social links
@@ -489,11 +584,13 @@ class WaveController {
         this.height = 320; // Match SVG viewBox height
         this.time = 0;
 
-        // Configuration for each wave layer
+        // Configuration for each wave layer. `baseline` is the resting surface
+        // height in viewBox units - staggering it is what gives the three layers
+        // a sense of depth instead of reading as one solid band.
         this.layers = [
-            { amplitude: 30, frequency: 0.005, speed: 0.04, phase: 0 },
-            { amplitude: 25, frequency: 0.008, speed: 0.03, phase: 2 },
-            { amplitude: 15, frequency: 0.012, speed: 0.02, phase: 4 }
+            { amplitude: 26, frequency: 0.005, speed: 0.04, phase: 0, baseline: 150 },
+            { amplitude: 21, frequency: 0.008, speed: 0.03, phase: 2, baseline: 172 },
+            { amplitude: 14, frequency: 0.012, speed: 0.02, phase: 4, baseline: 196 }
         ];
 
         // No resize listener needed
@@ -523,10 +620,8 @@ class WaveController {
             for (let x = -50; x <= this.width + 50; x += 10) {
                 // Sine wave formula: y = A * sin(kx + wt + phi)
                 const y = Math.sin(x * layer.frequency + this.time * layer.speed + layer.phase) * layer.amplitude;
-                // Offset y to fill the bottom part properly
-                // Raise the wave level further (smaller Y is higher up). Center around 100.
-                const yPos = 100 + y;
-                pathData += ` L ${x} ${yPos}`;
+                const yPos = layer.baseline + y;
+                pathData += ` L ${x} ${yPos.toFixed(1)}`;
             }
 
             pathData += ` L ${this.width + 50} ${this.height} Z`; // Close path at bottom right, off-screen
@@ -555,153 +650,39 @@ function updateSocialLinks(settings) {
     });
 }
 
+// Kept so late-arriving markup (the shared footer) can be bound without a
+// second round trip.
+let cachedSections = null;
+
 async function loadSections() {
     try {
         const response = await fetch('/api/sections');
         const sections = await response.json();
-        
-        console.log('Loaded sections from API:', sections);
-        console.log('Section keys:', Object.keys(sections));
+        cachedSections = sections;
 
-        // Update Hero section
+        // Everything marked up with data-section/data-field binds automatically.
+        applySections(sections);
+
+        // The hero title also feeds the slider captions, so it stays explicit.
         if (sections.hero) {
             const heroTitle = document.getElementById('heroTitle');
             const heroSubtitle = document.getElementById('heroSubtitle');
-            if (heroTitle && sections.hero.title) {
-                heroTitle.textContent = sections.hero.title;
-                console.log('Updated hero title to:', sections.hero.title);
-            }
-            if (heroSubtitle && sections.hero.subtitle) {
-                heroSubtitle.textContent = sections.hero.subtitle;
-                console.log('Updated hero subtitle to:', sections.hero.subtitle);
-            }
+            if (heroTitle && sections.hero.title) heroTitle.textContent = sections.hero.title;
+            if (heroSubtitle && sections.hero.subtitle) heroSubtitle.textContent = sections.hero.subtitle;
         }
 
-        // Update About section
+        // About preview keeps its dedicated ids for backwards compatibility with
+        // pages that have not been converted to data-section bindings.
         if (sections.about_preview) {
             const aboutTitle = document.getElementById('aboutTitle');
             const aboutContent = document.getElementById('aboutContent');
-            
-            if (aboutTitle) aboutTitle.textContent = sections.about_preview.title;
+            if (aboutTitle && sections.about_preview.title) aboutTitle.textContent = sections.about_preview.title;
             if (aboutContent && sections.about_preview.content) {
-                // Format content and wrap in paragraph tags
-                aboutContent.innerHTML = '<p>' + formatContent(sections.about_preview.content) + '</p>';
+                setContentHtml(aboutContent, sections.about_preview.content);
             }
-        }
-
-        // Update Products Header
-        if (sections.products_header) {
-            console.log('Updating products header:', sections.products_header);
-            updateSectionHeader('productsSection', sections.products_header);
-        } else {
-            console.warn('products_header section not found in API response');
-        }
-
-        // Update Features Header
-        if (sections.features_header) {
-            console.log('Updating features header:', sections.features_header);
-            updateSectionHeader('featuresSection', sections.features_header);
-        } else {
-            console.warn('features_header section not found in API response');
-        }
-
-        // Update Feature Items
-        updateFeatureItem('feature1', sections.feature_quality);
-        updateFeatureItem('feature2', sections.feature_sustainable);
-        updateFeatureItem('feature3', sections.feature_fresh);
-        updateFeatureItem('feature4', sections.feature_delivery);
-
-        // Update Testimonials Header
-        if (sections.testimonials_header) {
-            updateSectionHeader('testimonialsSection', sections.testimonials_header);
-        }
-
-        // Update News Header
-        if (sections.news_header) {
-            updateSectionHeader('newsSection', sections.news_header);
-        }
-
-        // Update CTA Section
-        if (sections.cta_section) {
-            const ctaTitle = document.querySelector('.cta-section h2');
-            const ctaText = document.querySelector('.cta-section p');
-            if (ctaTitle) ctaTitle.textContent = sections.cta_section.title;
-            if (ctaText) ctaText.innerHTML = formatContent(sections.cta_section.content);
-        }
-
-        // Update Footer
-        if (sections.footer_about) {
-            const footerAbout = document.querySelector('.footer-about p');
-            if (footerAbout) footerAbout.innerHTML = formatContent(sections.footer_about.content);
-        }
-
-        if (sections.footer_newsletter) {
-            const newsletterTitle = document.querySelector('.footer-newsletter h4');
-            const newsletterText = document.querySelector('.footer-newsletter p');
-            if (newsletterTitle) newsletterTitle.textContent = sections.footer_newsletter.title;
-            if (newsletterText) newsletterText.innerHTML = formatContent(sections.footer_newsletter.content);
-        }
-
-        if (sections.footer_tagline) {
-            const tagline = document.querySelector('.footer-bottom p:last-child');
-            if (tagline) tagline.innerHTML = formatContent(sections.footer_tagline.content);
         }
     } catch (error) {
         console.error('Error loading sections:', error);
-        console.log('Using default sections');
-    }
-}
-
-// Helper function to update section headers
-function updateSectionHeader(sectionId, sectionData) {
-    const section = document.getElementById(sectionId);
-    if (!section || !sectionData) {
-        console.warn('Section not found:', sectionId, sectionData);
-        return;
-    }
-
-    const subtitle = section.querySelector('.section-subtitle');
-    const title = section.querySelector('.section-header h2');
-    const description = section.querySelector('.section-header p');
-
-    // Use subtitle field for the small text above the title
-    if (subtitle && sectionData.subtitle) {
-        subtitle.textContent = sectionData.subtitle;
-        console.log(`Updated ${sectionId} subtitle to:`, sectionData.subtitle);
-    }
-    
-    // Use title field for the main heading
-    if (title && sectionData.title) {
-        title.textContent = sectionData.title;
-        console.log(`Updated ${sectionId} title to:`, sectionData.title);
-    }
-    
-    // Use content field for the description paragraph
-    if (description && sectionData.content) {
-        description.innerHTML = formatContent(sectionData.content);
-        console.log(`Updated ${sectionId} description to:`, sectionData.content);
-    }
-}
-
-// Helper function to update feature items
-function updateFeatureItem(featureId, featureData) {
-    const feature = document.getElementById(featureId);
-    if (!feature || !featureData) {
-        console.warn('Feature not found:', featureId, featureData);
-        return;
-    }
-
-    const title = feature.querySelector('h3');
-    const description = feature.querySelector('p');
-
-    if (title && featureData.title) {
-        title.textContent = featureData.title;
-        console.log(`Updated ${featureId} title to:`, featureData.title);
-    }
-    
-    if (description && featureData.content) {
-        description.innerHTML = formatContent(featureData.content);
-        console.log(`Updated ${featureId} description to:`, featureData.content);
     }
 }
 
@@ -735,16 +716,16 @@ function createProductCard(product) {
     const image = product.featured_image || 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop';
     const description = formatContent(product.short_description || '');
     return `
-    <a href="/product.html?slug=${product.slug}" class="card product-card" style="text-decoration: none; color: inherit; display: block;">
+    <a href="/product.html?slug=${encodeURIComponent(product.slug)}" class="card product-card" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image">
-        <img src="${image}" alt="${product.name}" loading="lazy">
+        <img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" loading="lazy">
         <div class="card-overlay"></div>
         <div class="card-cta">
           <i class="fas fa-arrow-right"></i>
         </div>
       </div>
       <div class="card-content">
-        <h4 class="card-title">${product.name}</h4>
+        <h4 class="card-title">${escapeHtml(product.name)}</h4>
         <p class="card-text">${description}</p>
       </div>
     </a>
@@ -756,7 +737,7 @@ function getDefaultProductCards() {
         { name: 'Black Tiger Shrimp', category: 'Premium', image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop', desc: 'Premium quality Black Tiger from Bangladesh' },
         { name: 'Freshwater King Prawn', category: 'Premium', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop', desc: 'Giant river prawns, naturally grown' },
         { name: 'Vannamei Shrimp', category: 'Popular', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Pacific white shrimp, versatile and delicious' },
-        { name: 'Cat Tiger Shrimp', category: 'Specialty', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique flavor' }
+        { name: 'Cat Tiger Shrimp', category: 'Specialty', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique flavor' }
     ];
 
     return defaults.map(p => `
@@ -832,7 +813,7 @@ function createTestimonialCard(testimonial) {
     const hasImage = testimonial.image_path && testimonial.image_path.trim() !== '';
     
     const imageHtml = hasImage 
-        ? `<img src="${testimonial.image_path}" alt="${testimonial.client_name}" loading="lazy">`
+        ? `<img src="${escapeHtml(testimonial.image_path)}" alt="${escapeHtml(testimonial.client_name)}" loading="lazy">`
         : `<div style="width: 80px; height: 80px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center;"><i class="fas fa-user" style="font-size: 2rem; color: #94a3b8;"></i></div>`;
 
     return `
@@ -842,8 +823,8 @@ function createTestimonialCard(testimonial) {
             <div class="testimonial-author">
                 ${imageHtml}
                 <div class="testimonial-author-info">
-                    <h4>${testimonial.client_name}</h4>
-                    <span>${testimonial.position || ''}${testimonial.position && testimonial.company ? ', ' : ''}${testimonial.company || ''}</span>
+                    <h4>${escapeHtml(testimonial.client_name)}</h4>
+                    <span>${escapeHtml(testimonial.position || '')}${testimonial.position && testimonial.company ? ', ' : ''}${escapeHtml(testimonial.company || '')}</span>
                 </div>
             </div>
         </div>
@@ -856,15 +837,15 @@ function createNewsCard(post) {
     const excerpt = formatContent(post.excerpt || '');
 
     return `
-    <a href="/news-detail.html?slug=${post.slug}" class="card news-card news-card-link" style="text-decoration: none; color: inherit; display: block;">
+    <a href="/news-detail.html?slug=${encodeURIComponent(post.slug)}" class="card news-card news-card-link" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-image">
-        <img src="${image}" alt="${post.title}" loading="lazy">
+        <img src="${escapeHtml(image)}" alt="${escapeHtml(post.title)}" loading="lazy">
       </div>
       <div class="card-content">
         <div class="card-meta">
           <span class="card-date"><i class="far fa-calendar"></i> ${date}</span>
         </div>
-        <h4 class="card-title">${post.title}</h4>
+        <h4 class="card-title">${escapeHtml(post.title)}</h4>
         <p class="card-excerpt">${excerpt}</p>
         <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
       </div>

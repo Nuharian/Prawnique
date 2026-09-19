@@ -154,10 +154,13 @@ function showSection(section) {
         'homepage-images': 'Homepage Images',
         sections: 'Page Sections',
         products: 'Products',
+        categories: 'Product Categories',
         team: 'Team Members',
+        testimonials: 'Testimonials',
         news: 'News / Blog',
         gallery: 'Gallery',
         contacts: 'Contact Messages',
+        newsletter: 'Newsletter Subscribers',
         settings: 'Site Settings'
     };
     document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
@@ -550,49 +553,155 @@ async function deleteSlide(id) {
 // SECTIONS MANAGEMENT
 // ============================================
 
+// Sections are grouped by where they appear on the site. With 40+ editable
+// blocks a single flat list is unusable.
+const SECTION_GROUPS = [
+    {
+        label: 'Homepage',
+        icon: 'fa-house',
+        match: key => ['hero', 'hero_secondary_button', 'about_preview', 'products_header',
+            'features_header', 'testimonials_header', 'news_header', 'cta_section'].includes(key)
+            || key.startsWith('feature_')
+    },
+    { label: 'Page Headers', icon: 'fa-heading', match: key => key.startsWith('page_header_') },
+    { label: 'About Page', icon: 'fa-circle-info', match: key => key.startsWith('about_') },
+    { label: 'Products Page', icon: 'fa-shrimp', match: key => key.startsWith('products_') },
+    { label: 'Team Page', icon: 'fa-users', match: key => key.startsWith('team_') },
+    { label: 'Contact Page', icon: 'fa-envelope', match: key => key.startsWith('contact_') },
+    { label: 'Footer', icon: 'fa-shoe-prints', match: key => key.startsWith('footer_') },
+    { label: 'Other', icon: 'fa-ellipsis', match: () => true }
+];
+
+// Values go into HTML attributes, so double quotes must be encoded too - a
+// title containing a quote used to break the whole form.
+function escapeAttr(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function escapeText(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 async function loadSections() {
     try {
-        const response = await fetch('/api/sections');
+        const response = await fetch('/api/sections?_=' + Date.now());
         const sections = await response.json();
 
         const container = document.getElementById('sectionsAccordion');
         if (!container) return;
 
-        const sectionKeys = Object.keys(sections);
+        const keys = Object.keys(sections).sort();
+        const grouped = SECTION_GROUPS.map(group => ({ group, keys: [] }));
 
-        container.innerHTML = sectionKeys.map(key => {
-            const section = sections[key];
-            return `
-        <div class="card">
-          <div class="card-header" onclick="toggleAccordion(this)">
-            <h4><i class="fas fa-chevron-right"></i> ${formatSectionName(key)}</h4>
-          </div>
-          <div class="card-body" style="display: none;">
-            <form onsubmit="saveSection(event, '${key}')" class="form-grid">
-              <div class="form-group">
-                <label>Title</label>
-                <input type="text" id="section-${key}-title" value="${section.title || ''}">
-              </div>
-              <div class="form-group">
-                <label>Subtitle</label>
-                <input type="text" id="section-${key}-subtitle" value="${section.subtitle || ''}">
-              </div>
-              <div class="form-group full-width">
-                <label>Content</label>
-                <textarea id="section-${key}-content" rows="4">${section.content || ''}</textarea>
-              </div>
-              <div class="form-actions full-width">
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save"></i> Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
+        keys.forEach(key => {
+            const bucket = grouped.find(g => g.group.match(key));
+            bucket.keys.push(key);
+        });
+
+        container.innerHTML = grouped
+            .filter(g => g.keys.length > 0)
+            .map(g => `
+        <div class="section-group">
+          <h4 class="section-group-title"><i class="fas ${g.group.icon}"></i> ${g.group.label}</h4>
+          ${g.keys.map(key => renderSectionCard(key, sections[key])).join('')}
         </div>
-      `;
-        }).join('');
+      `).join('');
     } catch (error) {
         console.error('Failed to load sections:', error);
+        showToast('Failed to load sections', 'error');
+    }
+}
+
+function renderSectionCard(key, section) {
+    const k = escapeAttr(key);
+    const image = section.image_path || '';
+    return `
+    <div class="card">
+      <div class="card-header" onclick="toggleAccordion(this)">
+        <h4><i class="fas fa-chevron-right"></i> ${escapeText(formatSectionName(key))}</h4>
+      </div>
+      <div class="card-body" style="display: none;">
+        <form onsubmit="saveSection(event, '${k}')" class="form-grid">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="section-${k}-title" value="${escapeAttr(section.title)}">
+          </div>
+          <div class="form-group">
+            <label>Subtitle <small>(small label shown above the title)</small></label>
+            <input type="text" id="section-${k}-subtitle" value="${escapeAttr(section.subtitle)}">
+          </div>
+          <div class="form-group full-width">
+            <label>Content</label>
+            <textarea id="section-${k}-content" rows="4">${escapeText(section.content)}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Button Text <small>(blank hides the button)</small></label>
+            <input type="text" id="section-${k}-button_text" value="${escapeAttr(section.button_text)}">
+          </div>
+          <div class="form-group">
+            <label>Button Link</label>
+            <input type="text" id="section-${k}-button_link" value="${escapeAttr(section.button_link)}" placeholder="/contact.html">
+          </div>
+          <div class="form-group">
+            <label>Icon <small>(Font Awesome class)</small></label>
+            <input type="text" id="section-${k}-icon" value="${escapeAttr(section.icon)}" placeholder="fas fa-award">
+          </div>
+          <div class="form-group">
+            <label>Image</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <img id="section-${k}-preview" src="${escapeAttr(image || '/img/logo.png')}"
+                   style="width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; background: #fff;">
+              <input type="text" id="section-${k}-image_path" value="${escapeAttr(image)}" placeholder="Image URL" style="flex: 1;">
+              <button type="button" class="btn btn-secondary btn-sm"
+                      onclick="document.getElementById('section-${k}-upload').click()">
+                <i class="fas fa-upload"></i>
+              </button>
+              <input type="file" accept="image/*" style="display: none;"
+                     id="section-${k}-upload" onchange="uploadSectionImage('${k}', this)">
+            </div>
+          </div>
+          <div class="form-actions full-width">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+async function uploadSectionImage(key, input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetchWithCredentials('/api/admin/upload/general', {
+            method: 'POST',
+            body: formData
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || 'Upload failed');
+        }
+        const result = await response.json();
+        document.getElementById(`section-${key}-image_path`).value = result.path;
+        document.getElementById(`section-${key}-preview`).src = result.path;
+        showToast('Image uploaded - remember to save the section', 'success');
+    } catch (error) {
+        showToast('Failed to upload image: ' + error.message, 'error');
+    } finally {
+        input.value = '';
     }
 }
 
@@ -614,38 +723,37 @@ function toggleAccordion(header) {
 async function saveSection(e, key) {
     e.preventDefault();
 
-    const data = {
-        title: document.getElementById(`section-${key}-title`).value,
-        subtitle: document.getElementById(`section-${key}-subtitle`).value,
-        content: document.getElementById(`section-${key}-content`).value,
-        image_path: ''
+    const field = name => {
+        const el = document.getElementById(`section-${key}-${name}`);
+        return el ? el.value : '';
     };
 
-    console.log('Saving section:', key, 'with data:', data);
+    // image_path is read back from the form rather than hardcoded to '' -
+    // sending an empty string wiped the section image on every text edit.
+    const data = {
+        title: field('title'),
+        subtitle: field('subtitle'),
+        content: field('content'),
+        image_path: field('image_path'),
+        icon: field('icon'),
+        button_text: field('button_text'),
+        button_link: field('button_link')
+    };
 
     try {
-        const response = await fetchWithCredentials(`/api/admin/sections/${key}`, {
+        const response = await fetchWithCredentials(`/api/admin/sections/${encodeURIComponent(key)}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
-        console.log('Response status:', response.status);
-
         if (!response.ok) {
-            const error = await response.json();
-            console.error('Save error:', error);
+            const error = await response.json().catch(() => ({}));
             throw new Error(error.error || 'Failed to update section');
         }
 
-        const result = await response.json();
-        console.log('Save result:', result);
-
-        if (result.success) {
-            showToast('Section updated successfully', 'success');
-        }
+        showToast('Section updated successfully', 'success');
     } catch (error) {
-        console.error('Save section error:', error);
         showToast('Failed to update section: ' + error.message, 'error');
     }
 }
@@ -1996,7 +2104,12 @@ function initSettingsForm() {
             instagram_url: document.getElementById('instagramUrl').value,
             linkedin_url: document.getElementById('linkedinUrl').value,
             footer_text: document.getElementById('footerText').value,
-            wave_animation_type: document.getElementById('waveAnimationType').value
+            contact_map_embed: document.getElementById('contactMapEmbed').value,
+            wave_animation_type: document.getElementById('waveAnimationType').value,
+            intro_animation_enabled: document.getElementById('introAnimationEnabled').value,
+            intro_animation_once_per_session: document.getElementById('introAnimationOncePerSession').value,
+            intro_animation_duration: document.getElementById('introAnimationDuration').value || '3200',
+            intro_animation_tagline: document.getElementById('introAnimationTagline').value
         };
 
         try {
@@ -2040,7 +2153,12 @@ async function loadSettings() {
         document.getElementById('instagramUrl').value = settings.instagram_url || '';
         document.getElementById('linkedinUrl').value = settings.linkedin_url || '';
         document.getElementById('footerText').value = settings.footer_text || '';
+        document.getElementById('contactMapEmbed').value = settings.contact_map_embed || '';
         document.getElementById('waveAnimationType').value = settings.wave_animation_type || 'realistic';
+        document.getElementById('introAnimationEnabled').value = settings.intro_animation_enabled === 'false' ? 'false' : 'true';
+        document.getElementById('introAnimationOncePerSession').value = settings.intro_animation_once_per_session === 'false' ? 'false' : 'true';
+        document.getElementById('introAnimationDuration').value = settings.intro_animation_duration || '3200';
+        document.getElementById('introAnimationTagline').value = settings.intro_animation_tagline || '';
     } catch (error) {
         console.error('Failed to load settings:', error);
     }

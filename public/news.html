@@ -13,8 +13,12 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
     <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Wave intro animation (must load in <head>, before first paint) -->
+  <link rel="stylesheet" href="/css/intro.css?v=5">
+  <script src="/js/intro.js?v=5"></script>
 </head>
 
 <body>
@@ -37,10 +41,10 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="page-header">
+    <header class="page-header" data-section="page_header_news">
         <div class="container">
-            <h1>News & Updates</h1>
-            <p>Stay informed with the latest news from Prawnique and the seafood industry.</p>
+            <h1 data-field="title">News & Updates</h1>
+            <p data-field="content">Stay informed with the latest news from Prawnique and the seafood industry.</p>
             <nav class="breadcrumb"><a href="/">Home</a> <span>/</span> <span>News</span></nav>
         </div>
     </header>
@@ -56,18 +60,13 @@
         </div>
     </section>
 
-    <!-- Footer -->`n  <div id="footerPlaceholder"></div>
+    <!-- Footer -->
+    <div id="footerPlaceholder"></div>
 
     <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
 
-    <script src="/js/main.js"></script>
+    <script src="/js/main.js?v=5"></script>
     <script>
-        // Helper function to preserve line breaks in content
-        function formatContent(text) {
-            if (!text) return '';
-            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-        }
-
         let currentPage = 0;
         const limit = 9;
 
@@ -130,7 +129,7 @@
             const defaults = [
                 { title: 'Sustainable Aquaculture Practices for 2026', date: 'Jan 15, 2026', excerpt: 'Discover how we\'re implementing new eco-friendly farming methods...', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=250&fit=crop' },
                 { title: 'Prawnique Expands to European Markets', date: 'Jan 10, 2026', excerpt: 'We\'re excited to announce our new partnership with leading distributors...', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=250&fit=crop' },
-                { title: 'Quality Certifications Renewed', date: 'Jan 5, 2026', excerpt: 'Our facilities have successfully renewed HACCP, BAP, and EU certifications...', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=250&fit=crop' }
+                { title: 'Quality Certifications Renewed', date: 'Jan 5, 2026', excerpt: 'Our facilities have successfully renewed HACCP, BAP, and EU certifications...', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=250&fit=crop' }
             ];
             return defaults.map(p => `
         <div class="card news-card" style="cursor: pointer;">

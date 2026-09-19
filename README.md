@@ -20,7 +20,7 @@ npm install
 npm start
 
 # Open http://localhost:3000
-# Admin: http://localhost:3000/admin (admin / admin123)
+# Admin: http://localhost:3000/admin (admin / the ADMIN_PASSWORD you set)
 ```
 
 ## Deploy to Vercel

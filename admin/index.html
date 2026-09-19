@@ -600,16 +600,51 @@
                                     <input type="text" id="linkedinUrl" placeholder="https://linkedin.com/... or www.linkedin.com/...">
                                 </div>
                                 <div class="form-group full-width">
+                                    <label>Google Maps Embed URL</label>
+                                    <input type="text" id="contactMapEmbed"
+                                        placeholder="https://www.google.com/maps/embed?pb=...">
+                                    <small style="color: #666; margin-top: 0.5rem; display: block;">Shown on the Contact page. In Google Maps choose Share &rarr; Embed a map and paste only the <code>src</code> URL. Leave blank to hide the map.</small>
+                                </div>
+                                <div class="form-group full-width">
                                     <label>Footer Text</label>
                                     <input type="text" id="footerText"
                                         placeholder="© 2026 Prawnique. All rights reserved.">
                                 </div>
                                 <div class="form-group">
-                                    <label>Wave Animation Style</label>
+                                    <label>Hero Wave Animation Style</label>
                                     <select id="waveAnimationType">
                                         <option value="realistic">Realistic (Up/Down + Scroll)</option>
                                         <option value="classic">Classic (Horizontal Scroll)</option>
                                     </select>
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <h4 style="margin: 1rem 0 0.25rem;"><i class="fas fa-water"></i> Intro Animation</h4>
+                                    <small style="color: #666; display: block;">The full-screen wave intro that plays when a visitor first opens the site.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Show Intro Animation</label>
+                                    <select id="introAnimationEnabled">
+                                        <option value="true">On</option>
+                                        <option value="false">Off</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Play Frequency</label>
+                                    <select id="introAnimationOncePerSession">
+                                        <option value="true">Once per visit</option>
+                                        <option value="false">Every page load</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Duration (milliseconds)</label>
+                                    <input type="number" id="introAnimationDuration" min="1200" max="10000" step="100"
+                                        placeholder="3200">
+                                </div>
+                                <div class="form-group">
+                                    <label>Intro Tagline</label>
+                                    <input type="text" id="introAnimationTagline"
+                                        placeholder="Premium Prawns, Naturally Sourced">
                                 </div>
 
                                 <div class="form-actions full-width">

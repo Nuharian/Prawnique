@@ -13,8 +13,12 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
     <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Wave intro animation (must load in <head>, before first paint) -->
+  <link rel="stylesheet" href="/css/intro.css?v=5">
+  <script src="/js/intro.js?v=5"></script>
 </head>
 
 <body>
@@ -37,10 +41,10 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="page-header">
+    <header class="page-header" data-section="page_header_team">
         <div class="container">
-            <h1>Our Team</h1>
-            <p>Meet the passionate professionals dedicated to bringing you the finest seafood products.</p>
+            <h1 data-field="title">Our Team</h1>
+            <p data-field="content">Meet the passionate professionals dedicated to bringing you the finest seafood products.</p>
             <nav class="breadcrumb"><a href="/">Home</a> <span>/</span> <span>Team</span></nav>
         </div>
     </header>
@@ -50,7 +54,7 @@
         <div class="container">
             <div class="section-header fade-in">
                 <span class="section-subtitle">The People Behind Prawnique</span>
-                <h2>Excellence Through Expertise</h2>
+                <h2 data-section="team_header" data-field="title">Excellence Through Expertise</h2>
                 <p>Our team combines decades of experience in aquaculture, international trade, and quality management.
                 </p>
             </div>
@@ -61,18 +65,13 @@
         </div>
     </section>
 
-    <!-- Footer -->`n  <div id="footerPlaceholder"></div>
+    <!-- Footer -->
+    <div id="footerPlaceholder"></div>
 
     <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
 
-    <script src="/js/main.js"></script>
+    <script src="/js/main.js?v=5"></script>
     <script>
-        // Helper function to preserve line breaks in content
-        function formatContent(text) {
-            if (!text) return '';
-            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-        }
-
         document.addEventListener('DOMContentLoaded', loadTeam);
 
         async function loadTeam() {

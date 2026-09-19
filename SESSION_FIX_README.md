@@ -55,7 +55,7 @@ Updated all admin API calls to use `fetchWithCredentials` instead of `fetch`.
 1. Go to: https://prawnique.vercel.app/admin
 2. Login with:
    - Username: `admin`
-   - Password: `admin123`
+   - Password: <your ADMIN_PASSWORD>
 
 ### 3. Test Saving
 Try editing any section:

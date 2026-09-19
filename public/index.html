@@ -19,8 +19,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="/css/style.css?v=4">
+  <link rel="stylesheet" href="/css/style.css?v=5">
   <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Wave intro animation (must load in <head>, before first paint) -->
+  <link rel="stylesheet" href="/css/intro.css?v=5">
+  <script src="/js/intro.js?v=5"></script>
 </head>
 
 <body>
@@ -82,8 +86,9 @@
       <p id="heroSubtitle">From the pristine waters of Bangladesh to your table — experience the finest quality prawns
         cultivated with care and delivered with excellence.</p>
       <div class="hero-buttons">
-        <a href="/products.html" class="btn btn-primary">Explore Products</a>
-        <a href="/contact.html" class="btn btn-secondary">Contact Us</a>
+        <a href="/products.html" class="btn btn-primary" data-section="hero" data-field="button">Explore Products</a>
+        <a href="/contact.html" class="btn btn-secondary" data-section="hero_secondary_button"
+          data-field="button">Contact Us</a>
       </div>
     </div>
 
@@ -132,13 +137,14 @@
           <img src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=500&fit=crop"
             alt="Fresh prawns from Prawnique" id="aboutImage" style="opacity: 0; transition: opacity 0.3s;">
         </div>
-        <div class="about-content fade-in-right">
-          <span class="section-subtitle">About Us</span>
-          <h2 id="aboutTitle">Your Trusted Seafood Partner</h2>
-          <div id="aboutContent">
+        <div class="about-content fade-in-right" data-section="about_preview">
+          <span class="section-subtitle" data-field="subtitle">About Us</span>
+          <h2 id="aboutTitle" data-field="title">Your Trusted Seafood Partner</h2>
+          <div id="aboutContent" data-field="content">
             <!-- Content loaded dynamically from database -->
           </div>
-          <a href="/about.html" class="btn btn-ocean" style="margin-top: 2rem;">Learn More About Us</a>
+          <a href="/about.html" class="btn btn-ocean" style="margin-top: 2rem;" data-field="button">Learn More About
+            Us</a>
         </div>
       </div>
     </div>
@@ -147,10 +153,11 @@
   <!-- Featured Products Section -->
   <section class="section products-section" id="productsSection" style="padding-top: 3rem;">
     <div class="container">
-      <div class="section-header fade-in">
-        <span class="section-subtitle">Our Products</span>
-        <h2>Premium Seafood Selection</h2>
-        <p>Discover our range of premium prawns and seafood, sourced responsibly and processed with care.</p>
+      <div class="section-header fade-in" data-section="products_header">
+        <span class="section-subtitle" data-field="subtitle">Our Products</span>
+        <h2 data-field="title">Premium Seafood Selection</h2>
+        <p data-field="content">Discover our range of premium prawns and seafood, sourced responsibly and processed
+          with care.</p>
       </div>
 
       <div class="grid grid-4 stagger-in" id="featuredProducts">
@@ -162,7 +169,8 @@
       </div>
 
       <div class="text-center" style="margin-top: 3rem;">
-        <a href="/products.html" class="btn btn-outline">View All Products</a>
+        <a href="/products.html" class="btn btn-outline" data-section="products_header"
+          data-field="button">View All Products</a>
       </div>
     </div>
   </section>
@@ -170,40 +178,41 @@
   <!-- Features / Why Choose Us Section -->
   <section class="section features-section" id="featuresSection">
     <div class="container">
-      <div class="section-header fade-in">
-        <span class="section-subtitle" style="color: var(--seafoam);">Why Choose Us</span>
-        <h2 style="color: white;">The Prawnique Difference</h2>
-        <p style="color: rgba(255,255,255,0.8);">Quality you can trust, freshness you can taste.</p>
+      <div class="section-header fade-in" data-section="features_header">
+        <span class="section-subtitle" style="color: var(--seafoam);" data-field="subtitle">Why Choose Us</span>
+        <h2 style="color: white;" data-field="title">The Prawnique Difference</h2>
+        <p style="color: rgba(255,255,255,0.8);" data-field="content">Quality you can trust, freshness you can taste.
+        </p>
       </div>
 
       <div class="grid grid-4 stagger-in">
-        <div class="feature-item" id="feature1">
+        <div class="feature-item" id="feature1" data-section="feature_quality">
           <div class="feature-icon">
-            <i class="fas fa-award"></i>
+            <i class="fas fa-award" data-field="icon"></i>
           </div>
-          <h3>Premium Quality</h3>
-          <p>Only the finest prawns make it through our rigorous quality control process.</p>
+          <h3 data-field="title">Premium Quality</h3>
+          <p data-field="content">Only the finest prawns make it through our rigorous quality control process.</p>
         </div>
-        <div class="feature-item" id="feature2">
+        <div class="feature-item" id="feature2" data-section="feature_sustainable">
           <div class="feature-icon">
-            <i class="fas fa-leaf"></i>
+            <i class="fas fa-leaf" data-field="icon"></i>
           </div>
-          <h3>Sustainably Sourced</h3>
-          <p>Our farms follow eco-friendly practices to protect marine ecosystems.</p>
+          <h3 data-field="title">Sustainably Sourced</h3>
+          <p data-field="content">Our farms follow eco-friendly practices to protect marine ecosystems.</p>
         </div>
-        <div class="feature-item" id="feature3">
+        <div class="feature-item" id="feature3" data-section="feature_fresh">
           <div class="feature-icon">
-            <i class="fas fa-snowflake"></i>
+            <i class="fas fa-snowflake" data-field="icon"></i>
           </div>
-          <h3>Fresh Frozen</h3>
-          <p>Flash-frozen at peak freshness to lock in flavor and nutrients.</p>
+          <h3 data-field="title">Fresh Frozen</h3>
+          <p data-field="content">Flash-frozen at peak freshness to lock in flavor and nutrients.</p>
         </div>
-        <div class="feature-item" id="feature4">
+        <div class="feature-item" id="feature4" data-section="feature_delivery">
           <div class="feature-icon">
-            <i class="fas fa-globe"></i>
+            <i class="fas fa-globe" data-field="icon"></i>
           </div>
-          <h3>Global Delivery</h3>
-          <p>We export to over 50 countries with reliable cold-chain logistics.</p>
+          <h3 data-field="title">Global Delivery</h3>
+          <p data-field="content">We export to over 50 countries with reliable cold-chain logistics.</p>
         </div>
       </div>
     </div>
@@ -212,10 +221,10 @@
   <!-- Testimonials Section -->
   <section class="section testimonials-section" id="testimonialsSection">
     <div class="container">
-      <div class="section-header fade-in">
-        <span class="section-subtitle">Testimonials</span>
-        <h2>What Our Clients Say</h2>
-        <p>Trusted by seafood importers and distributors worldwide.</p>
+      <div class="section-header fade-in" data-section="testimonials_header">
+        <span class="section-subtitle" data-field="subtitle">Testimonials</span>
+        <h2 data-field="title">What Our Clients Say</h2>
+        <p data-field="content">Trusted by seafood importers and distributors worldwide.</p>
       </div>
 
       <div class="grid grid-3 stagger-in" id="testimonialsList">
@@ -231,10 +240,10 @@
   <!-- Latest News Section -->
   <section class="section news-section" id="newsSection">
     <div class="container">
-      <div class="section-header fade-in">
-        <span class="section-subtitle">Latest News</span>
-        <h2>From Our Blog</h2>
-        <p>Stay updated with industry news and company updates.</p>
+      <div class="section-header fade-in" data-section="news_header">
+        <span class="section-subtitle" data-field="subtitle">Latest News</span>
+        <h2 data-field="title">From Our Blog</h2>
+        <p data-field="content">Stay updated with industry news and company updates.</p>
       </div>
 
       <div class="grid grid-3 stagger-in" id="latestNews">
@@ -269,7 +278,7 @@
         </div>
         <div class="card news-card">
           <div class="card-image">
-            <img src="https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=250&fit=crop" alt="News">
+            <img src="https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=250&fit=crop" alt="News">
           </div>
           <div class="card-content">
             <div class="card-meta">
@@ -284,8 +293,20 @@
       </div>
 
       <div class="text-center" style="margin-top: 3rem;">
-        <a href="/news.html" class="btn btn-outline">View All News</a>
+        <a href="/news.html" class="btn btn-outline" data-section="news_header" data-field="button">View All
+          News</a>
       </div>
+    </div>
+  </section>
+
+  <!-- Call To Action -->
+  <section class="section cta-section" data-section="cta_section"
+    style="background: var(--gradient-ocean); color: white; text-align: center;">
+    <div class="container fade-in">
+      <h2 style="color: white;" data-field="title">Ready to Partner With Us?</h2>
+      <p style="max-width: 640px; margin: 1rem auto 2rem; opacity: 0.9;" data-field="content">Get in touch today to
+        discuss your seafood requirements.</p>
+      <a href="/contact.html" class="btn btn-primary" data-field="button">Get In Touch</a>
     </div>
   </section>
 
@@ -298,7 +319,7 @@
   </button>
 
   <!-- Main JavaScript -->
-  <script src="/js/main.js?v=4"></script>
+  <script src="/js/main.js?v=5"></script>
 </body>
 
 </html>

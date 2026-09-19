@@ -1,10 +1,10 @@
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const cookieParser = require('cookie-parser');
+const crypto = require('crypto');
 
 // Import modules
 const { initDatabase, all, get, run, sql, isVercelPostgres } = require('./database/init');
@@ -12,41 +12,105 @@ const { upload, getImageUrl, isCloudinaryConfigured } = require('./utils/upload'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 
-// Middleware
+// The admin panel is served from the same origin as the API, so credentialed
+// requests never need to come from anywhere else. Reflecting an arbitrary
+// Origin while allowing credentials would let any site call the admin API with
+// a logged-in admin's cookie.
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
 app.use(cors({
-    origin: true,
+    origin(origin, callback) {
+        // Same-origin and server-to-server requests send no Origin header.
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(null, false);
+    },
     credentials: true
 }));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Baseline security headers (no extra dependency needed).
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
 // Simple token-based auth (stateless)
-const crypto = require('crypto');
-const SESSION_SECRET = process.env.SESSION_SECRET || 'prawnique-secret-key-change-in-production';
+const SESSION_SECRET = resolveSessionSecret();
+
+function resolveSessionSecret() {
+    const configured = process.env.SESSION_SECRET;
+    const placeholder = 'prawnique-secret-key-change-in-production';
+
+    if (configured && configured !== placeholder && configured.length >= 16) {
+        return configured;
+    }
+
+    if (IS_PRODUCTION) {
+        // A predictable secret means anyone can forge an admin auth token, so in
+        // production we refuse to fall back to the shared default. A random
+        // secret keeps the site up but invalidates tokens on restart, which is
+        // the safe failure mode.
+        console.error(
+            'SECURITY: SESSION_SECRET is missing or too weak. Set it in your ' +
+            'environment variables. Falling back to a random per-boot secret, ' +
+            'which will sign admins out whenever the server restarts.'
+        );
+        return crypto.randomBytes(48).toString('hex');
+    }
+
+    console.warn('SESSION_SECRET not set - using a development-only default.');
+    return placeholder;
+}
+
+function signPayload(payload) {
+    return crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+}
 
 function createAuthToken(adminId, username) {
     const payload = JSON.stringify({ adminId, username, exp: Date.now() + 24 * 60 * 60 * 1000 });
-    const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
-    return Buffer.from(payload + '.' + signature).toString('base64');
+    return Buffer.from(payload + '.' + signPayload(payload)).toString('base64');
 }
 
 function verifyAuthToken(token) {
     try {
         const decoded = Buffer.from(token, 'base64').toString();
-        const [payload, signature] = decoded.split('.');
-        const expectedSignature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
-        
-        if (signature !== expectedSignature) return null;
-        
+        const separator = decoded.lastIndexOf('.');
+        if (separator === -1) return null;
+
+        const payload = decoded.slice(0, separator);
+        const signature = decoded.slice(separator + 1);
+        const expected = signPayload(payload);
+
+        // Constant-time compare so the signature can't be guessed byte by byte.
+        const given = Buffer.from(signature, 'hex');
+        const want = Buffer.from(expected, 'hex');
+        if (given.length !== want.length) return null;
+        if (!crypto.timingSafeEqual(given, want)) return null;
+
         const data = JSON.parse(payload);
         if (data.exp < Date.now()) return null;
-        
+
         return data;
     } catch {
         return null;
     }
+}
+
+// Error responses leak schema details and stack context when the raw message is
+// echoed back, so log the real error and return something generic.
+function fail(res, error, context, status = 500) {
+    console.error(`${context}:`, error);
+    res.status(status).json({ error: 'Something went wrong. Please try again.' });
 }
 
 // Serve static files
@@ -71,6 +135,18 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
+// On serverless the module can start handling requests before the database
+// finishes initialising. `databaseReady` is declared at the bottom of this file;
+// it is only dereferenced here at request time, so the ordering is fine.
+app.use('/api', async (req, res, next) => {
+    try {
+        await databaseReady;
+        next();
+    } catch (error) {
+        fail(res, error, 'database initialization', 503);
+    }
+});
+
 // ============================================
 // PUBLIC API ROUTES
 // ============================================
@@ -88,7 +164,7 @@ app.get('/api/settings', async (req, res) => {
         settings.forEach(s => settingsObj[s.key] = s.value);
         res.json(settingsObj);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -103,7 +179,7 @@ app.get('/api/slider', async (req, res) => {
         }
         res.json(images);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -120,7 +196,7 @@ app.get('/api/sections', async (req, res) => {
         sections.forEach(s => sectionsObj[s.section_key] = s);
         res.json(sectionsObj);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -135,7 +211,7 @@ app.get('/api/categories', async (req, res) => {
         }
         res.json(categories);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -169,7 +245,7 @@ app.get('/api/products', async (req, res) => {
         }
         res.json(products);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -196,7 +272,7 @@ app.get('/api/products/:slug', async (req, res) => {
         if (!product) return res.status(404).json({ error: 'Product not found' });
         res.json(product);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -211,7 +287,7 @@ app.get('/api/team', async (req, res) => {
         }
         res.json(members);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -226,7 +302,7 @@ app.get('/api/testimonials', async (req, res) => {
         }
         res.json(testimonials);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -255,7 +331,7 @@ app.get('/api/news', async (req, res) => {
 
         res.json({ posts, total, limit, offset });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -271,7 +347,7 @@ app.get('/api/news/:slug', async (req, res) => {
         if (!post) return res.status(404).json({ error: 'Post not found' });
         res.json(post);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -289,15 +365,23 @@ app.get('/api/gallery', async (req, res) => {
         }
         res.json(images);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, phone, subject, message } = req.body;
         if (!name || !email || !message) {
             return res.status(400).json({ error: 'Name, email, and message are required' });
+        }
+        if (!EMAIL_PATTERN.test(String(email))) {
+            return res.status(400).json({ error: 'Please enter a valid email address' });
+        }
+        if (String(message).length > 5000 || String(name).length > 200) {
+            return res.status(400).json({ error: 'Your message is too long' });
         }
 
         if (isVercelPostgres) {
@@ -308,7 +392,7 @@ app.post('/api/contact', async (req, res) => {
         }
         res.json({ success: true, message: 'Thank you for your message!' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -316,6 +400,9 @@ app.post('/api/newsletter', async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
+        if (!EMAIL_PATTERN.test(String(email))) {
+            return res.status(400).json({ error: 'Please enter a valid email address' });
+        }
 
         if (isVercelPostgres) {
             await sql`INSERT INTO newsletter_subscribers (email) VALUES (${email}) ON CONFLICT (email) DO NOTHING`;
@@ -324,7 +411,7 @@ app.post('/api/newsletter', async (req, res) => {
         }
         res.json({ success: true, message: 'Thank you for subscribing!' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -332,47 +419,73 @@ app.post('/api/newsletter', async (req, res) => {
 // ADMIN AUTH ROUTES
 // ============================================
 
+// In-memory throttle for login attempts. Serverless instances are short-lived
+// and not shared, so this is a speed bump rather than a hard guarantee - but it
+// still removes the "unlimited free guesses" property the login had before.
+const loginAttempts = new Map();
+const MAX_LOGIN_ATTEMPTS = 8;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+
+function loginThrottle(req) {
+    const key = req.ip || 'unknown';
+    const now = Date.now();
+    const record = loginAttempts.get(key);
+
+    if (!record || now - record.first > LOGIN_WINDOW_MS) {
+        loginAttempts.set(key, { count: 1, first: now });
+        return { blocked: false };
+    }
+
+    record.count += 1;
+    return { blocked: record.count > MAX_LOGIN_ATTEMPTS };
+}
+
+function clearLoginThrottle(req) {
+    loginAttempts.delete(req.ip || 'unknown');
+}
+
 app.post('/api/admin/login', async (req, res) => {
     try {
-        console.log('Login attempt for username:', req.body.username);
         const { username, password } = req.body;
-        let admin;
 
+        if (!username || !password) {
+            return res.status(400).json({ error: 'Username and password are required' });
+        }
+
+        if (loginThrottle(req).blocked) {
+            return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
+        }
+
+        let admin;
         if (isVercelPostgres) {
             const result = await sql`SELECT * FROM admins WHERE username = ${username}`;
             admin = result.rows[0];
-            console.log('Admin found in Postgres:', !!admin);
         } else {
             admin = await get('SELECT * FROM admins WHERE username = ?', [username]);
-            console.log('Admin found in SQLite:', !!admin);
         }
 
-        if (!admin) {
-            console.log('Admin not found');
+        // Always run a bcrypt comparison so a missing user and a wrong password
+        // take the same amount of time and can't be told apart.
+        const hash = admin ? admin.password : '$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidin';
+        const passwordMatch = bcrypt.compareSync(password, hash);
+
+        if (!admin || !passwordMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        const passwordMatch = bcrypt.compareSync(password, admin.password);
-        console.log('Password match:', passwordMatch);
-
-        if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
+        clearLoginThrottle(req);
         const token = createAuthToken(admin.id, admin.username);
-        
+
         res.cookie('authToken', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: IS_PRODUCTION,
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000
         });
 
-        console.log('Auth token created and set');
         res.json({ success: true, username: admin.username });
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -413,7 +526,7 @@ app.post('/api/admin/upload/:type', requireAuth, (req, res) => {
             res.json({ success: true, path: imageUrl, cloudinary: isCloudinaryConfigured });
         } catch (error) {
             console.error('Error processing upload:', error);
-            res.status(500).json({ error: error.message });
+            fail(res, error, `${req.method} ${req.path}`);
         }
     });
 });
@@ -421,16 +534,28 @@ app.post('/api/admin/upload/:type', requireAuth, (req, res) => {
 // Settings
 app.put('/api/admin/settings', requireAuth, async (req, res) => {
     try {
+        // This has to upsert, not update. A plain UPDATE silently affects zero
+        // rows for any setting that was never seeded, which is why new settings
+        // appeared to save successfully but never took effect.
         for (const [key, value] of Object.entries(req.body)) {
+            const stored = value === null || value === undefined ? '' : String(value);
             if (isVercelPostgres) {
-                await sql`UPDATE site_settings SET value = ${value}, updated_at = CURRENT_TIMESTAMP WHERE key = ${key}`;
+                await sql`
+                    INSERT INTO site_settings (key, value, updated_at)
+                    VALUES (${key}, ${stored}, CURRENT_TIMESTAMP)
+                    ON CONFLICT (key) DO UPDATE SET value = ${stored}, updated_at = CURRENT_TIMESTAMP
+                `;
             } else {
-                await run('UPDATE site_settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?', [value, key]);
+                await run(
+                    'INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ' +
+                    'ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP',
+                    [key, stored]
+                );
             }
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -446,7 +571,7 @@ app.get('/api/admin/slider', requireAuth, async (req, res) => {
         }
         res.json(images);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -467,7 +592,7 @@ app.post('/api/admin/slider', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -480,7 +605,7 @@ app.delete('/api/admin/slider/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -496,43 +621,66 @@ app.put('/api/admin/slider/reorder', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
 // Sections
 app.put('/api/admin/sections/:key', requireAuth, async (req, res) => {
     try {
-        const { title, subtitle, content, image_path } = req.body;
-        console.log('Updating section:', req.params.key, 'with data:', { title, subtitle, content });
-        
+        const key = req.params.key;
+        const { title, subtitle, content, image_path, icon, button_text, button_link } = req.body;
+
+        // Only overwrite the fields the client actually sent. The admin form used
+        // to post image_path: '' on every save, which silently erased section
+        // images each time any text was edited.
+        let existing;
         if (isVercelPostgres) {
-            // First check if section exists
-            const existing = await sql`SELECT id FROM sections WHERE section_key = ${req.params.key}`;
-            console.log('Section exists:', existing.rows.length > 0);
-            
-            if (existing.rows.length === 0) {
-                // Insert if doesn't exist
-                console.log('Inserting new section');
-                await sql`INSERT INTO sections (section_key, title, subtitle, content, image_path) VALUES (${req.params.key}, ${title}, ${subtitle}, ${content}, ${image_path || ''})`;
-            } else {
-                // Update if exists
-                console.log('Updating existing section');
-                await sql`UPDATE sections SET title = ${title}, subtitle = ${subtitle}, content = ${content}, image_path = ${image_path || ''}, updated_at = CURRENT_TIMESTAMP WHERE section_key = ${req.params.key}`;
-            }
-            
-            // Verify the update
-            const updated = await sql`SELECT * FROM sections WHERE section_key = ${req.params.key}`;
-            console.log('Section after update:', updated.rows[0]);
+            const result = await sql`SELECT * FROM sections WHERE section_key = ${key}`;
+            existing = result.rows[0];
         } else {
-            await run('INSERT OR REPLACE INTO sections (section_key, title, subtitle, content, image_path, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
-                [req.params.key, title, subtitle, content, image_path || '']);
+            existing = await get('SELECT * FROM sections WHERE section_key = ?', [key]);
         }
-        console.log('Section update successful');
+
+        const pick = (incoming, current) => (incoming === undefined ? (current || '') : (incoming || ''));
+        const next = {
+            title: pick(title, existing?.title),
+            subtitle: pick(subtitle, existing?.subtitle),
+            content: pick(content, existing?.content),
+            image_path: pick(image_path, existing?.image_path),
+            icon: pick(icon, existing?.icon),
+            button_text: pick(button_text, existing?.button_text),
+            button_link: pick(button_link, existing?.button_link)
+        };
+
+        if (isVercelPostgres) {
+            await sql`
+                INSERT INTO sections (section_key, title, subtitle, content, image_path, icon, button_text, button_link, updated_at)
+                VALUES (${key}, ${next.title}, ${next.subtitle}, ${next.content}, ${next.image_path}, ${next.icon}, ${next.button_text}, ${next.button_link}, CURRENT_TIMESTAMP)
+                ON CONFLICT (section_key) DO UPDATE SET
+                    title = ${next.title},
+                    subtitle = ${next.subtitle},
+                    content = ${next.content},
+                    image_path = ${next.image_path},
+                    icon = ${next.icon},
+                    button_text = ${next.button_text},
+                    button_link = ${next.button_link},
+                    updated_at = CURRENT_TIMESTAMP
+            `;
+        } else {
+            await run(
+                'INSERT INTO sections (section_key, title, subtitle, content, image_path, icon, button_text, button_link, updated_at) ' +
+                'VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ' +
+                'ON CONFLICT(section_key) DO UPDATE SET title = excluded.title, subtitle = excluded.subtitle, ' +
+                'content = excluded.content, image_path = excluded.image_path, icon = excluded.icon, ' +
+                'button_text = excluded.button_text, button_link = excluded.button_link, updated_at = CURRENT_TIMESTAMP',
+                [key, next.title, next.subtitle, next.content, next.image_path, next.icon, next.button_text, next.button_link]
+            );
+        }
+
         res.json({ success: true });
     } catch (error) {
-        console.error('Section update error:', error);
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -558,7 +706,7 @@ app.get('/api/admin/products', requireAuth, async (req, res) => {
         }
         res.json(products);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -574,7 +722,7 @@ app.post('/api/admin/products', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -590,7 +738,7 @@ app.put('/api/admin/products/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -603,7 +751,7 @@ app.delete('/api/admin/products/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -620,7 +768,7 @@ app.post('/api/admin/categories', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -636,7 +784,7 @@ app.put('/api/admin/categories/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -649,7 +797,7 @@ app.delete('/api/admin/categories/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -665,7 +813,7 @@ app.get('/api/admin/team', requireAuth, async (req, res) => {
         }
         res.json(members);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -681,7 +829,7 @@ app.post('/api/admin/team', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -697,7 +845,7 @@ app.put('/api/admin/team/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -710,7 +858,7 @@ app.delete('/api/admin/team/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -728,7 +876,7 @@ app.post('/api/admin/testimonials', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -746,7 +894,7 @@ app.put('/api/admin/testimonials/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -759,7 +907,7 @@ app.delete('/api/admin/testimonials/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -775,7 +923,7 @@ app.get('/api/admin/news', requireAuth, async (req, res) => {
         }
         res.json(posts);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -792,7 +940,7 @@ app.post('/api/admin/news', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -809,6 +957,11 @@ app.put('/api/admin/news/:id', requireAuth, async (req, res) => {
             current = await get('SELECT is_published, published_at FROM news_posts WHERE id = ?', [req.params.id]);
         }
 
+        // Without this guard an unknown id threw a TypeError and surfaced as a 500.
+        if (!current) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
         const publishedAt = is_published && !current.is_published ? new Date().toISOString() : current.published_at;
 
         if (isVercelPostgres) {
@@ -819,7 +972,7 @@ app.put('/api/admin/news/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -832,7 +985,7 @@ app.delete('/api/admin/news/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -848,7 +1001,7 @@ app.get('/api/admin/gallery', requireAuth, async (req, res) => {
         }
         res.json(images);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -864,7 +1017,7 @@ app.post('/api/admin/gallery', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -877,7 +1030,7 @@ app.delete('/api/admin/gallery/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -893,7 +1046,7 @@ app.get('/api/admin/contacts', requireAuth, async (req, res) => {
         }
         res.json(contacts);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -906,7 +1059,7 @@ app.put('/api/admin/contacts/:id/read', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -922,7 +1075,7 @@ app.get('/api/admin/newsletter', requireAuth, async (req, res) => {
         }
         res.json(subscribers);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -935,7 +1088,7 @@ app.delete('/api/admin/newsletter/:id', requireAuth, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
@@ -970,64 +1123,103 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
         }
         res.json(stats);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        fail(res, error, `${req.method} ${req.path}`);
     }
 });
 
-// Fallback routes
+// ============================================
+// ADMIN PASSWORD RESET (opt-in, not a public endpoint)
+// ============================================
+// The previous version of this route was a public GET that reset the admin
+// password to a known value - anyone who knew the URL had full admin access.
+// It now requires ADMIN_RESET_TOKEN to be set in the environment and for the
+// caller to present it, and it never reveals the resulting password.
+app.post('/api/admin/reset-password', async (req, res) => {
+    try {
+        const configuredToken = process.env.ADMIN_RESET_TOKEN;
+        if (!configuredToken) {
+            return res.status(404).json({ error: 'Not found' });
+        }
+
+        const provided = String(req.body?.token || '');
+        const a = Buffer.from(provided);
+        const b = Buffer.from(configuredToken);
+        if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const newPassword = String(req.body?.password || '');
+        if (newPassword.length < 10) {
+            return res.status(400).json({ error: 'New password must be at least 10 characters' });
+        }
+
+        const hashedPassword = bcrypt.hashSync(newPassword, 10);
+        if (isVercelPostgres) {
+            const existing = await sql`SELECT id FROM admins WHERE username = 'admin'`;
+            if (existing.rows.length > 0) {
+                await sql`UPDATE admins SET password = ${hashedPassword} WHERE username = 'admin'`;
+            } else {
+                await sql`INSERT INTO admins (username, password) VALUES ('admin', ${hashedPassword})`;
+            }
+        } else {
+            await run('INSERT OR REPLACE INTO admins (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
+        }
+
+        res.json({ success: true, message: 'Admin password updated.' });
+    } catch (error) {
+        fail(res, error, `${req.method} ${req.path}`);
+    }
+});
+
+// ============================================
+// FALLBACK ROUTES
+// ============================================
+
+// Unknown API routes should be a JSON 404, not the homepage HTML.
+app.use('/api', (req, res) => {
+    res.status(404).json({ error: 'Not found' });
+});
+
 app.get('/admin/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
 
-// Emergency admin creation endpoint (remove after first use)
-app.get('/api/create-admin', async (req, res) => {
-    try {
-        const hashedPassword = bcrypt.hashSync('admin123', 10);
-        
-        if (isVercelPostgres) {
-            // Check if admin exists
-            const existing = await sql`SELECT id FROM admins WHERE username = 'admin'`;
-            if (existing.rows.length > 0) {
-                // Update password instead
-                await sql`UPDATE admins SET password = ${hashedPassword} WHERE username = 'admin'`;
-                return res.json({ success: true, message: 'Admin password reset. Username: admin, Password: admin123' });
-            }
-            // Create admin
-            await sql`INSERT INTO admins (username, password) VALUES ('admin', ${hashedPassword})`;
-        } else {
-            await run('INSERT OR REPLACE INTO admins (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
-        }
-        
-        res.json({ success: true, message: 'Admin user created. Username: admin, Password: admin123' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.get('*', (req, res) => {
+    // Returning index.html for a missing .png or .css hid broken asset paths
+    // behind a 200 response. Only unknown *page* routes get the SPA fallback.
+    if (path.extname(req.path)) {
+        return res.status(404).send('Not found');
+    }
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Initialize database and start server
-async function startServer() {
-    try {
-        await initDatabase();
+// ============================================
+// STARTUP
+// ============================================
 
+// On Vercel the app is imported rather than listened on, and the first request
+// can arrive before initDatabase() resolves. This promise is awaited by the
+// gate middleware above so no request ever hits an uninitialised database.
+const databaseReady = initDatabase()
+    .then(() => {
         console.log('\n📦 Configuration:');
         console.log(`   Database: ${isVercelPostgres ? 'Vercel Postgres' : 'Local SQLite'}`);
         console.log(`   Images: ${isCloudinaryConfigured ? 'Cloudinary' : 'Local Storage'}`);
+    })
+    .catch(error => {
+        console.error('Database initialization failed:', error);
+        throw error;
+    });
 
-        app.listen(PORT, () => {
-            console.log(`\n🦐 Prawnique server running at http://localhost:${PORT}`);
-            console.log(`📊 Admin panel at http://localhost:${PORT}/admin`);
-            console.log(`\n📝 Default admin: admin / admin123`);
-        });
-    } catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
-    }
+if (!process.env.VERCEL) {
+    databaseReady
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`\n🦐 Prawnique server running at http://localhost:${PORT}`);
+                console.log(`📊 Admin panel at http://localhost:${PORT}/admin`);
+            });
+        })
+        .catch(() => process.exit(1));
 }
-
-startServer();
 
 module.exports = app;

@@ -13,8 +13,12 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
     <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Wave intro animation (must load in <head>, before first paint) -->
+  <link rel="stylesheet" href="/css/intro.css?v=5">
+  <script src="/js/intro.js?v=5"></script>
 </head>
 
 <body>
@@ -37,10 +41,10 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="page-header">
+    <header class="page-header" data-section="page_header_gallery">
         <div class="container">
-            <h1>Gallery</h1>
-            <p>A visual journey through our products, facilities, and the people behind Prawnique.</p>
+            <h1 data-field="title">Gallery</h1>
+            <p data-field="content">A visual journey through our products, facilities, and the people behind Prawnique.</p>
             <nav class="breadcrumb"><a href="/">Home</a> <span>/</span> <span>Gallery</span></nav>
         </div>
     </header>
@@ -60,18 +64,13 @@
         <img src="" alt="Gallery image" id="lightboxImage">
     </div>
 
-    <!-- Footer -->`n  <div id="footerPlaceholder"></div>
+    <!-- Footer -->
+    <div id="footerPlaceholder"></div>
 
     <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
 
-    <script src="/js/main.js"></script>
+    <script src="/js/main.js?v=5"></script>
     <script>
-        // Helper function to preserve line breaks in content
-        function formatContent(text) {
-            if (!text) return '';
-            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-        }
-
         document.addEventListener('DOMContentLoaded', loadGallery);
 
         async function loadGallery() {
@@ -106,7 +105,7 @@
                 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=400&fit=crop',
                 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=400&fit=crop',
                 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=400&fit=crop',
+                'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=400&fit=crop',
                 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=400&fit=crop',
                 'https://images.unsplash.com/photo-1579631542720-3a87824fff86?w=400&h=400&fit=crop',
                 'https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=400&h=400&fit=crop',

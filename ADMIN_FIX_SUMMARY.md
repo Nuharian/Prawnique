@@ -40,7 +40,7 @@
 
 2. **Login to admin panel:**
    - Navigate to `http://localhost:3000/admin`
-   - Login with: `admin` / `admin123`
+   - Login with: `admin` / <your ADMIN_PASSWORD>
 
 3. **Test each section:**
    - **Settings:** Update site name and save

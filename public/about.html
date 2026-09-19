@@ -13,8 +13,12 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
     <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Wave intro animation (must load in <head>, before first paint) -->
+  <link rel="stylesheet" href="/css/intro.css?v=5">
+  <script src="/js/intro.js?v=5"></script>
 </head>
 
 <body>
@@ -37,10 +41,10 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="page-header">
+    <header class="page-header" data-section="page_header_about">
         <div class="container">
-            <h1>About Prawnique</h1>
-            <p>Your trusted partner for premium quality prawns and seafood from Bangladesh.</p>
+            <h1 data-field="title">About Prawnique</h1>
+            <p data-field="content">Your trusted partner for premium quality prawns and seafood from Bangladesh.</p>
             <nav class="breadcrumb"><a href="/">Home</a> <span>/</span> <span>About Us</span></nav>
         </div>
     </header>
@@ -53,10 +57,10 @@
                     <img id="aboutStoryImage" src="https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&h=500&fit=crop"
                         alt="Fresh prawns from Prawnique" style="opacity: 0; transition: opacity 0.3s;">
                 </div>
-                <div class="about-content fade-in-right">
-                    <span class="section-subtitle">Our Story</span>
-                    <h2 id="aboutStoryTitle">Bringing the Best of Bangladesh's Seafood to the World</h2>
-                    <div id="aboutStoryContent">
+                <div class="about-content fade-in-right" data-section="about_story">
+                    <span class="section-subtitle" data-field="subtitle">Our Story</span>
+                    <h2 id="aboutStoryTitle" data-field="title">Bringing the Best of Bangladesh's Seafood to the World</h2>
+                    <div id="aboutStoryContent" data-field="content">
                         <p>Founded with a vision to showcase Bangladesh's exceptional prawn and seafood industry to the
                             global market, Prawnique has grown to become a trusted name in quality seafood exports.</p>
                         <p>Our journey began in the coastal regions of Bangladesh, where generations of fishing communities
@@ -74,23 +78,23 @@
     <section class="section" style="background: var(--pearl-cream);">
         <div class="container">
             <div class="grid grid-2" style="gap: 3rem;">
-                <div class="card fade-in" style="padding: 3rem; text-align: center;">
+                <div class="card fade-in" style="padding: 3rem; text-align: center;" data-section="about_mission">
                     <div
                         style="width: 80px; height: 80px; background: var(--gradient-coral); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
-                        <i class="fas fa-bullseye"></i>
+                        <i class="fas fa-bullseye" data-field="icon"></i>
                     </div>
-                    <h3>Our Mission</h3>
-                    <p id="aboutMissionContent" style="color: var(--gray);">To deliver premium, sustainably sourced prawns and seafood while
+                    <h3 data-field="title">Our Mission</h3>
+                    <p id="aboutMissionContent" style="color: var(--gray);" data-field="content">To deliver premium, sustainably sourced prawns and seafood while
                         supporting local fishing communities and preserving marine ecosystems for future generations.
                     </p>
                 </div>
-                <div class="card fade-in" style="padding: 3rem; text-align: center;">
+                <div class="card fade-in" style="padding: 3rem; text-align: center;" data-section="about_vision">
                     <div
                         style="width: 80px; height: 80px; background: var(--gradient-ocean); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem;">
-                        <i class="fas fa-eye"></i>
+                        <i class="fas fa-eye" data-field="icon"></i>
                     </div>
-                    <h3>Our Vision</h3>
-                    <p id="aboutVisionContent" style="color: var(--gray);">To be the world's most trusted seafood partner, recognized for
+                    <h3 data-field="title">Our Vision</h3>
+                    <p id="aboutVisionContent" style="color: var(--gray);" data-field="content">To be the world's most trusted seafood partner, recognized for
                         exceptional quality, ethical practices, and positive impact on communities and environment.</p>
                 </div>
             </div>
@@ -100,33 +104,34 @@
     <!-- Values Section -->
     <section class="section features-section">
         <div class="container">
-            <div class="section-header fade-in">
-                <span class="section-subtitle" style="color: var(--seafoam);">Our Values</span>
-                <h2 style="color: white;">What Drives Us</h2>
+            <div class="section-header fade-in" data-section="about_values_header">
+                <span class="section-subtitle" style="color: var(--seafoam);" data-field="subtitle">Our Values</span>
+                <h2 style="color: white;" data-field="title">What Drives Us</h2>
             </div>
             <div class="grid grid-4 stagger-in">
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-gem"></i></div>
-                    <h3>Quality First</h3>
-                    <p>We never compromise on quality. Every product passes rigorous testing before reaching our
-                        customers.</p>
+                <div class="feature-item" data-section="about_value_1">
+                    <div class="feature-icon"><i class="fas fa-gem" data-field="icon"></i></div>
+                    <h3 data-field="title">Quality First</h3>
+                    <p data-field="content">We never compromise on quality. Every product passes rigorous testing
+                        before reaching our customers.</p>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-handshake"></i></div>
-                    <h3>Fair Partnerships</h3>
-                    <p>We believe in fair trade and work directly with local farmers to ensure they receive fair
-                        compensation.</p>
+                <div class="feature-item" data-section="about_value_2">
+                    <div class="feature-icon"><i class="fas fa-handshake" data-field="icon"></i></div>
+                    <h3 data-field="title">Fair Partnerships</h3>
+                    <p data-field="content">We believe in fair trade and work directly with local farmers to ensure
+                        they receive fair compensation.</p>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-leaf"></i></div>
-                    <h3>Sustainability</h3>
-                    <p>Environmental responsibility is at our core. We follow sustainable practices in all our
-                        operations.</p>
+                <div class="feature-item" data-section="about_value_3">
+                    <div class="feature-icon"><i class="fas fa-leaf" data-field="icon"></i></div>
+                    <h3 data-field="title">Sustainability</h3>
+                    <p data-field="content">Environmental responsibility is at our core. We follow sustainable
+                        practices in all our operations.</p>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon"><i class="fas fa-check-double"></i></div>
-                    <h3>Transparency</h3>
-                    <p>We maintain complete transparency in our supply chain, from farm to your table.</p>
+                <div class="feature-item" data-section="about_value_4">
+                    <div class="feature-icon"><i class="fas fa-check-double" data-field="icon"></i></div>
+                    <h3 data-field="title">Transparency</h3>
+                    <p data-field="content">We maintain complete transparency in our supply chain, from farm to your
+                        table.</p>
                 </div>
             </div>
         </div>
@@ -135,39 +140,39 @@
     <!-- Certifications -->
     <section class="section" style="background: var(--pearl-cream);">
         <div class="container">
-            <div class="section-header fade-in">
-                <span class="section-subtitle">Certifications</span>
-                <h2>Quality You Can Trust</h2>
-                <p>Our facilities and products are certified by leading international bodies.</p>
+            <div class="section-header fade-in" data-section="about_certifications_header">
+                <span class="section-subtitle" data-field="subtitle">Certifications</span>
+                <h2 data-field="title">Quality You Can Trust</h2>
+                <p data-field="content">Our facilities and products are certified by leading international bodies.</p>
             </div>
             <div style="display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;" class="stagger-in">
-                <div style="text-align: center; padding: 2rem;">
+                <div style="text-align: center; padding: 2rem;" data-section="about_cert_1">
                     <div
                         style="width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: var(--shadow-md);">
-                        <span style="font-weight: 700; color: var(--deep-ocean);">HACCP</span>
+                        <span style="font-weight: 700; color: var(--deep-ocean);" data-field="title">HACCP</span>
                     </div>
-                    <p style="font-weight: 600;">HACCP Certified</p>
+                    <p style="font-weight: 600;" data-field="content">HACCP Certified</p>
                 </div>
-                <div style="text-align: center; padding: 2rem;">
+                <div style="text-align: center; padding: 2rem;" data-section="about_cert_2">
                     <div
                         style="width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: var(--shadow-md);">
-                        <span style="font-weight: 700; color: var(--deep-ocean);">BAP</span>
+                        <span style="font-weight: 700; color: var(--deep-ocean);" data-field="title">BAP</span>
                     </div>
-                    <p style="font-weight: 600;">BAP Certified</p>
+                    <p style="font-weight: 600;" data-field="content">BAP Certified</p>
                 </div>
-                <div style="text-align: center; padding: 2rem;">
+                <div style="text-align: center; padding: 2rem;" data-section="about_cert_3">
                     <div
                         style="width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: var(--shadow-md);">
-                        <span style="font-weight: 700; color: var(--deep-ocean);">EU</span>
+                        <span style="font-weight: 700; color: var(--deep-ocean);" data-field="title">EU</span>
                     </div>
-                    <p style="font-weight: 600;">EU Approved</p>
+                    <p style="font-weight: 600;" data-field="content">EU Approved</p>
                 </div>
-                <div style="text-align: center; padding: 2rem;">
+                <div style="text-align: center; padding: 2rem;" data-section="about_cert_4">
                     <div
                         style="width: 100px; height: 100px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; box-shadow: var(--shadow-md);">
-                        <span style="font-weight: 700; color: var(--deep-ocean);">ISO</span>
+                        <span style="font-weight: 700; color: var(--deep-ocean);" data-field="title">ISO</span>
                     </div>
-                    <p style="font-weight: 600;">ISO 22000</p>
+                    <p style="font-weight: 600;" data-field="content">ISO 22000</p>
                 </div>
             </div>
         </div>
@@ -175,68 +180,19 @@
 
     <!-- CTA -->
     <section class="section" style="background: var(--gradient-ocean); color: white; text-align: center;">
-        <div class="container fade-in">
-            <h2 style="color: white;">Ready to Partner With Us?</h2>
-            <p style="max-width: 600px; margin: 1rem auto 2rem; opacity: 0.9;">Contact us to learn more about our
-                products and how we can serve your seafood needs.</p>
-            <a href="/contact.html" class="btn btn-primary">Get In Touch</a>
+        <div class="container fade-in" data-section="about_cta">
+            <h2 style="color: white;" data-field="title">Ready to Partner With Us?</h2>
+            <p style="max-width: 600px; margin: 1rem auto 2rem; opacity: 0.9;" data-field="content">Contact us to learn
+                more about our products and how we can serve your seafood needs.</p>
+            <a href="/contact.html" class="btn btn-primary" data-field="button">Get In Touch</a>
         </div>
     </section>
 
-    <!-- Footer -->`n  <div id="footerPlaceholder"></div>
+    <!-- Footer -->
+    <div id="footerPlaceholder"></div>
 
     <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
-    <script src="/js/main.js"></script>
-    <script>
-        // Helper function to preserve line breaks in content
-        function formatContent(text) {
-            if (!text) return '';
-            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-        }
-
-        document.addEventListener('DOMContentLoaded', loadAboutContent);
-
-        async function loadAboutContent() {
-            try {
-                const response = await fetch('/api/sections');
-                const sections = await response.json();
-
-                console.log('Loaded sections for about page:', sections);
-
-                // Update About Story section
-                if (sections.about_story) {
-                    const storyTitle = document.getElementById('aboutStoryTitle');
-                    const storyContent = document.getElementById('aboutStoryContent');
-                    
-                    if (storyTitle && sections.about_story.title) {
-                        storyTitle.textContent = sections.about_story.title;
-                    }
-                    if (storyContent && sections.about_story.content) {
-                        storyContent.innerHTML = '<p>' + formatContent(sections.about_story.content) + '</p>';
-                    }
-                }
-
-                // Update Mission
-                if (sections.about_mission) {
-                    const missionContent = document.getElementById('aboutMissionContent');
-                    if (missionContent && sections.about_mission.content) {
-                        missionContent.innerHTML = formatContent(sections.about_mission.content);
-                    }
-                }
-
-                // Update Vision
-                if (sections.about_vision) {
-                    const visionContent = document.getElementById('aboutVisionContent');
-                    if (visionContent && sections.about_vision.content) {
-                        visionContent.innerHTML = formatContent(sections.about_vision.content);
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading about content:', error);
-                console.log('Using default about content');
-            }
-        }
-    </script>
+    <script src="/js/main.js?v=5"></script>
 </body>
 
 </html>

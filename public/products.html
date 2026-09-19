@@ -13,8 +13,12 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
     <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Wave intro animation (must load in <head>, before first paint) -->
+  <link rel="stylesheet" href="/css/intro.css?v=5">
+  <script src="/js/intro.js?v=5"></script>
 </head>
 
 <body>
@@ -41,10 +45,10 @@
     </nav>
 
     <!-- Page Header -->
-    <header class="page-header">
+    <header class="page-header" data-section="page_header_products">
         <div class="container">
-            <h1>Our Products</h1>
-            <p>Premium quality prawns and seafood, sourced responsibly from Bangladesh's finest farms and waters.</p>
+            <h1 data-field="title">Our Products</h1>
+            <p data-field="content">Premium quality prawns and seafood, sourced responsibly from Bangladesh's finest farms and waters.</p>
             <nav class="breadcrumb">
                 <a href="/">Home</a> <span>/</span> <span>Products</span>
             </nav>
@@ -70,25 +74,21 @@
     <!-- CTA Section -->
     <section class="section" style="background: var(--gradient-ocean); color: white; text-align: center;">
         <div class="container fade-in">
-            <h2 style="color: white;">Interested in Our Products?</h2>
+            <h2 style="color: white;" data-section="products_cta" data-field="title">Interested in Our
+                Products?</h2>
             <p style="max-width: 600px; margin: 1rem auto 2rem; opacity: 0.9;">Contact us for pricing, availability, and
                 custom orders. We ship worldwide.</p>
             <a href="/contact.html" class="btn btn-primary">Request a Quote</a>
         </div>
     </section>
 
-    <!-- Footer -->`n  <div id="footerPlaceholder"></div>
+    <!-- Footer -->
+    <div id="footerPlaceholder"></div>
 
     <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
 
-    <script src="/js/main.js"></script>
+    <script src="/js/main.js?v=5"></script>
     <script>
-        // Helper function to preserve line breaks in content
-        function formatContent(text) {
-            if (!text) return '';
-            return text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-        }
-
         // Products page specific JS
         let allProducts = [];
 
@@ -136,7 +136,7 @@
                 { name: 'Black Tiger Shrimp', image: 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=400&h=300&fit=crop', desc: 'Premium quality Black Tiger from Bangladesh waters' },
                 { name: 'Freshwater King Prawn', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop', desc: 'Giant river prawns, naturally grown in freshwater' },
                 { name: 'Vannamei Shrimp', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Pacific white shrimp, versatile and delicious' },
-                { name: 'Cat Tiger Shrimp', image: 'https://images.unsplash.com/photo-1606731219412-16c08a5f3193?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique color and flavor' }
+                { name: 'Cat Tiger Shrimp', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=400&h=300&fit=crop', desc: 'Rainbow shrimp with unique color and flavor' }
             ];
             return defaults.map(p => `
         <a href="/products.html" class="card product-card fade-in visible" style="text-decoration: none; color: inherit; display: block;">

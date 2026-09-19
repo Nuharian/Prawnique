@@ -18,15 +18,36 @@
 
 ### Login Credentials:
 - **Username:** `admin`
-- **Password:** `admin123`
+- **Password:** the value of the `ADMIN_PASSWORD` environment variable
 
-⚠️ **IMPORTANT SECURITY NOTE:** 
-Please change the default admin password immediately after first login!
+⚠️ **Never commit the real password to this repository — it is public.**
 
-To change the password:
-1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables
-2. Add/Update: `ADMIN_PASSWORD=your_new_secure_password`
-3. Redeploy the application
+### Required environment variables
+
+Set these in Vercel Dashboard → Project → Settings → Environment Variables:
+
+| Variable | Why it matters |
+| --- | --- |
+| `SESSION_SECRET` | Signs the admin auth cookie. Without a strong value, admin sessions can be forged. Generate with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. |
+| `ADMIN_PASSWORD` | Password for the seeded `admin` account. |
+| `POSTGRES_URL` | Vercel Postgres connection string. Without it the app falls back to SQLite in `/tmp`, which is wiped on every deploy. |
+| `CLOUDINARY_*` | Image uploads. Without these, uploads go to local disk and disappear on redeploy. |
+| `ADMIN_RESET_TOKEN` | Optional. Enables the password-reset endpoint below. Leave unset to keep it disabled. |
+
+### Changing the admin password
+
+`ADMIN_PASSWORD` is only applied when the `admin` account is first created, so
+changing it later does **not** update an existing account. To change an existing
+password:
+
+1. Set `ADMIN_RESET_TOKEN` to a long random value and redeploy.
+2. Call the reset endpoint:
+   ```bash
+   curl -X POST https://prawnique.vercel.app/api/admin/reset-password \
+     -H 'Content-Type: application/json' \
+     -d '{"token":"<ADMIN_RESET_TOKEN>","password":"<new password, 10+ chars>"}'
+   ```
+3. Remove `ADMIN_RESET_TOKEN` and redeploy so the endpoint returns 404 again.
 
 ---
 
